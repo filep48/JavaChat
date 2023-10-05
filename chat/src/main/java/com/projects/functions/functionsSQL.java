@@ -20,12 +20,12 @@ public class functionsSQL {
             System.out.println("Listado de usuarios creados");
             System.out.println();
             // codi SQL
-            String strSql = "SELECT nombre_usuario FROM usuarios";
+            String strSql = "SELECT nombre_usuario,contrasena FROM usuarios";
 
             // resultats de la consulta
             ResultSet rs = st.executeQuery(strSql);
             while (rs.next()) {
-                System.out.println(rs.getString("nombre_usuario") + " " + rs.getString(2));
+                System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
             }
 
             rs.close();
