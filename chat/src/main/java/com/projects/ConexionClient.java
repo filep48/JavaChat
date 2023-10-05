@@ -11,18 +11,18 @@ public class ConexionClient {
         System.out.println("Iniciando cliente");
         Socket clienteSocket = new Socket("localhost", 8100); // Conectar a localhost en el puerto 8100
 
-        InputStream entrada = clienteSocket.getInputStream();
-        OutputStream salida = clienteSocket.getOutputStream();
+        InputStream entrance = clienteSocket.getInputStream();
+        OutputStream exit = clienteSocket.getOutputStream();
 
         byte datoAEnviar = 3;
 
-        salida.write(datoAEnviar);
+        exit.write(datoAEnviar);
 
         System.out.println("Enviado: " + datoAEnviar);
 
         // Leer la respuesta del servidor
         byte[] buffer = new byte[1024];
-        int bytesRecibidos = entrada.read(buffer);
+        int bytesRecibidos = entrance.read(buffer);
         String mensajeRespuesta = new String(buffer, 0, bytesRecibidos);
 
         clienteSocket.close(); // Cerrar la conexión con el servidor

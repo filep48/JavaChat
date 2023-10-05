@@ -14,16 +14,16 @@ public class ConexionServer {
         ServerSocket servidorSocket = new ServerSocket(8100); // Escuchará en el puerto 8100
         Socket clienteSocket = servidorSocket.accept(); // Acepta una conexión
 
-        InputStream entrada = clienteSocket.getInputStream();
-        OutputStream salida = clienteSocket.getOutputStream();
+        InputStream entrance = clienteSocket.getInputStream();
+        OutputStream exit = clienteSocket.getOutputStream();
 
-        byte datoLeido = (byte) entrada.read();
+        byte datoLeido = (byte) entrance.read();
 
         System.out.println("Dato leído: " + datoLeido);
 
         // Enviamos una respuesta al cliente junto con la cantidad de bytes recibidos
-        String mensajeRespuesta = "Conexión exitosa. Bytes recibidos: " + 1;
-        salida.write(mensajeRespuesta.getBytes());
+        String messageResponse = "Conexión exitosa. Bytes recibidos: " + 1;
+        exit.write(messageResponse.getBytes());
 
         clienteSocket.close(); // Cerramos la conexión con el cliente
         servidorSocket.close(); // Cerramos el servidor
