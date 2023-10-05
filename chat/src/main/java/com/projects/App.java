@@ -26,7 +26,7 @@ public class App {
         try {
             // Llama a la función IniciarSession desde DatabaseManager
             st = functionsSQL.IniciarSession(cn, st);
-            
+            functionsSQL.llistarUsuariosCreados(st);
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
         } finally {
