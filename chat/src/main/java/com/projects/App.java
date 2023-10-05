@@ -1,7 +1,16 @@
 package com.projects;
 
+import com.projects.functions.functionsSQL;
 import java.io.IOException;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.sql.Connection;
+import java.sql.Statement;
 import com.projects.functions.ConexionServer;
 
 /**
@@ -10,11 +19,28 @@ import com.projects.functions.ConexionServer;
  * connections.
  */
 public class App {
-    /**
-     * The main method of the server application. It starts the `ConexionServer` to
-     * listen for incoming client connections.
-     */
-    public static void main(String[] args) throws IOException {
-        ConexionServer.startServer();
+    public static void main(String[] args) {
+        Connection cn = null;
+        Statement st = null;
+
+        try {
+            // Llama a la función IniciarSession desde DatabaseManager
+            st = functionsSQL.IniciarSession(cn, st);
+            
+        } catch (ClassNotFoundException | SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            // Asegúrate de cerrar la conexión y el Statement en el bloque finally
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 }
