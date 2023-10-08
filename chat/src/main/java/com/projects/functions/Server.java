@@ -9,8 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Server {
 
@@ -47,15 +45,17 @@ public class Server {
                 is = clientSocket.getInputStream();
                 os = clientSocket.getOutputStream();
 
+                String mensaje = FuncionesServer.leerMensaje(is);
                 for (int i = 0; i < 10; i++) {
                     byte leido = (byte) is.read();
-                    System.out.println("Leído " + clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " -> " + leido);
+                    System.out.println(
+                            "Leído " + clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " -> " + leido);
                 }
 
                 clientSocket.close(); // Cerramos la conexión con el cliente
 
             } catch (IOException ex) {
-                Logger.getLogger(StartServer.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
         }
     }

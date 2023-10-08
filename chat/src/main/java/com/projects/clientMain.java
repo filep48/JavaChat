@@ -4,12 +4,6 @@
  * response received from the server.
  */
 package com.projects;
-
-import java.io.*;
-import java.net.*;
-import java.sql.*;
-import java.util.StringTokenizer;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
