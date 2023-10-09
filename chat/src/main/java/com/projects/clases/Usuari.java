@@ -4,8 +4,9 @@ public class Usuari {
     private int id;
     private String nombreUsuario;
     private String contrasena;
+    private boolean isConectado;
     private int grupoId;
-
+    
     //Contructor InicioSession  
     public Usuari(int id, String nombreUsuario, String contrasena) {
         this.id = id;
@@ -14,13 +15,13 @@ public class Usuari {
     }
 
     //Contructor completo
-    public Usuari(int id, String nombreUsuario, String contrasena, int grupoId) {
+    public Usuari(int id, String nombreUsuario, String contrasena, boolean isConectado, int grupoId) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.contrasena = contrasena;
+        this.isConectado = isConectado;
         this.grupoId = grupoId;
     }
-
     
     public int getId() {
         return id;
@@ -40,11 +41,19 @@ public class Usuari {
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
+    public boolean isConectado() {
+        return isConectado;
+    }
+
+    public void setConectado(boolean conectado) {
+        this.isConectado = conectado;
+    }
     public int getGrupoId() {
         return grupoId;
     }
     public void setGrupoId(int grupoId) {
         this.grupoId = grupoId;
     }
+
     
 }
