@@ -24,7 +24,8 @@ public class App {
         try {
             cn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
             // TODO EL CODIGO AQUI
-            functionsSQL.llistarUsuariosCreados(cn);
+            functionsSQL.llistarGruposCreados(cn);
+            //functionsSQL.llistarUsuariosCreados(cn);
             functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
             pst = functionsSQL.IniciarSession(cn);
             // functionsSQL.llistarUsuariosCreados(pst);
