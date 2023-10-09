@@ -5,12 +5,17 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import com.projects.clases.Usuario;
+import com.projects.functions.FuncionesServer;
 
 public class functionsSQL {
 
     public static PreparedStatement IniciarSession(Connection cn) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
+        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "troll");
 
         // Utiliza PreparedStatement en lugar de Statement
         String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
@@ -68,6 +73,51 @@ public class functionsSQL {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    /**
+     * Función que recoge datos por teclado del usuario y la envia a función q
+     * valida la regex,
+     */
+    public static Usuario datosUsuario() {
+        while (true) {
+            String nombreUsuario = JOptionPane.showInputDialog(null, "Introduce tu nombre de usuario");
+            String contrasenaUsuario = JOptionPane.showInputDialog(null, "Introduce tu contraseña");
+    
+            if (nombreUsuario != null && !nombreUsuario.isEmpty() && contrasenaUsuario != null && !contrasenaUsuario.isEmpty()) {
+                try {
+                    FuncionesServer.validarContrasena(contrasenaUsuario);
+                    return new Usuario(nombreUsuario, contrasenaUsuario);
+                } catch (FuncionesServer.ContrasenaInvalidaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Por favor, ingresa un nombre de usuario y contraseña válidos.");
+            }
+        }
+    }
+    /**Función que comprueba en bbbdd si existe o no y devuelve un booleano */
+    public static void consultaBbddUsuarioExiste(Usuario datos,Connection cn ) {
+        try {
+            String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            
+            ResultSet rs = pst.executeQuery();
+            boolean usuarioExiste = false;
+            while (rs.next() && !usuarioExiste) {
+                System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
+                if (rs.getString("nombre_usuario").equals(datos.getNombreUsuarioo()) && rs.getString("contrasena").equals(datos.getContrasena())){
+                    System.out.println("Usuario existe");
+                    usuarioExiste = true;
+                }
+        }
+        if (usuarioExiste == false){
+            System.out.println("Usuario o contraseña no existen");
+        }
+        
+        } catch (SQLException ex) {
+            Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

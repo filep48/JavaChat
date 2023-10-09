@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import com.projects.clases.Usuario;
+import com.projects.functions.FuncionesServer;
 import com.projects.functions.functionsSQL;
 
 /**
@@ -13,22 +15,20 @@ import com.projects.functions.functionsSQL;
  * connections.
  */
 public class App {
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3307/chatpro";
-    private static final String JDBC_USER = "root";
-    private static final String JDBC_PASSWORD = "Naydler007";
-
     public static void main(String[] args) throws IOException {
         Connection cn = null;
         PreparedStatement pst = null;
 
         try {
-            cn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-            // TODO EL CODIGO AQUI
+             cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
+            //TODO EL CODIGO AQUI
             functionsSQL.llistarUsuariosCreados(cn);
-            functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
+            functionsSQL.EnviarMensajesBBDD(cn,"HolaQuetal");
             pst = functionsSQL.IniciarSession(cn);
-            // functionsSQL.llistarUsuariosCreados(pst);
+            //functionsSQL.llistarUsuariosCreados(pst);
 
+    
+            
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
         } finally {
@@ -43,6 +43,7 @@ public class App {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
+        
         }
     }
 }
