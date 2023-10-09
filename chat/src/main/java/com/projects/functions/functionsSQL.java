@@ -18,13 +18,16 @@ public class functionsSQL {
         return pst;
     }
 
-    public static void llistarUsuariosCreados(PreparedStatement pst) {
+    public static void llistarUsuariosCreados(Connection cn) {
         try {
             System.out.println("Listado de usuarios creados");
             System.out.println();
-
+            String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
+
             while (rs.next()) {
                 System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
             }

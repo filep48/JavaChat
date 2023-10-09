@@ -22,6 +22,7 @@ public class App {
         try {
              cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
             //TODO EL CODIGO AQUI
+            functionsSQL.llistarUsuariosCreados(cn);
             functionsSQL.EnviarMensajesBBDD(cn,"HolaQuetal");
             pst = functionsSQL.IniciarSession(cn);
             //functionsSQL.llistarUsuariosCreados(pst);

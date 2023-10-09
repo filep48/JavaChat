@@ -9,10 +9,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import com.projects.clases.Usuario;
 
 public class Server {
 
     public static void main(String[] args) throws IOException {
+        //crea un hashmap de la clase usuario
+        HashMap<Integer, Usuario> usuarios = new HashMap<Integer, Usuario>();
+
+        //crea un usuario
+        //Usuario usuario = new Usuario("Naydler", "Naydler007");
+        
+        //Añadirlo al hash
+        //usuarios.put(usuario.getId(), usuario);
+
         System.out.println("Inicia servidor");
 
         ServerSocket serverSocket = new ServerSocket(8100); // Escuchará en el puerto 8100
