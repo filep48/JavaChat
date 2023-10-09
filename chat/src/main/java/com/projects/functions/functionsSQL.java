@@ -4,10 +4,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.projects.clases.Usuario;
 
 public class functionsSQL {
 
@@ -22,7 +18,7 @@ public class functionsSQL {
         return pst;
     }
 
-    public static HashMap<Integer, Usuario> llistarUsuariosCreados(Connection cn) {
+    public static void llistarUsuariosCreados(Connection cn) {
         try {
             System.out.println("Listado de usuarios creados");
             System.out.println();
@@ -37,7 +33,6 @@ public class functionsSQL {
             }
 
             System.out.println("---------");
-            return null;
 
         } catch (SQLException ex) {
             System.out.println("Error: " + ex.toString());
