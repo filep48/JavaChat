@@ -8,6 +8,7 @@ package com.projects.functions;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.Connection;
@@ -17,7 +18,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.StringTokenizer;
 
+
 public class FuncionesCliente implements Runnable {
+    public static final String EnviarMensajesServer = null;
     private final Socket clientSocket;
 
     public FuncionesCliente(Socket clientSocket) {
@@ -62,6 +65,13 @@ public class FuncionesCliente implements Runnable {
         }
     }
 
-    //Crear la funcion enviar un mensaje al servidor, le mensaje tiene que mandar el id del usuario y el mensaje
- 
+    public static void EnviarMensajesServer(OutputStream os,String mensaje, int id, String ip, String puerto) throws IOException{
+        byte[] b = mensaje.getBytes();
+
+        int longitud = b.length;
+
+        os.write(longitud); // funciona si es menos de 255 bytes
+        os.write(b);
+        System.out.println("Enviado " + mensaje + " (bytes: " + longitud);
+    }
 }

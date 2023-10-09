@@ -4,6 +4,7 @@
  * sends a response, and then closes the connection.
  */
 package com.projects.functions;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,14 +16,14 @@ import com.projects.clases.Usuario;
 public class Server {
 
     public static void main(String[] args) throws IOException {
-        //crea un hashmap de la clase usuario
+        // crea un hashmap de la clase usuario
         HashMap<Integer, Usuario> usuarios = new HashMap<Integer, Usuario>();
 
-        //crea un usuario
-        //Usuario usuario = new Usuario("Naydler", "Naydler007");
-        
-        //Añadirlo al hash
-        //usuarios.put(usuario.getId(), usuario);
+        // crea un usuario
+        // Usuario usuario = new Usuario("Naydler", "Naydler007");
+
+        // Añadirlo al hash
+        // usuarios.put(usuario.getId(), usuario);
 
         System.out.println("Inicia servidor");
 
@@ -62,6 +63,7 @@ public class Server {
                     System.out.println(
                             "Leído " + clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " -> " + leido);
                 }
+                System.out.println("Mensaje recibido: " + mensaje);
 
                 clientSocket.close(); // Cerramos la conexión con el cliente
 

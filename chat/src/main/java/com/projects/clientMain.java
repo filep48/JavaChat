@@ -4,12 +4,15 @@
  * response received from the server.
  */
 package com.projects;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.projects.functions.FuncionesCliente;
 
 public class clientMain {
 
@@ -22,18 +25,9 @@ public class clientMain {
         InputStream is = sk.getInputStream();
         OutputStream os = sk.getOutputStream();
 
-        byte pon = 1;
+        String mensaje = "Holasdfghjklsdfghjklsdfghjksdfghjk";
 
-        String s = "Hola";
-
-        byte[] b = s.getBytes();
-
-        int longitud = b.length;
-
-        os.write(longitud); // funciona si es menos de 255 bytes
-        os.write(b);
-
-        System.out.println("Enviado " + s + " (bytes: " + longitud);
+        //FuncionesCliente.EnviarMensajesServer(os, mensaje);
 
         sk.close(); // tanquem la connexió
     }
