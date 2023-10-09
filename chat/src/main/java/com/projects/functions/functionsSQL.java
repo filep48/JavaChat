@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+
+import com.projects.clases.Usuario;
 import com.projects.functions.FuncionesServer;
 
 
@@ -61,7 +63,7 @@ public class functionsSQL {
      * Función que recoge datos por teclado del usuario y la envia a función q
      * valida la regex,
      */
-    public static String[] datosUsuario() {
+    public static Usuario datosUsuario() {
         while (true) {
             String nombreUsuario = JOptionPane.showInputDialog(null, "Introduce tu nombre de usuario");
             String contrasenaUsuario = JOptionPane.showInputDialog(null, "Introduce tu contraseña");
@@ -69,7 +71,7 @@ public class functionsSQL {
             if (nombreUsuario != null && !nombreUsuario.isEmpty() && contrasenaUsuario != null && !contrasenaUsuario.isEmpty()) {
                 try {
                     FuncionesServer.validarContrasena(contrasenaUsuario);
-                    return new String[]{nombreUsuario, contrasenaUsuario};
+                    return new Usuario(nombreUsuario, contrasenaUsuario);
                 } catch (FuncionesServer.ContrasenaInvalidaException ex) {
                     JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
                 }

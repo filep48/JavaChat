@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.projects.clases.Usuario;
+
 public class FuncionesServer {
     static String leerMensaje(InputStream is) throws IOException {
         StringBuilder mensaje = new StringBuilder();
@@ -61,8 +63,9 @@ public class FuncionesServer {
             super(mensaje);
         }
     }
+
     /**Función que comprueba en bbbdd si existe o no y devuelve un booleano */
-    public static void consultaBbddUsuarioExiste(String[]nombre_usuario,String[] contrasena,Connection cn ) {
+    public static void consultaBbddUsuarioExiste(Usuario datos,Connection cn ) {
         try {
             String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
             PreparedStatement pst = cn.prepareStatement(strSql);
@@ -71,14 +74,13 @@ public class FuncionesServer {
             boolean usuarioExiste = false;
             while (rs.next() && !usuarioExiste) {
                 System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
-                if(rs.getString("nombre_usuario").equals(nombre_usuario) && rs.getString("contrasena").equals(contrasena)){
+                if (rs.getString("nombre_usuario").equals(datos.getNombreUsuarioo()) && rs.getString("contrasena").equals(datos.getContrasena())){
                     System.out.println("Usuario existe");
-                    
                     usuarioExiste = true;
-            }
+                }
         }
         if (usuarioExiste == false){
-            System.out.println("Usuario o contraseña no existe");
+            System.out.println("Usuario o contraseña no existen");
         }
         
         } catch (SQLException ex) {
@@ -87,24 +89,5 @@ public class FuncionesServer {
     }
 }
 
-public static void llistarUsuariosCreados(Connection cn) {
-        try {
-            System.out.println("Listado de usuarios creados");
-            System.out.println();
-            String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            
-            // Resultados de la consulta
-            ResultSet rs = pst.executeQuery();
 
-            while (rs.next()) {
-                System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
-            }
-
-            System.out.println("---------");
-
-        } catch (SQLException ex) {
-            System.out.println("Error: " + ex.toString());
-        }
-    }
 

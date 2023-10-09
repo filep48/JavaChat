@@ -5,6 +5,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import com.projects.clases.Usuario;
+import com.projects.functions.FuncionesServer;
 import com.projects.functions.functionsSQL;
 
 /**
@@ -24,10 +27,11 @@ public class App {
             cn = DriverManager.getConnection(JDBC_URL_STRING,JDBC_URL_USER,JDBC_URL_PASSWORD);
             // TODO EL CODIGO AQUI
             functionsSQL.llistarUsuariosCreados(cn);
-            functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
+            functionsSQL.EnviarMensajesBBDD(cn, "HolnQuetal");
             pst = functionsSQL.IniciarSession(cn);
-            functionsSQL.datosUsuario();
-            functionsSQL.llistarUsuariosCreados(cn);
+            Usuario datos = functionsSQL.datosUsuario();
+            FuncionesServer.consultaBbddUsuarioExiste(datos, cn);
+            //functionsSQL.llistarUsuariosCreados(cn);
 
 
         } catch (ClassNotFoundException | SQLException ex) {
