@@ -30,7 +30,7 @@ public class App {
             functionsSQL.EnviarMensajesBBDD(cn, "HolnQuetal");
             pst = functionsSQL.IniciarSession(cn);
             Usuario datos = functionsSQL.datosUsuario();
-            FuncionesServer.consultaBbddUsuarioExiste(datos, cn);
+            functionsSQL.consultaBbddUsuarioExiste(datos, cn);
             //functionsSQL.llistarUsuariosCreados(cn);
 
 
