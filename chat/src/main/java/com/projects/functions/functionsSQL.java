@@ -1,4 +1,5 @@
 package com.projects.functions;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,16 +25,33 @@ public class functionsSQL {
             System.out.println();
             String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
             PreparedStatement pst = cn.prepareStatement(strSql);
-            
+
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
                 System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
             }
-
             System.out.println("---------");
+        } catch (SQLException ex) {
+            System.out.println("Error: " + ex.toString());
+        }
+    }
 
+    public static void llistarGruposCreados(Connection cn) {
+        try {
+            System.out.println("Listado de usuarios creados");
+            System.out.println();
+            String strSql = "SELECT id, nombre_grupo FROM grupos";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+
+            // Resultados de la consulta
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                System.out.println(rs.getString("id") + " " + rs.getString("nombre_grupo"));
+            }
+            System.out.println("---------");
         } catch (SQLException ex) {
             System.out.println("Error: " + ex.toString());
         }
