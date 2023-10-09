@@ -4,6 +4,10 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.projects.clases.Usuario;
 
 public class functionsSQL {
 
@@ -18,18 +22,22 @@ public class functionsSQL {
         return pst;
     }
 
-    public static void llistarUsuariosCreados(PreparedStatement pst) {
+    public static HashMap<Integer, Usuario> llistarUsuariosCreados(Connection cn) {
         try {
             System.out.println("Listado de usuarios creados");
             System.out.println();
-
+            String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
+
             while (rs.next()) {
                 System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
             }
 
             System.out.println("---------");
+            return null;
 
         } catch (SQLException ex) {
             System.out.println("Error: " + ex.toString());
