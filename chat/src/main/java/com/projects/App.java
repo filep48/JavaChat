@@ -19,6 +19,7 @@ public class App {
 
         try {
             cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
+            functionsSQL.EliminacionGruposBBDD(cn);
             functionsSQL.creacionGruposBBDD(cn);
             functionsSQL.llistarGruposCreados(cn);
             functionsSQL.llistarUsuariosCreados(cn);

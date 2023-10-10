@@ -130,6 +130,16 @@ public class functionsSQL {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+    }
+    public static void EliminacionGruposBBDD(Connection cn){
+        try {
+            String strSql = "delete from grupos where id = ?";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            String idGrupo = JOptionPane.showInputDialog(null, "Introduce el id del grupo");
+            pst.setString(1, idGrupo);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
