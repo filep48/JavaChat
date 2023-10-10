@@ -9,8 +9,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import com.projects.clases.Usuario;
-import com.projects.functions.FuncionesServer;
-
 
 public class functionsSQL {
 
@@ -122,8 +120,16 @@ public class functionsSQL {
         }
     }
     // ********************************************* 
-    public static void darAlta(){
-        
-    }
+    public static void creacionGruposBBDD(Connection cn){
+        try {
+            String strSql = "insert into grupos (nombre_grupo) values (?)";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            String nombreGrupo = JOptionPane.showInputDialog(null, "Introduce el nombre del grupo");
+            pst.setString(1, nombreGrupo);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+    }
 }

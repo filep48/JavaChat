@@ -5,8 +5,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import com.projects.clases.Usuario;
-import com.projects.functions.FuncionesServer;
 import com.projects.functions.functionsSQL;
 
 /**
@@ -21,7 +19,8 @@ public class App {
 
         try {
             cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
-            // TODO EL CODIGO AQUI
+            functionsSQL.creacionGruposBBDD(cn);
+            functionsSQL.llistarGruposCreados(cn);
             functionsSQL.llistarUsuariosCreados(cn);
             functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
             pst = functionsSQL.IniciarSession(cn);
