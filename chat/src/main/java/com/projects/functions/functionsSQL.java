@@ -11,11 +11,12 @@ import javax.swing.JOptionPane;
 import com.projects.clases.Usuario;
 import com.projects.functions.FuncionesServer;
 
+
 public class functionsSQL {
 
     public static PreparedStatement IniciarSession(Connection cn) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "troll");
+        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
 
         // Utiliza PreparedStatement en lugar de Statement
         String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
@@ -119,6 +120,10 @@ public class functionsSQL {
         } catch (SQLException ex) {
             Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    // ********************************************* 
+    public static void darAlta(){
+        
     }
 
 }

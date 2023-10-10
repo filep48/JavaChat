@@ -97,5 +97,4 @@ public class FuncionesCliente implements Runnable {
     }
 
     //Crear la funcion enviar un mensaje al servidor, le mensaje tiene que mandar el id del usuario y el mensaje
-
 }

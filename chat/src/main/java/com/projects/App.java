@@ -20,15 +20,13 @@ public class App {
         PreparedStatement pst = null;
 
         try {
-             cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
-            //TODO EL CODIGO AQUI
+            cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
+            // TODO EL CODIGO AQUI
             functionsSQL.llistarUsuariosCreados(cn);
-            functionsSQL.EnviarMensajesBBDD(cn,"HolaQuetal");
+            functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
             pst = functionsSQL.IniciarSession(cn);
-            //functionsSQL.llistarUsuariosCreados(pst);
+            // functionsSQL.llistarUsuariosCreados(pst);
 
-    
-            
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
         } finally {
@@ -43,7 +41,6 @@ public class App {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-        
         }
     }
 }
