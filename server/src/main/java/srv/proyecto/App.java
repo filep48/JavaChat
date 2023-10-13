@@ -2,18 +2,14 @@ package srv.proyecto;
 
 import java.io.*;
 import java.net.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+
 import srv.proyecto.functions.functionsSQL;
 import srv.proyecto.clases.DatabaseConnection;
+import srv.proyecto.clases.Usuario;
 
 public class App {
-    private static final String DB_URL = "jdbc:mysql://localhost:3307/chatpro";
-    private static final String USER = "root";
-    private static final String PASS = "1234";
-
     public static void main(String[] args) {
+        //SERVER
         int port = 12345;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -41,36 +37,35 @@ public class App {
 
         @Override
         public void run() {
+            System.out.println("Ejecutando hilo del cliente...");
             try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
                  DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
 
                 while (true) {
                     String inputLine = reader.readUTF();
-                    String response = processInput(inputLine);
+                    System.out.println("Recibido del cliente: " + inputLine);
+                    //String response = processInput(inputLine);
+                    String response = inputLine;
+                    processInput(inputLine, writer, reader);
                     writer.writeUTF(response);
                 }
-            } catch (IOException | SQLException e) {
+            } catch (IOException e) {
                 System.out.println("Error con el cliente: " + clientSocket.getInetAddress() + ". Error: " + e.getMessage());
             }
         }
-// añado un try catch 
-        private String processInput(String input) {
+
+        private void processInput(String input, DataOutputStream writer, DataInputStream reader ) throws IOException {
+            System.out.println("Procesando entrada: " + input);
             try {
                 switch (input) {
                     case "Inicia sesion":
-                        return "Inicia sesion";
-                        functionsSQL.datosUsuario(cn);
-                    case "registrate":
-                        return "registrate";
-                    case "Salir":
-                        return "Salir";
-                    default:
-                        return "Comando no reconocido";
+                        functionsSQL.datosUsuario(DatabaseConnection.getConnection(), reader);
+                        break;  
                 }
             } catch (Exception e) {
-                // TODO: handle exception
+                System.out.println("Error al procesar entrada: " + e.getMessage());
+                e.printStackTrace();
             }
-
         }
     }
 }

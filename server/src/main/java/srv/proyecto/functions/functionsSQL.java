@@ -1,5 +1,7 @@
 package srv.proyecto.functions;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,12 +10,13 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+
+import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
 public class functionsSQL {
 
     public static PreparedStatement IniciarSession(Connection cn) throws ClassNotFoundException, SQLException {
-       
 
         // Utiliza PreparedStatement en lugar de Statement
         String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
@@ -41,7 +44,7 @@ public class functionsSQL {
         }
     }
 
-    public static void llistarGruposCreados(Connection cn) {
+    public static String llistarGruposCreados(Connection cn) {
         try {
             System.out.println("Listado de usuarios creados");
             System.out.println();
@@ -50,13 +53,13 @@ public class functionsSQL {
 
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
-
+            String resultado = "";
             while (rs.next()) {
-                System.out.println(rs.getString("id") + " " + rs.getString("nombre_grupo"));
+                resultado += rs.getString("id") + " " + rs.getString("nombre_grupo") + "\n";
             }
-            System.out.println("---------");
+            return resultado;
         } catch (SQLException ex) {
-            System.out.println("Error: " + ex.toString());
+            return "Error: " + ex.toString();
         }
     }
 
@@ -151,16 +154,17 @@ public class functionsSQL {
     /**
      * Función que recoge datos por teclado del usuario y la envia a función q
      * valida la regex,
+     * 
+     * @throws IOException
      */
 
     // ----------------cambios---------
     // 1. se añade una comprobacion de si el usuario existe o no para manejar una
     // excepcion de sql, ya q el nombre es PKunique.
-    public static Usuario datosUsuario(Connection cn) {
+    public static Usuario datosUsuario(Connection cn, DataInputStream reader) throws IOException {
         while (true) {
-            String nombreUsuario = JOptionPane.showInputDialog(null, "Introduce tu nombre de usuario");
-            String contrasenaUsuario = JOptionPane.showInputDialog(null, "Introduce tu contraseña");
-
+            String nombreUsuario = reader.readUTF();
+            String contrasenaUsuario = reader.readUTF();
             if (nombreUsuario != null && !nombreUsuario.isEmpty() && contrasenaUsuario != null
                     && !contrasenaUsuario.isEmpty()) {
                 try {
@@ -216,13 +220,14 @@ public class functionsSQL {
      * devuelve true o false
      */
 
-    public static void login(Usuario datos, Connection cn) {
+    public static String login(Usuario datos, Connection cn) {
         if (usuarioExiste(datos, cn)) {
-            System.out.println("LLAMAR AQUI A MENU PARA ENTRAR AL PROGRAMA");
+            String respuesta = ("LLAMAR AQUI A MENU PARA ENTRAR AL PROGRAMA");
             JOptionPane.showMessageDialog(null, "Usuario existe");
+            return respuesta;
         } else {
-            JOptionPane.showMessageDialog(null, "Usuario o contraseña no existen");
-            darAltaUsuario(datos, cn);
+            String respuestaNegativa = ("Usuario o contraseña no existen");
+            return respuestaNegativa;
         }
     }
 
@@ -277,6 +282,12 @@ public class functionsSQL {
         public ContrasenaInvalidaException(String mensaje) {
             super(mensaje);
         }
+    }
+
+    public static void validacionUsuariosInicioSesion(Connection connection, DataInputStream reader) throws IOException {
+        Usuario datos = datosUsuario(connection , reader);
+        usuarioExiste(datos, connection);
+        login(datos, connection);
     }
 
 }

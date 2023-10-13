@@ -38,8 +38,11 @@ public class App {
                 }
 
                 writer.writeUTF(message);
-                String serverResponse = reader.readUTF();
-                System.out.println("Mensaje del servidor: " + serverResponse);
+                String response = reader.readUTF();
+                System.out.println(response);
+                    writer.writeUTF(userInput.readLine());
+                    writer.writeUTF(userInput.readLine());
+            
             }
 
         } catch (UnknownHostException e) {
