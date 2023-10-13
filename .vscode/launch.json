@@ -6,31 +6,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "App",
+            "name": "Server$StartServer",
             "request": "launch",
-            "mainClass": "srv.proyecto.App",
-            "projectName": "server"
-        },
-        {
-            "type": "java",
-            "name": "App",
-            "request": "launch",
-            "mainClass": "ABP.Proyecto1.ProyectoChat.projectchat.server.src.main.java.srv.proyecto.App",
-            "projectName": "Pruebas_56dbea"
-        },
-        {
-            "type": "java",
-            "name": "App",
-            "request": "launch",
-            "mainClass": "ABP.Proyecto1.ProyectoChat.projectchat.server.src.main.java.com.srv.App",
-            "projectName": "Pruebas_56dbea"
-        },
-        {
-            "type": "java",
-            "name": "App",
-            "request": "launch",
-            "mainClass": "ABP.Proyecto1.ProyectoChat.projectchat.server.src.main.java.com.projects.App",
-            "projectName": "Pruebas_56dbea"
+            "mainClass": "com.projects.functions.Server$StartServer",
+            "projectName": "chat"
         },
         {
             "type": "java",

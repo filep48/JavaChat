@@ -9,14 +9,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import com.projects.clases.Usuario;
-import com.projects.functions.FuncionesServer;
-
 
 public class functionsSQL {
 
     public static PreparedStatement IniciarSession(Connection cn) throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
+        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "1234");
 
         // Utiliza PreparedStatement en lugar de Statement
         String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
@@ -122,8 +120,26 @@ public class functionsSQL {
         }
     }
     // ********************************************* 
-    public static void darAlta(){
-        
+    public static void creacionGruposBBDD(Connection cn){
+        try {
+            String strSql = "insert into grupos (nombre_grupo) values (?)";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            String nombreGrupo = JOptionPane.showInputDialog(null, "Introduce el nombre del grupo");
+            pst.setString(1, nombreGrupo);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
+    public static void EliminacionGruposBBDD(Connection cn){
+        try {
+            String strSql = "delete from grupos where id = ?";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            String idGrupo = JOptionPane.showInputDialog(null, "Introduce el id del grupo");
+            pst.setString(1, idGrupo);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

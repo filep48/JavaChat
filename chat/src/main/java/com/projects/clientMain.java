@@ -4,6 +4,7 @@
  * response received from the server.
  */
 package com.projects;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,35 +15,42 @@ import java.util.logging.Logger;
 public class clientMain {
 
     public static void main(String[] args) throws IOException {
-
         System.out.println("Inicia cliente");
 
-        Socket sk = new Socket("localhost", 8100); // accepta una conexión
+        Socket sk = new Socket("localhost", 8100); // Conectar al servidor
 
         InputStream is = sk.getInputStream();
         OutputStream os = sk.getOutputStream();
 
-        byte pon = 1;
+        // Envía el nombre de usuario y contraseña al servidor
+        String usuario = "nombre_de_usuario";
+        String contrasena = "contrasena_secreta";
 
-        String s = "Hola";
+        // Construye un mensaje que incluye el nombre de usuario y la contraseña
+        String mensaje = usuario + ":" + contrasena;
 
-        byte[] b = s.getBytes();
+        // Convierte el mensaje en un array de bytes
+        byte[] mensajeBytes = mensaje.getBytes();
 
-        int longitud = b.length;
+        // Envía la longitud del mensaje
+        os.write(mensajeBytes.length);
 
-        os.write(longitud); // funciona si es menos de 255 bytes
-        os.write(b);
+        // Envía el mensaje
+        os.write(mensajeBytes);
 
-        System.out.println("Enviado " + s + " (bytes: " + longitud);
+        System.out.println("Enviado usuario y contraseña: " + usuario);
 
-        sk.close(); // tanquem la connexió
-    }
+        // Espera la respuesta del servidor
+        int respuestaLength = is.read(); // Lee la longitud de la respuesta
 
-    static void espera(int tiempo) {
-        try {
-            Thread.sleep(tiempo);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(clientMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        byte[] respuestaBytes = new byte[respuestaLength];
+
+        // Lee la respuesta del servidor
+        int bytesRead = is.read(respuestaBytes);
+
+        String respuesta = new String(respuestaBytes, 0, bytesRead);
+        System.out.println("Respuesta del servidor: " + respuesta);
+
+        sk.close(); // Cierra la conexión
     }
 }
