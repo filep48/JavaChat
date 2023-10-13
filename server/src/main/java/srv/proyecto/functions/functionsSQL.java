@@ -13,8 +13,7 @@ import srv.proyecto.clases.Usuario;
 public class functionsSQL {
 
     public static PreparedStatement IniciarSession(Connection cn) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "1234");
+       
 
         // Utiliza PreparedStatement en lugar de Statement
         String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
@@ -23,7 +22,7 @@ public class functionsSQL {
         return pst;
     }
 
-    public static void llistarUsuariosCreados(Connection cn) {
+    public static String llistarUsuariosCreados(Connection cn) {
         try {
             System.out.println("Listado de usuarios creados");
             System.out.println();
@@ -32,13 +31,13 @@ public class functionsSQL {
 
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
-
+            String resultado = "";
             while (rs.next()) {
-                System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
+                resultado += rs.getString("nombre_usuario") + " " + rs.getString("contrasena") + "\n";
             }
-            System.out.println("---------");
+            return resultado;
         } catch (SQLException ex) {
-            System.out.println("Error: " + ex.toString());
+            return "Error: " + ex.toString();
         }
     }
 
@@ -141,5 +140,9 @@ public class functionsSQL {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Connection ConexionBD() {
+        return null;
     }
 }
