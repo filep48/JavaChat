@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "srv.proyecto.App",
+            "projectName": "server"
+        },
+        {
+            "type": "java",
             "name": "Server$StartServer",
             "request": "launch",
             "mainClass": "com.projects.functions.Server$StartServer",
