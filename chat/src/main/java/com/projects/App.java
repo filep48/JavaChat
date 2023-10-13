@@ -9,9 +9,9 @@ public class App {
         int serverPort = 12345;
 
         try (Socket socket = new Socket(serverAddress, serverPort);
-             DataInputStream reader = new DataInputStream(socket.getInputStream());
-             DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in)) ) {
+                DataInputStream reader = new DataInputStream(socket.getInputStream());
+                DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+                BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in))) {
 
             System.out.println("Conectado al servidor en " + serverAddress + ":" + serverPort);
 
@@ -54,5 +54,19 @@ public class App {
         System.out.println("1. Iniciar sesión");
         System.out.println("2. Registrarse");
         System.out.println("3. Salir");
+    }
+
+    private static void menu2() {
+        System.out.println("Seleccione una opción:");
+        System.out.println("1. Escribir un mensaje");
+        //llistar grupo
+        //Selecciona un grupo
+        System.out.println("2. Crear un grupo");
+          //llistar grupo
+          //llamamos a crear un grupo
+        System.out.println("3.Eliminar un grupo");
+          //llistar grupo
+          //llamamos a eliminar un grupo
+        System.out.println("4. Salir");
     }
 }
