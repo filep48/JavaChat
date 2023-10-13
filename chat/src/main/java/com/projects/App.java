@@ -2,11 +2,12 @@ package com.projects;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class App {
-    //CLIENTE
+    // CLIENTE
     public static void main(String[] args) {
-        //CLIENTE
+        // CLIENTE
         String serverAddress = "localhost";
         int serverPort = 12345;
 
@@ -18,31 +19,13 @@ public class App {
             System.out.println("Conectado al servidor en " + serverAddress + ":" + serverPort);
 
             while (true) {
-                menu();
-                int option = Integer.parseInt(userInput.readLine());
-                String message;
-
-                switch (option) {
-                    case 1:
-                        message = "Inicia sesion";
-                        break;
-                    case 2:
-                        message = "registrate";
-                        break;
-                    case 3:
-                        message = "Salir";
-                        break;
-                    default:
-                        message = "Comando no reconocido";
-                        break;
-                }
+                int option = 0;
+                String message = "";
+                menuPrincipal(message, option, writer, reader);
 
                 writer.writeUTF(message);
-                String response = reader.readUTF();
-                System.out.println(response);
-                    writer.writeUTF(userInput.readLine());
-                    writer.writeUTF(userInput.readLine());
-            
+                String serverResponse = reader.readUTF();
+                System.out.println("Mensaje del servidor: " + serverResponse);
             }
 
         } catch (UnknownHostException e) {
@@ -54,24 +37,128 @@ public class App {
         }
     }
 
-    private static void menu() {
+    private static void menuPrincipal(String message, int option, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
+        Scanner scanner = new Scanner(System.in);
+
         System.out.println("Seleccione una opción:");
-        System.out.println("1. Iniciar sesión");
-        System.out.println("2. Registrarse");
-        System.out.println("3. Salir");
+        System.out.println("1. Registrarse (Sign up)."
+                + "\n2. Iniciar sesión (Sign in)."
+                + "\n3. Configuración del cliente."
+                + "\n4. Salir.");
+
+        option = scanner.nextInt();
+
+        switch (option) {
+            case 1:
+                message = "Registrarse";
+                // Aquí puedes agregar la lógica para registrarse
+                break;
+            case 2:
+                iniciarSesion(writer, reader);
+                break;
+            case 3:
+                // Configuración del cliente
+                break;
+            case 4:
+                System.exit(0);
+                break;
+            default:
+                message = "Comando no reconocido";
+                break;
+        }
     }
 
-    private static void menu2() {
+    private static void iniciarSesion(DataOutputStream writer, DataInputStream reader) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce tu nombre de usuario: ");
+        String username = scanner.next();
+        System.out.print("Introduce tu contraseña: ");
+        String password = new String(System.console().readPassword());
+        String message = "iniciarSesion;" + username + ";" + password;
+        writer.writeUTF(message);
+        boolean success = reader.readBoolean();
+        if (success) {
+            menuSesionIniciada(username);
+        } else {
+            System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
+        }
+    }
+
+    private static void menuSesionIniciada(String username) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Bienvenido " + username + "!");
         System.out.println("Seleccione una opción:");
-        System.out.println("1. Escribir un mensaje");
-        //llistar grupo
-        //Selecciona un grupo
-        System.out.println("2. Crear un grupo");
-          //llistar grupo
-          //llamamos a crear un grupo
-        System.out.println("3.Eliminar un grupo");
-          //llistar grupo
-          //llamamos a eliminar un grupo
-        System.out.println("4. Salir");
+        System.out.println("1. Llistar usuarios."
+                + "\n2. Llistar usuarios conectados."
+                + "\n3. Crear un grupo."
+                + "\n4. Eliminar un grupo."
+                + "\n5. Administrar un grupo."
+                + "\n6. Leer mensajes."
+                + "\n7. Llistar archivos."
+                + "\n8. Descargar archivo."
+                + "\n9. Cerrar sesión (Sign out).");
+
+        int option = scanner.nextInt(); // Aquí deberías obtener la opción del usuario, por ejemplo usando
+                                        // userInput.readLine();
+
+        switch (option) {
+            case 1:
+                // Lógica para listar usuarios
+                break;
+            case 2:
+                // Lógica para listar usuarios conectados
+                break;
+            case 3:
+                // Lógica para crear un grupo
+                break;
+            case 4:
+                // Lógica para eliminar un grupo
+                break;
+            case 5:
+                // Lógica para administrar un grupo
+                break;
+            case 6:
+                // Lógica para leer mensajes
+                break;
+            case 7:
+                // Lógica para listar archivos
+                break;
+            case 8:
+                // Lógica para descargar un archivo
+                break;
+            case 9:
+                // Lógica para cerrar sesión
+                break;
+            default:
+                System.out.println("Comando no reconocido");
+                break;
+        }
+    }
+
+    private static void menuGrupo() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Estás en un grupo. Selecciona una opción:");
+        System.out.println("1. Enviar un archivo al grupo."
+                + "\n2. Enviar un mensaje al grupo."
+                + "\n3. Salir del grupo.");
+
+        int option = scanner.nextInt();// Aquí deberías obtener la opción del usuario, por ejemplo usando
+                                       // userInput.readLine();
+
+        switch (option) {
+            case 1:
+                // Lógica para enviar un archivo al grupo
+                break;
+            case 2:
+                // Lógica para enviar un mensaje al grupo
+                break;
+            case 3:
+                // Lógica para salir del grupo
+                break;
+            default:
+                System.out.println("Comando no reconocido");
+                break;
+        }
     }
 }
