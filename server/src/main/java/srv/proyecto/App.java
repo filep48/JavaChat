@@ -53,20 +53,24 @@ public class App {
                 System.out.println("Error con el cliente: " + clientSocket.getInetAddress() + ". Error: " + e.getMessage());
             }
         }
-
-        private String processInput(String input) throws SQLException {
-            switch (input) {
-                case "Inicia sesion":
-                    return functionsSQL.llistarUsuariosCreados(DatabaseConnection.getConnection());
-                case "registrate":
-                    // Lógica para registrar en la base de datos
-                    return "Registro exitoso"; // O cualquier otra respuesta
-                case "Salir":
-                    // Cerrar la conexión y salir del programa
-                    return "Hasta luego";
-                default:
-                    return "Comando no reconocido";
+// añado un try catch 
+        private String processInput(String input) {
+            try {
+                switch (input) {
+                    case "Inicia sesion":
+                        return "Inicia sesion";
+                        functionsSQL.datosUsuario(cn);
+                    case "registrate":
+                        return "registrate";
+                    case "Salir":
+                        return "Salir";
+                    default:
+                        return "Comando no reconocido";
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
             }
+
         }
     }
 }
