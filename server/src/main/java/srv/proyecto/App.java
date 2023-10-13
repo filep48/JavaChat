@@ -64,22 +64,24 @@ public class App {
                 System.out.println("Cliente desconectado: " + clientSocket.getInetAddress());
             }
         }
-
+// añado un try catch 
         private String processInput(String input) {
-            switch (input) {
-                case "Inicia sesion":
-                    // Aquí puedes enviar una consulta SQL a la base de datos y obtener el resultado.
-                    String result = functionsSQL.llistarUsuariosCreados(cn);  // Pasar la conexión como argumento
-                    return result;
-                case "registrate":
-                    // Lógica para registrar en la base de datos
-                    return "Registro exitoso"; // O cualquier otra respuesta
-                case "Salir":
-                    // Cerrar la conexión y salir del programa
-                    return "Hasta luego";
-                default:
-                    return "Comando no reconocido";
+            try {
+                switch (input) {
+                    case "Inicia sesion":
+                        return "Inicia sesion";
+                        functionsSQL.datosUsuario(cn);
+                    case "registrate":
+                        return "registrate";
+                    case "Salir":
+                        return "Salir";
+                    default:
+                        return "Comando no reconocido";
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
             }
+
         }
     }
 }

@@ -8,6 +8,12 @@
             "type": "java",
             "name": "App",
             "request": "launch",
+            "mainClass": "srv.proyecto.App"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
             "mainClass": "srv.proyecto.App",
             "projectName": "server"
         },
