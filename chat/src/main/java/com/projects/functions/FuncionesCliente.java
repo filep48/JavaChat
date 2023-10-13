@@ -48,29 +48,10 @@ public class FuncionesCliente implements Runnable {
             e.printStackTrace();
         }
     }
-/* ----------------------- antigua de gerad-----------
-    private boolean validarCredenciales(String nombre, String contrasena) {
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/chatpro", "root", "troll")) {
-            String query = "SELECT * FROM usuarios WHERE nombre = ? AND contrasena = ?";
-            try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
-                preparedStatement.setString(1, nombre);
-                preparedStatement.setString(2, contrasena);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                return resultSet.next();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+    //Enviar mensajes al servidor
+    public static void EnviarMensajeServidor(){
+        
     }
-*/
-    /* ----------------------- modificacion de la original donde se usa la entrada de datos-----------
-     * --- he realizado las siguientes modificaciones :
-     * 1.se cambia array por objeto Usuario.
-     * 2.se cambia la query
-    */
-
-    /**funcion que conecta y valida si el usuario existe o no en la bbdd y le envia el resultado a la funcion run(); */
     
     public static boolean validarCredenciales() {
         Usuario datos = functionsSQL.datosUsuario();

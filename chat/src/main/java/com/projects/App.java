@@ -13,34 +13,7 @@ import com.projects.functions.functionsSQL;
  * connections.
  */
 public class App {
-    public static void main(String[] args) throws IOException {
-        Connection cn = null;
-        PreparedStatement pst = null;
-
-        try {
-            cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
-            functionsSQL.EliminacionGruposBBDD(cn);
-            functionsSQL.creacionGruposBBDD(cn);
-            functionsSQL.llistarGruposCreados(cn);
-            functionsSQL.llistarUsuariosCreados(cn);
-            functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
-            pst = functionsSQL.IniciarSession(cn);
-            // functionsSQL.llistarUsuariosCreados(pst);
-
-        } catch (ClassNotFoundException | SQLException ex) {
-            ex.printStackTrace();
-        } finally {
-            // Asegúrate de cerrar la conexión y el Statement en el bloque finally
-            try {
-                if (pst != null) {
-                    pst.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
+    sun.text
+    
+    
 }
