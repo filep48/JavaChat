@@ -3,7 +3,7 @@
  * and accepts incoming client connections. It reads a byte from the client,
  * sends a response, and then closes the connection.
  */
-package com.projects.functions;
+package srv.proyecto.functions;
 
 import java.io.IOException;
 import java.io.InputStream;

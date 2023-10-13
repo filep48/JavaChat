@@ -1,4 +1,4 @@
-package com.projects.clases;
+package srv.proyecto.clases;
 
 public class Usuario{
     private int id;

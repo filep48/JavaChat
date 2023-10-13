@@ -1,4 +1,4 @@
-package com.projects.functions;
+package srv.proyecto.functions;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import com.projects.clases.Usuario;
+import srv.proyecto.clases.Usuario;
 
 public class functionsSQL {
 

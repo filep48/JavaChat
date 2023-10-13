@@ -3,7 +3,7 @@
  * running on the localhost at port 8100. It can send data to the server and
  * receive a response from it.
  */
-package com.projects.functions;
+package srv.proyecto.functions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.StringTokenizer;
-
-import com.projects.clases.Usuario;
+import srv.proyecto.clases.Usuario;
 
 public class FuncionesCliente implements Runnable {
     private final Socket clientSocket;
