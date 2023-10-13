@@ -6,20 +6,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import srv.proyecto.functions.functionsSQL;
+import srv.proyecto.clases.DatabaseConnection;
 
 public class App {
     private static final String DB_URL = "jdbc:mysql://localhost:3307/chatpro";
     private static final String USER = "root";
     private static final String PASS = "1234";
 
-    private static Connection cn;
-     
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        cn = DriverManager.getConnection(DB_URL, USER, PASS);  // Inicializar la conexión
-
-        functionsSQL.IniciarSession(cn);
+    public static void main(String[] args) {
         int port = 12345;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -35,10 +29,6 @@ public class App {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (cn != null && !cn.isClosed()) {
-                cn.close();  // Cerrar la conexión
-            }
         }
     }
 
@@ -51,26 +41,23 @@ public class App {
 
         @Override
         public void run() {
-            try {
-                DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
-                DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream());
+            try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
+                 DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
 
                 while (true) {
                     String inputLine = reader.readUTF();
                     String response = processInput(inputLine);
                     writer.writeUTF(response);
                 }
-            } catch (IOException e) {
-                System.out.println("Cliente desconectado: " + clientSocket.getInetAddress());
+            } catch (IOException | SQLException e) {
+                System.out.println("Error con el cliente: " + clientSocket.getInetAddress() + ". Error: " + e.getMessage());
             }
         }
 
-        private String processInput(String input) {
+        private String processInput(String input) throws SQLException {
             switch (input) {
                 case "Inicia sesion":
-                    // Aquí puedes enviar una consulta SQL a la base de datos y obtener el resultado.
-                    String result = functionsSQL.llistarUsuariosCreados(cn);  // Pasar la conexión como argumento
-                    return result;
+                    return functionsSQL.llistarUsuariosCreados(DatabaseConnection.getConnection());
                 case "registrate":
                     // Lógica para registrar en la base de datos
                     return "Registro exitoso"; // O cualquier otra respuesta
