@@ -2,11 +2,24 @@ package srv.proyecto;
 
 import java.io.*;
 import java.net.*;
-import srv.proyecto.functions.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import srv.proyecto.functions.functionsSQL;
 
 public class App {
-    // SERVER
-    public static void main(String[] args) {
+    private static final String DB_URL = "jdbc:mysql://localhost:3307/chatpro";
+    private static final String USER = "root";
+    private static final String PASS = "1234";
+
+    private static Connection cn;
+     
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+        
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        cn = DriverManager.getConnection(DB_URL, USER, PASS);  // Inicializar la conexión
+
+        functionsSQL.IniciarSession(cn);
         int port = 12345;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -22,6 +35,10 @@ public class App {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (cn != null && !cn.isClosed()) {
+                cn.close();  // Cerrar la conexión
+            }
         }
     }
 
