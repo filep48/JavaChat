@@ -3,8 +3,11 @@ package srv.proyecto;
 import java.io.*;
 import java.net.*;
 
+import srv.proyecto.functions.functionsSQL;
+
 public class App {
     public static void main(String[] args) {
+        //SERVIDOR
         int port = 12345;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -46,16 +49,16 @@ public class App {
             }
         }
 
-        private String processInput(String input) {
+        private void processInput(String input) {
             switch (input) {
                 case "Inicia sesion":
-                    return "Inicia sesion";
+                    
                 case "registrate":
-                    return "registrate";
+                    
                 case "Salir":
-                    return "Salir";
+                    
                 default:
-                    return "Comando no reconocido";
+                    
             }
         }
     }
