@@ -1,46 +1,54 @@
 package com.projects;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import com.projects.clases.Usuario;
-import com.projects.functions.FuncionesServer;
-import com.projects.functions.functionsSQL;
+import java.io.*;
+import java.net.*;
 
-/**
- * The `App` class serves as the entry point for your server application. When
- * executed, it starts the `ConexionServer` to listen for incoming client
- * connections.
- */
 public class App {
-    public static void main(String[] args) throws IOException {
-        Connection cn = null;
-        PreparedStatement pst = null;
+    public static void main(String[] args) {
+        String serverAddress = "localhost"; // Cambia esto a la dirección IP o nombre de host del servidor si es
+                                            // necesario
+        int serverPort = 12345;
 
-        try {
-            cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "Naydler007");
-            // TODO EL CODIGO AQUI
-            functionsSQL.llistarUsuariosCreados(cn);
-            functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
-            pst = functionsSQL.IniciarSession(cn);
-            // functionsSQL.llistarUsuariosCreados(pst);
+        try (Socket socket = new Socket(serverAddress, serverPort);
+                DataInputStream reader = new DataInputStream(socket.getInputStream());
+                DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+                BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in))) {
 
-        } catch (ClassNotFoundException | SQLException ex) {
-            ex.printStackTrace();
-        } finally {
-            // Asegúrate de cerrar la conexión y el Statement en el bloque finally
-            try {
-                if (pst != null) {
-                    pst.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+            System.out.println("Conectado al servidor en " + serverAddress + ":" + serverPort);
+            menu();
+            int opcion = Integer.parseInt(userInput.readLine());
+            String mensaje;
+            switch (opcion) {
+                case 1:
+                    mensaje = "Inicia sesion";
+                    break;
+                case 2:
+                    mensaje = "registrate";
+                    break;
+                case 3:
+                    mensaje = "Salir";
+                    break;
+                default:
+                    mensaje = "Comando no reconocido";
+                    break;
             }
+            writer.writeUTF(mensaje);
+            String serverResponse = reader.readUTF();
+            System.out.println("Mensaje del servidor:" + serverResponse);
+
+        } catch (UnknownHostException e) {
+            System.err.println("No se pudo encontrar el host " + serverAddress);
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("No se pudo obtener la entrada/salida para la conexión con " + serverAddress);
+            System.exit(1);
         }
+    }
+
+    private static void menu() {
+        System.out.println("Seleccione una opción:");
+        System.out.println("1. Iniciar sesión");
+        System.out.println("2. Registrarse");
+        System.out.println("3. Salir");
     }
 }

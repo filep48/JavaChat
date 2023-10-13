@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Server$StartServer",
+            "request": "launch",
+            "mainClass": "com.projects.functions.Server$StartServer",
+            "projectName": "chat"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"
