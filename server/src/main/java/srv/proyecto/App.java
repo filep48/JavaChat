@@ -1,4 +1,4 @@
-package com.projects;
+package srv.proyecto;
 
 /**
  * Hello world!

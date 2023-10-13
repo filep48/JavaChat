@@ -1,4 +1,4 @@
-package com.projects;
+package srv.proyecto;
 
 import static org.junit.Assert.assertTrue;
 
@@ -7,7 +7,6 @@ import org.junit.Test;
 /**
  * Unit test for simple App.
  */
-// Add this import statement
 public class AppTest 
 {
     /**
