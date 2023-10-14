@@ -39,7 +39,7 @@ public class App {
         public void run() {
             System.out.println("Ejecutando hilo del cliente...");
             try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
-                 DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
+                DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
 
                 while (true) {
                     String inputLine = reader.readUTF();

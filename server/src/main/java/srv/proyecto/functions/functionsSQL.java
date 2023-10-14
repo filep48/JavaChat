@@ -1,5 +1,6 @@
 package srv.proyecto.functions;
 
+import java.io.Console;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -78,25 +79,21 @@ public class functionsSQL {
             return null;
         }
     }
+    
     public static Usuario datosUsuario(Connection cn, String nombre, String contrasena) {
         try {
             String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
             PreparedStatement pst = cn.prepareStatement(strSql);
             pst.setString(1, nombre);
             pst.setString(2, contrasena);
-    
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                System.out.println("Sesión iniciada con éxito.");
                 return new Usuario(nombre, contrasena);
-            } else {
-                System.out.println("Error al iniciar sesión. Usuario o contraseña incorrectos.");
-                return null;
             }
         } catch (SQLException ex) {
             System.err.println("Error al acceder a la base de datos: " + ex.getMessage());
-            return null;
         }
+        return null;
     }
     
 
@@ -146,32 +143,26 @@ public class functionsSQL {
         while (true) {
             String nombreUsuario = reader.readUTF();
             String contrasenaUsuario = reader.readUTF();
+
             if (nombreUsuario != null && !nombreUsuario.isEmpty() && contrasenaUsuario != null
                     && !contrasenaUsuario.isEmpty()) {
                 try {
                     // Verificar si el nombre de usuario ya existe en la base de datos
-                    if (usuarioExiste(new Usuario(nombreUsuario, contrasenaUsuario), cn)) {
-                        JOptionPane.showMessageDialog(null,
-                                "El nombre de usuario ya está en uso. Por favor, elige otro.");
+                    if (usuarioExiste(cn, new Usuario(nombreUsuario, contrasenaUsuario))) {
+                        System.out.println("El nombre de usuario ya está en uso. Por favor, elige otro.");
+                        continue; // Vuelve al inicio del bucle para esperar otros datos de entrada
                     } else {
                         // El nombre de usuario no existe
                         FuncionesServer.validarContrasena(contrasenaUsuario);
                         return new Usuario(nombreUsuario, contrasenaUsuario);
                     }
                 } catch (FuncionesServer.ContrasenaInvalidaException ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+                    System.out.println("Error: " + ex.getMessage());
+                    continue; // Vuelve al inicio del bucle si hay un error
                 }
             } else {
-                try {
-                    int respuesta = JOptionPane.showConfirmDialog(null, "¿Deseas salir?", "Salir",
-                            JOptionPane.YES_NO_OPTION);
-                    if (respuesta == JOptionPane.YES_OPTION) {
-                        // Salir
-                        return null;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                System.out.println("Nombre de usuario o contraseña vacíos. Por favor, intenta de nuevo.");
+                continue; // Vuelve al inicio del bucle si los datos están vacíos
             }
         }
     }
@@ -201,7 +192,7 @@ public class functionsSQL {
      */
 
     public static String login(Usuario datos, Connection cn) {
-        if (usuarioExiste(datos, cn)) {
+        if (usuarioExiste(cn, datos)) {
             String respuesta = ("LLAMAR AQUI A MENU PARA ENTRAR AL PROGRAMA");
             JOptionPane.showMessageDialog(null, "Usuario existe");
             return respuesta;
@@ -264,7 +255,7 @@ public class functionsSQL {
 
     public static void validacionUsuariosInicioSesion(Connection connection, DataInputStream reader) throws IOException {
         Usuario datos = datosUsuario(connection , reader);
-        usuarioExiste(datos, connection);
+        usuarioExiste(connection, datos);
         login(datos, connection);
     }
 

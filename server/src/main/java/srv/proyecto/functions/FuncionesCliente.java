@@ -6,6 +6,7 @@
 package srv.proyecto.functions;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -16,6 +17,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.StringTokenizer;
+
+import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
 public class FuncionesCliente implements Runnable {
@@ -30,6 +33,7 @@ public class FuncionesCliente implements Runnable {
         try (
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+            Connection cn = DatabaseConnection.getConnection();
         ) {
             String inputLine;
             while ((inputLine = reader.readLine()) != null) {
@@ -37,44 +41,28 @@ public class FuncionesCliente implements Runnable {
                 String nombre = tokenizer.nextToken();
                 String contrasena = tokenizer.nextToken();
 
-                if (validarCredenciales()) {
+                if (validarCredenciales(cn, nombre, contrasena)) {
                     writer.println("Acceso concedido");
                 } else {
                     writer.println("Acceso denegado");
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
     }
-    //Enviar mensajes al servidor
-    public static void EnviarMensajeServidor(){
-        
-    }
     
-    public static boolean validarCredenciales() {
-        Usuario datos = functionsSQL.datosUsuario();
-        
+    public static boolean validarCredenciales(Connection cn, String nombre, String contrasena) throws SQLException {
+        Usuario datos = functionsSQL.datosUsuario(cn, nombre, contrasena);
         if (datos != null) {
-            String nombreUsuario = datos.getNombreUsuarioo();
-            String contrasenaUsuario = datos.getContrasena();
-
-            try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "troll")) {
-                String query = "SELECT COL1,COL2 FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
-                try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
-                    preparedStatement.setString(1, nombreUsuario);
-                    preparedStatement.setString(2, contrasenaUsuario);
-                    ResultSet resultSet = preparedStatement.executeQuery();
-                    return resultSet.next();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
+            String query = "SELECT COL1,COL2 FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
+            try (PreparedStatement preparedStatement = cn.prepareStatement(query)) {
+                preparedStatement.setString(1, datos.getNombreUsuarioo());
+                preparedStatement.setString(2, datos.getContrasena());
+                ResultSet resultSet = preparedStatement.executeQuery();
+                return resultSet.next();
             }
         }
-        
         return false;
     }
-
-    //Crear la funcion enviar un mensaje al servidor, le mensaje tiene que mandar el id del usuario y el mensaje
 }
