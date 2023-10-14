@@ -1,6 +1,7 @@
 package srv.proyecto.functions;
 
-import java.io.Console;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,13 +13,12 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
 public class functionsSQL {
 
     public static PreparedStatement IniciarSession(Connection cn) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        cn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "1234");
 
         // Utiliza PreparedStatement en lugar de Statement
         String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
@@ -27,7 +27,7 @@ public class functionsSQL {
         return pst;
     }
 
-    public static void llistarUsuariosCreados(Connection cn) {
+    public static String llistarUsuariosCreados(Connection cn) {
         try {
             System.out.println("Listado de usuarios creados");
             System.out.println();
@@ -36,17 +36,17 @@ public class functionsSQL {
 
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
-
+            String resultado = "";
             while (rs.next()) {
-                System.out.println(rs.getString("nombre_usuario") + " " + rs.getString("contrasena"));
+                resultado += rs.getString("nombre_usuario") + " " + rs.getString("contrasena") + "\n";
             }
-            System.out.println("---------");
+            return resultado;
         } catch (SQLException ex) {
-            System.out.println("Error: " + ex.toString());
+            return "Error: " + ex.toString();
         }
     }
 
-    public static void llistarGruposCreados(Connection cn) {
+    public static String llistarGruposCreados(Connection cn) {
         try {
             System.out.println("Listado de usuarios creados");
             System.out.println();
@@ -55,13 +55,13 @@ public class functionsSQL {
 
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
-
+            String resultado = "";
             while (rs.next()) {
-                System.out.println(rs.getString("id") + " " + rs.getString("nombre_grupo"));
+                resultado += rs.getString("id") + " " + rs.getString("nombre_grupo") + "\n";
             }
-            System.out.println("---------");
+            return resultado;
         } catch (SQLException ex) {
-            System.out.println("Error: " + ex.toString());
+            return "Error: " + ex.toString();
         }
     }
 
@@ -131,6 +131,51 @@ public class functionsSQL {
         }
     }
 
+    // TODAS MIS FUNCIONES AQUI
+    /**
+     * Función que recoge datos por teclado del usuario y la envia a función q
+     * valida la regex,
+     * 
+     * @throws IOException
+     */
+
+    // ----------------cambios---------
+    // 1. se añade una comprobacion de si el usuario existe o no para manejar una
+    // excepcion de sql, ya q el nombre es PKunique.
+    public static Usuario datosUsuario(Connection cn, DataInputStream reader) throws IOException {
+        while (true) {
+            String nombreUsuario = reader.readUTF();
+            String contrasenaUsuario = reader.readUTF();
+            if (nombreUsuario != null && !nombreUsuario.isEmpty() && contrasenaUsuario != null
+                    && !contrasenaUsuario.isEmpty()) {
+                try {
+                    // Verificar si el nombre de usuario ya existe en la base de datos
+                    if (usuarioExiste(new Usuario(nombreUsuario, contrasenaUsuario), cn)) {
+                        JOptionPane.showMessageDialog(null,
+                                "El nombre de usuario ya está en uso. Por favor, elige otro.");
+                    } else {
+                        // El nombre de usuario no existe
+                        FuncionesServer.validarContrasena(contrasenaUsuario);
+                        return new Usuario(nombreUsuario, contrasenaUsuario);
+                    }
+                } catch (FuncionesServer.ContrasenaInvalidaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+                }
+            } else {
+                try {
+                    int respuesta = JOptionPane.showConfirmDialog(null, "¿Deseas salir?", "Salir",
+                            JOptionPane.YES_NO_OPTION);
+                    if (respuesta == JOptionPane.YES_OPTION) {
+                        // Salir
+                        return null;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * Función que comprueba en bbbdd si existe o no y devuelve un booleano.
      * si no existe, llama a la función darAltaUsuario.
@@ -155,13 +200,14 @@ public class functionsSQL {
      * devuelve true o false
      */
 
-    public static void login(Connection cn, Usuario datos) {
-        if (usuarioExiste(cn, datos)) {
-            System.out.println("Usuario existe LLAMAR AL MENU 2.");
-            // Llamar aquí a la función de menú para entrar al programa.
+    public static String login(Usuario datos, Connection cn) {
+        if (usuarioExiste(datos, cn)) {
+            String respuesta = ("LLAMAR AQUI A MENU PARA ENTRAR AL PROGRAMA");
+            JOptionPane.showMessageDialog(null, "Usuario existe");
+            return respuesta;
         } else {
-            System.out.println("Usuario o contraseña no existen.");
-            darAltaUsuario(cn, datos);
+            String respuestaNegativa = ("Usuario o contraseña no existen");
+            return respuestaNegativa;
         }
     }
 
@@ -214,6 +260,12 @@ public class functionsSQL {
         public ContrasenaInvalidaException(String mensaje) {
             super(mensaje);
         }
+    }
+
+    public static void validacionUsuariosInicioSesion(Connection connection, DataInputStream reader) throws IOException {
+        Usuario datos = datosUsuario(connection , reader);
+        usuarioExiste(datos, connection);
+        login(datos, connection);
     }
 
 }
