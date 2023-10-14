@@ -1,6 +1,8 @@
 package srv.proyecto.functions;
 
+import java.io.Console;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,16 +18,40 @@ import javax.swing.JOptionPane;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
+
 public class functionsSQL {
-
-    public static PreparedStatement IniciarSession(Connection cn) throws ClassNotFoundException, SQLException {
-
-        // Utiliza PreparedStatement en lugar de Statement
-        String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
-        PreparedStatement pst = cn.prepareStatement(strSql);
-
-        return pst;
+/**
+ * Inicia sesión de usuario basado en los datos recibidos del cliente.
+ *
+ * @param writer El flujo de salida para enviar una respuesta al cliente.
+ * @param reader El flujo de entrada para recibir datos del cliente.
+ * @throws IOException Si ocurre un error de entrada/salida al comunicarse con el cliente.
+ */
+private static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader) {
+    try {
+        String message = reader.readUTF();
+        String[] parts = message.split(";");
+        if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
+            String username = parts[1];
+            String password = parts[2];
+            // Llamar a la función datosUsuario con los valores de nombre de usuario y contraseña
+            Usuario usuario = functionsSQL.datosUsuario(username, password);
+            if (usuario != null) {
+                // Inicio de sesión exitoso
+                writer.writeBoolean(true);
+            } else {
+                // Inicio de sesión fallido, ofrecer opción de registro
+                writer.writeBoolean(false);
+            }
+        } else {
+            System.out.println("Mensaje de inicio de sesión incorrecto.");
+        }
+    } catch (IOException e) {
+        // Manejo de excepciones de entrada/salida
+        System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
     }
+}
+
 
     public static String llistarUsuariosCreados(Connection cn) {
         try {
@@ -78,46 +104,57 @@ public class functionsSQL {
             return null;
         }
     }
-    public static Usuario datosUsuario(Connection cn, String nombre, String contrasena) {
-        try {
+
+    /**
+     * Realiza el inicio de sesión de un usuario en la base de datos.
+     *
+     * @param nombre     El nombre de usuario.
+     * @param contrasena La contraseña del usuario.
+     * @return Un objeto Usuario si el inicio de sesión es exitoso.
+     * @throws SQLException                 Si ocurre un error al acceder a la base
+     *                                      de datos.
+     * @throws InicioSesionFallidoException Si el inicio de sesión falla.
+     */
+
+    public static Usuario datosUsuario(String nombre, String contrasena) {
+        try (Connection cn = DatabaseConnection.getConnection()) {
             String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setString(1, nombre);
-            pst.setString(2, contrasena);
-    
-            ResultSet rs = pst.executeQuery();
-            if (rs.next()) {
-                System.out.println("Sesión iniciada con éxito.");
-                return new Usuario(nombre, contrasena);
-            } else {
-                System.out.println("Error al iniciar sesión. Usuario o contraseña incorrectos.");
-                return null;
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                pst.setString(1, nombre);
+                pst.setString(2, contrasena);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        return new Usuario(nombre, contrasena);
+                    } else {
+                        System.err.println("El usuario no existe o la contraseña es incorrecta");
+                        return null;
+                    }
+                }
             }
-        } catch (SQLException ex) {
-            System.err.println("Error al acceder a la base de datos: " + ex.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Error de SQL: " + e.getMessage());
             return null;
         }
     }
-    
 
     // *********************************************
     public static void creacionGruposBBDD(Connection cn) {
-    try {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce el nombre del grupo: ");
-        String nombreGrupo = scanner.nextLine();
-        
-        String strSql = "INSERT INTO grupos (nombre_grupo) VALUES (?)";
-        PreparedStatement pst = cn.prepareStatement(strSql);
-        pst.setString(1, nombreGrupo);
-        pst.executeUpdate();
-        
-        System.out.println("Grupo creado con éxito.");
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Introduce el nombre del grupo: ");
+            String nombreGrupo = scanner.nextLine();
 
+            String strSql = "INSERT INTO grupos (nombre_grupo) VALUES (?)";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            pst.setString(1, nombreGrupo);
+            pst.executeUpdate();
+
+            System.out.println("Grupo creado con éxito.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void EliminacionGruposBBDD(Connection cn) {
         try {
@@ -131,66 +168,24 @@ public class functionsSQL {
         }
     }
 
-    // TODAS MIS FUNCIONES AQUI
     /**
-     * Función que recoge datos por teclado del usuario y la envia a función q
-     * valida la regex,
-     * 
-     * @throws IOException
+     * Verifica si un usuario existe en la base de datos.
+     *
+     * @param cn    La conexión a la base de datos.
+     * @param datos Los datos del usuario a verificar.
+     * @return true si el usuario existe en la bbdd, o false si no existe.
+     * @throws SQLException Si ocurre un error al acceder a la bbdd.
      */
-
-    // ----------------cambios---------
-    // 1. se añade una comprobacion de si el usuario existe o no para manejar una
-    // excepcion de sql, ya q el nombre es PKunique.
-    public static Usuario datosUsuario(Connection cn, DataInputStream reader) throws IOException {
-        while (true) {
-            String nombreUsuario = reader.readUTF();
-            String contrasenaUsuario = reader.readUTF();
-            if (nombreUsuario != null && !nombreUsuario.isEmpty() && contrasenaUsuario != null
-                    && !contrasenaUsuario.isEmpty()) {
-                try {
-                    // Verificar si el nombre de usuario ya existe en la base de datos
-                    if (usuarioExiste(new Usuario(nombreUsuario, contrasenaUsuario), cn)) {
-                        JOptionPane.showMessageDialog(null,
-                                "El nombre de usuario ya está en uso. Por favor, elige otro.");
-                    } else {
-                        // El nombre de usuario no existe
-                        FuncionesServer.validarContrasena(contrasenaUsuario);
-                        return new Usuario(nombreUsuario, contrasenaUsuario);
-                    }
-                } catch (FuncionesServer.ContrasenaInvalidaException ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
-                }
-            } else {
-                try {
-                    int respuesta = JOptionPane.showConfirmDialog(null, "¿Deseas salir?", "Salir",
-                            JOptionPane.YES_NO_OPTION);
-                    if (respuesta == JOptionPane.YES_OPTION) {
-                        // Salir
-                        return null;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    /**
-     * Función que comprueba en bbbdd si existe o no y devuelve un booleano.
-     * si no existe, llama a la función darAltaUsuario.
-     */
-
-    public static boolean usuarioExiste(Connection cn, Usuario datos) {
-        try {
-            String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ?";
-            PreparedStatement pst = cn.prepareStatement(strSql);
+    public static boolean usuarioExiste(Connection cn, Usuario datos) throws SQLException {
+        String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ?";
+        try (PreparedStatement pst = cn.prepareStatement(strSql)) {
             pst.setString(1, datos.getNombreUsuarioo());
 
-            ResultSet rs = pst.executeQuery();
-            return rs.next(); // Si hay resultados: el usuario existe en la base de datos
-        } catch (SQLException ex) {
-            Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next(); // Si hay resultados el usuario existe en la base de datos
+            }
+        } catch (SQLException e) {
+            System.err.println("Error de SQL: " + e.getMessage());
             return false;
         }
     }
@@ -262,8 +257,9 @@ public class functionsSQL {
         }
     }
 
-    public static void validacionUsuariosInicioSesion(Connection connection, DataInputStream reader) throws IOException {
-        Usuario datos = datosUsuario(connection , reader);
+    public static void validacionUsuariosInicioSesion(Connection connection, DataInputStream reader)
+            throws IOException {
+        Usuario datos = datosUsuario(connection, reader);
         usuarioExiste(datos, connection);
         login(datos, connection);
     }
