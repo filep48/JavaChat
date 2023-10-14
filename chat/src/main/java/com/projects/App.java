@@ -94,7 +94,8 @@ public class App {
                 + "\n3. Listar usuarios."
                 + "\n4. Listar usuarios conectados."
                 + "\n5. Crear un chat."
-                + "\n6. Cerrar sesión.");
+                + "\n6. Eliminar un chat."
+                + "\n7. Cerrar sesión.");
 
         int option = scanner.nextInt();
 
@@ -103,7 +104,8 @@ public class App {
                 // Lógica para enviar mensaje
                 break;
             case 2:
-                // Lógica para listar grupos
+                // Lógica para listar grupos y al seleccionar uno
+                // entra en el.
                 break;
             case 3:
                 // Lógica para listar usuarios
@@ -115,6 +117,9 @@ public class App {
                 menuCrearGrupo(nombreUsuario);
                 break;
             case 6:
+                // Lógica para eliminar un grupo
+                break;
+            case 7:
                 // Lógica para cerrar sesión
                 break;
             default:
@@ -128,9 +133,8 @@ public class App {
         System.out.println("==================\nEstás creando un chat. Selecciona una opción:");
         System.out.println("1. Listar usuarios."
                 + "\n2. Listar usuarios conectados."
-                + "\n3. Eliminar un chat."
-                + "\n4. Administrar un chat."
-                + "\n5. Volver al menú principal.");
+                + "\n3. Administrar un chat."
+                + "\n4. Volver al menú principal.");
 
         int option = scanner.nextInt();
 
@@ -142,12 +146,9 @@ public class App {
                 // Lógica para listar usuarios conectados
                 break;
             case 3:
-                // Lógica para eliminar un grupo
-                break;
-            case 4:
                 menuGrupo(nombreUsuario);
                 break;
-            case 5:
+            case 4:
                 menuSesionIniciada(nombreUsuario); // Aquí deberías pasar el nombre del usuario actual
                 break;
             default:
@@ -159,11 +160,11 @@ public class App {
     private static void menuGrupo(String nombreUsuario) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("==================\nEstás en un chat. Selecciona una opción:");
-        System.out.println("1. Administrar grupo."
-                + "\n2. Eliminar grupo."
+        System.out.println("1. Administrar chat."
+                + "\n2. Eliminar chat."
                 + "\n3. Descargar archivos."
                 + "\n4. Leer mensajes (automático)."
-                + "\n5. Salir del grupo.");
+                + "\n5. Salir del chat.");
 
         int opcion = scanner.nextInt();
 
