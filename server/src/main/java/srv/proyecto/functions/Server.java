@@ -76,7 +76,7 @@ public class Server {
 
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         Connection cn = null;
         PreparedStatement pst = null;
 
@@ -92,14 +92,14 @@ public class Server {
             functionsSQL.llistarGruposCreados(cn);
             functionsSQL.llistarUsuariosCreados(cn);
             functionsSQL.EnviarMensajesBBDD(cn, "HolaQuetal");
-            System.out.println("Enviar mensajes");
-            pst = functionsSQL.IniciarSession(cn);
+           // System.out.println("Enviar mensajes");
+            //pst = functionsSQL.IniciarSesion(cn);
             functionsSQL.llistarUsuariosCreados(cn);
 
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         } finally {
-            // Asegúrate de cerrar la conexión y el Statement en el bloque finally
+            
             try {
                 if (pst != null) {
                     pst.close();

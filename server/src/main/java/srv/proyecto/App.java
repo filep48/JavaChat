@@ -9,7 +9,7 @@ import srv.proyecto.clases.Usuario;
 
 public class App {
     public static void main(String[] args) {
-        //SERVER
+        // SERVER
         int port = 12345;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -39,33 +39,60 @@ public class App {
         public void run() {
             System.out.println("Ejecutando hilo del cliente...");
             try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
-                 DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
+                    DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
 
                 while (true) {
                     String inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
-                    //String response = processInput(inputLine);
-                    String response = inputLine;
-                    processInput(inputLine, writer, reader);
-                    writer.writeUTF(response);
+
+                    boolean inicioSesionExitoso = processInput(inputLine, writer, reader);
+
+                    if (inicioSesionExitoso) {
+                        writer.writeUTF("Inicio de sesión exitoso. ¡Bienvenido!");
+                    } else {
+                        writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
+                    }
+
+                    //------------------------ Continuar con otras solicitudes del cliente
                 }
             } catch (IOException e) {
-                System.out.println("Error con el cliente: " + clientSocket.getInetAddress() + ". Error: " + e.getMessage());
+                System.out.println(
+                        "Error con el cliente: " + clientSocket.getInetAddress() + ". Error: " + e.getMessage());
             }
         }
 
-        private void processInput(String input, DataOutputStream writer, DataInputStream reader ) throws IOException {
+        /**
+         * Procesa una entrada del cliente para realizar el inicio de sesión.
+         *
+         * @param input  La cadena de entrada que viene del menu del cliente
+         *               En el formato
+         *               "iniciarSesion;nombreUsuario;contrasena".
+         * @param writer El flujo de salida para enviar una respuesta al cliente.
+         * @param reader El flujo de entrada para recibir datos del cliente.
+         * @return `true` si el inicio de sesión es exitoso, `false` si falla.
+         * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
+         *                     el cliente.
+         */
+        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader) throws IOException {
             System.out.println("Procesando entrada: " + input);
-            try {
-                switch (input) {
-                    case "Inicia sesion":
-                        functionsSQL.datosUsuario(DatabaseConnection.getConnection(), reader);
-                        break;  
+        
+            String[] partes = input.split(";");
+            if (partes.length > 0) {
+                String commando = partes[0];
+        
+                if ("iniciarSesion".equals(commando)) {
+                    functionsSQL.splitDatosUsuario(writer, reader);
+                } else {
+                    System.out.println("Comando desconocido: " + commando);
+                    return false;
                 }
-            } catch (Exception e) {
-                System.out.println("Error al procesar entrada: " + e.getMessage());
-                e.printStackTrace();
+            } else {
+                System.out.println("Mensaje de inicio de sesión incorrecto.");
+                return false;
             }
+        
+            return true;
         }
+
     }
 }

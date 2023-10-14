@@ -18,40 +18,39 @@ import javax.swing.JOptionPane;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
-
 public class functionsSQL {
-/**
- * Inicia sesión de usuario basado en los datos recibidos del cliente.
- *
- * @param writer El flujo de salida para enviar una respuesta al cliente.
- * @param reader El flujo de entrada para recibir datos del cliente.
- * @throws IOException Si ocurre un error de entrada/salida al comunicarse con el cliente.
- */
-private static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader) {
-    try {
-        String message = reader.readUTF();
-        String[] parts = message.split(";");
-        if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
-            String username = parts[1];
-            String password = parts[2];
-            // Llamar a la función datosUsuario con los valores de nombre de usuario y contraseña
-            Usuario usuario = functionsSQL.datosUsuario(username, password);
-            if (usuario != null) {
-                // Inicio de sesión exitoso
-                writer.writeBoolean(true);
-            } else {
-                // Inicio de sesión fallido, ofrecer opción de registro
-                writer.writeBoolean(false);
-            }
-        } else {
-            System.out.println("Mensaje de inicio de sesión incorrecto.");
-        }
-    } catch (IOException e) {
-        // Manejo de excepciones de entrada/salida
-        System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
-    }
-}
+    /**
+     * Divide y procesa los datos de inicio de sesión.
+     * Lee la cadena de entrada del cliente, la divide en partes y verifica si se
+     * trata de una solicitud de inicio de sesión válida. Si es válida, llama a la
+     * función `datosUsuario` para verificar las credenciales y envía una respuesta
+     * al cliente.
+     *
+     * @param writer El flujo de salida para enviar una respuesta al cliente.
+     * @param reader El flujo de entrada para recibir datos del cliente.
+     */
+    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader) throws IOException {
+        try {
+            String message = reader.readUTF();
+            String[] parts = message.split(";");
+            if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
+                String nombreUsuario = parts[1];
+                String contrasena = parts[2];
 
+                boolean inicioSesionExitoso = datosUsuario(nombreUsuario, contrasena);
+
+                if (inicioSesionExitoso) {
+                    writer.writeBoolean(true);
+                } else {
+                    writer.writeBoolean(false);
+                }
+            } else {
+                System.out.println("Mensaje de inicio de sesión incorrecto.");
+            }
+        } catch (IOException e) {
+            System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
+        }
+    }
 
     public static String llistarUsuariosCreados(Connection cn) {
         try {
@@ -106,17 +105,14 @@ private static void splitDatosUsuario(DataOutputStream writer, DataInputStream r
     }
 
     /**
-     * Realiza el inicio de sesión de un usuario en la base de datos.
+     * Realiza una consulta a la base de datos para verificar si existe un usuario
+     * con el nombre de usuario y la contraseña proporcionados.
      *
-     * @param nombre     El nombre de usuario.
-     * @param contrasena La contraseña del usuario.
-     * @return Un objeto Usuario si el inicio de sesión es exitoso.
-     * @throws SQLException                 Si ocurre un error al acceder a la base
-     *                                      de datos.
-     * @throws InicioSesionFallidoException Si el inicio de sesión falla.
+     * @param nombre     El nombre de usuario proporcionado.
+     * @param contrasena La contraseña proporcionada.
+     * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
-
-    public static Usuario datosUsuario(String nombre, String contrasena) {
+    public static boolean datosUsuario(String nombre, String contrasena) {
         try (Connection cn = DatabaseConnection.getConnection()) {
             String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
             try (PreparedStatement pst = cn.prepareStatement(strSql)) {
@@ -124,17 +120,12 @@ private static void splitDatosUsuario(DataOutputStream writer, DataInputStream r
                 pst.setString(2, contrasena);
 
                 try (ResultSet rs = pst.executeQuery()) {
-                    if (rs.next()) {
-                        return new Usuario(nombre, contrasena);
-                    } else {
-                        System.err.println("El usuario no existe o la contraseña es incorrecta");
-                        return null;
-                    }
+                    return rs.next(); // Si hay resultados, las credenciales son válidas
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error de SQL: " + e.getMessage());
-            return null;
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -168,19 +159,22 @@ private static void splitDatosUsuario(DataOutputStream writer, DataInputStream r
         }
     }
 
-    /**
+    /*--------------------------ELIMINAR ESTA FUNCION PQ LO HAGO EN DATOSUSUARIO---------------
+     * ----------------------LA DEJO QUOTEADA POR SI DE CAS LA RECUPERAMOS LUEGO 
+     * 
+     * 
      * Verifica si un usuario existe en la base de datos.
      *
      * @param cn    La conexión a la base de datos.
      * @param datos Los datos del usuario a verificar.
      * @return true si el usuario existe en la bbdd, o false si no existe.
      * @throws SQLException Si ocurre un error al acceder a la bbdd.
-     */
-    public static boolean usuarioExiste(Connection cn, Usuario datos) throws SQLException {
+     * 
+     * public static boolean usuarioExiste(Connection cn, Usuario datos) throws SQLException {
         String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ?";
         try (PreparedStatement pst = cn.prepareStatement(strSql)) {
             pst.setString(1, datos.getNombreUsuarioo());
-
+    
             try (ResultSet rs = pst.executeQuery()) {
                 return rs.next(); // Si hay resultados el usuario existe en la base de datos
             }
@@ -189,24 +183,27 @@ private static void splitDatosUsuario(DataOutputStream writer, DataInputStream r
             return false;
         }
     }
-
+    
+    
+    
     /**
+     * --------------OTRA FUNCION PARA BORRAR PQ HAGO LO MISMO EN EL RUN de ClientHandler
+     * 
      * Función para derivar el flujo de acciones segun si la funcion usuarioExiste
      * devuelve true o false
-     */
-
-    public static String login(Usuario datos, Connection cn) {
-        if (usuarioExiste(datos, cn)) {
-            String respuesta = ("LLAMAR AQUI A MENU PARA ENTRAR AL PROGRAMA");
-            JOptionPane.showMessageDialog(null, "Usuario existe");
-            return respuesta;
-        } else {
-            String respuestaNegativa = ("Usuario o contraseña no existen");
-            return respuestaNegativa;
+     * 
+     * public static String login(String nombreUsuario, String contrasena, Connection cn) {
+            if (datosUsuario(nombreUsuario, contrasena, cn)) {
+                String respuesta = "Inicio de sesión exitoso. ¡Bienvenido!";
+                // Llamar aquí a la función o método para mostrar el menú al usuario
+                return respuesta;
+            } else {
+                String respuestaNegativa = "Usuario o contraseña incorrectos. ¿Quieres registrarte?";
+                return respuestaNegativa;
+                }
         }
-    }
-
-    // *********************************************
+    
+     */
 
     /** función que da de alta a un usuario en la bbdd */
     public static void darAltaUsuario(Connection cn, Usuario usuarioDatos) {
@@ -257,11 +254,5 @@ private static void splitDatosUsuario(DataOutputStream writer, DataInputStream r
         }
     }
 
-    public static void validacionUsuariosInicioSesion(Connection connection, DataInputStream reader)
-            throws IOException {
-        Usuario datos = datosUsuario(connection, reader);
-        usuarioExiste(datos, connection);
-        login(datos, connection);
-    }
 
 }

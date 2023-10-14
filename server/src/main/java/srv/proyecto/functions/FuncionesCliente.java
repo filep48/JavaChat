@@ -16,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.StringTokenizer;
+
+import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
 public class FuncionesCliente implements Runnable {
@@ -37,7 +39,7 @@ public class FuncionesCliente implements Runnable {
                 String nombre = tokenizer.nextToken();
                 String contrasena = tokenizer.nextToken();
 
-                if (validarCredenciales()) {
+                if (validarCredenciales("vane","123456")) {
                     writer.println("Acceso concedido");
                 } else {
                     writer.println("Acceso denegado");
@@ -52,29 +54,29 @@ public class FuncionesCliente implements Runnable {
         
     }
     
-    public static boolean validarCredenciales() {
-        Usuario datos = functionsSQL.datosUsuario();
-        
-        if (datos != null) {
-            String nombreUsuario = datos.getNombreUsuarioo();
-            String contrasenaUsuario = datos.getContrasena();
 
-            try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3307/chatpro", "root", "troll")) {
-                String query = "SELECT COL1,COL2 FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
-                try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
-                    preparedStatement.setString(1, nombreUsuario);
-                    preparedStatement.setString(2, contrasenaUsuario);
-                    ResultSet resultSet = preparedStatement.executeQuery();
-                    return resultSet.next();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
-            }
+
+//  -----------------BORRAR ESTA FUNCION?????????------
+
+
+    
+    public static boolean validarCredenciales(String nombreUsuario, String contrasena) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        String query = "SELECT COL1,COL2 FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+            preparedStatement.setString(1, nombreUsuario);
+            preparedStatement.setString(2, contrasena);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
         }
-        
+    } catch (SQLException e) {
+        e.printStackTrace();
         return false;
     }
+}
+
+    
+    
 
     //Crear la funcion enviar un mensaje al servidor, le mensaje tiene que mandar el id del usuario y el mensaje
 }
