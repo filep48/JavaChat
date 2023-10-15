@@ -47,6 +47,7 @@ public class App {
 
                     if (inicioSesionExitoso) {
                         writer.writeUTF("Inicio de sesión exitoso. ¡Bienvenido!");
+                    
                     } else {
                         writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
                     }
@@ -80,7 +81,10 @@ public class App {
         
                 if ("iniciarSesion".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input);
-                } else {
+                } else if ("registrarse".equals(comando)) {
+                    functionsSQL.splitDatosUsuario(writer, reader, input);
+                }
+                else {
                     System.out.println("Comando desconocido: " + comando);
                     return false;
                 }
