@@ -41,7 +41,7 @@ public class FuncionesCliente implements Runnable {
                 String nombre = tokenizer.nextToken();
                 String contrasena = tokenizer.nextToken();
 
-                if (validarCredenciales(cn, nombre, contrasena)) {
+                if (validarCredenciales("vane","123456")) {
                     writer.println("Acceso concedido");
                 } else {
                     writer.println("Acceso denegado");
@@ -52,17 +52,29 @@ public class FuncionesCliente implements Runnable {
         }
     }
     
-    public static boolean validarCredenciales(Connection cn, String nombre, String contrasena) throws SQLException {
-        Usuario datos = functionsSQL.datosUsuario(cn, nombre, contrasena);
-        if (datos != null) {
-            String query = "SELECT COL1,COL2 FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
-            try (PreparedStatement preparedStatement = cn.prepareStatement(query)) {
-                preparedStatement.setString(1, datos.getNombreUsuarioo());
-                preparedStatement.setString(2, datos.getContrasena());
-                ResultSet resultSet = preparedStatement.executeQuery();
-                return resultSet.next();
-            }
+
+
+//  -----------------BORRAR ESTA FUNCION?????????------
+
+
+    
+    public static boolean validarCredenciales(String nombreUsuario, String contrasena) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        String query = "SELECT COL1,COL2 FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+            preparedStatement.setString(1, nombreUsuario);
+            preparedStatement.setString(2, contrasena);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
         return false;
     }
+}
+
+    
+    
+
+    //Crear la funcion enviar un mensaje al servidor, le mensaje tiene que mandar el id del usuario y el mensaje
 }
