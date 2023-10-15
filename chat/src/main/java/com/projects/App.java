@@ -2,47 +2,29 @@ package com.projects;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
+
+import com.projects.functions.FuncionesUsuario;
 
 public class App {
-    //CLIENTE
+    // CLIENTE
     public static void main(String[] args) {
-        //CLIENTE
+        // CLIENTE
         String serverAddress = "localhost";
         int serverPort = 12345;
+        Scanner scanner = new Scanner(System.in);
 
         try (Socket socket = new Socket(serverAddress, serverPort);
                 DataInputStream reader = new DataInputStream(socket.getInputStream());
-                DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-                BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in))) {
+                DataOutputStream writer = new DataOutputStream(socket.getOutputStream());) {
 
             System.out.println("Conectado al servidor en " + serverAddress + ":" + serverPort);
 
             while (true) {
-                menu();
-                int option = Integer.parseInt(userInput.readLine());
-                String message;
-
-                switch (option) {
-                    case 1:
-                        message = "Inicia sesion";
-                        break;
-                    case 2:
-                        message = "registrate";
-                        break;
-                    case 3:
-                        message = "Salir";
-                        break;
-                    default:
-                        message = "Comando no reconocido";
-                        break;
-                }
-
-                writer.writeUTF(message);
-                String response = reader.readUTF();
-                System.out.println(response);
-                    writer.writeUTF(userInput.readLine());
-                    writer.writeUTF(userInput.readLine());
-            
+                String mensaje = menuPrincipal(scanner, writer, reader);
+                writer.writeUTF(mensaje);
+                String serverResponse = reader.readUTF();
+                System.out.println("Mensaje del servidor: " + serverResponse);
             }
 
         } catch (UnknownHostException e) {
@@ -51,27 +33,145 @@ public class App {
         } catch (IOException e) {
             System.err.println("Error de comunicación con el servidor: " + e.getMessage());
             System.exit(1);
+        } finally {
+            scanner.close();
         }
     }
 
-    private static void menu() {
+    private static String menuPrincipal(Scanner scanner, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
         System.out.println("Seleccione una opción:");
-        System.out.println("1. Iniciar sesión");
-        System.out.println("2. Registrarse");
-        System.out.println("3. Salir");
+        System.out.println("1. Registrarse (Sign up)."
+                + "\n2. Iniciar sesión (Sign in)."
+                + "\n3. Configuración del cliente."
+                + "\n4. Salir.");
+
+        int option = scanner.nextInt();
+        String mensaje = "";
+
+        switch (option) {
+            case 1:
+                FuncionesUsuario.registrarse(writer, reader);
+                break;
+            case 2:
+                FuncionesUsuario.iniciarSesion(writer, reader);
+                break;
+            case 3:
+                // Configuración del cliente
+                break;
+            case 4:
+                System.exit(0);
+                break;
+            default:
+                mensaje = "Comando no reconocido";
+                break;
+        }
+
+        return mensaje;
     }
 
-    private static void menu2() {
+    public static void menuSesionIniciada(String nombreUsuario, Scanner scanner, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        System.out.println("==================\nBienvenido " + nombreUsuario + "!");
         System.out.println("Seleccione una opción:");
-        System.out.println("1. Escribir un mensaje");
-        //llistar grupo
-        //Selecciona un grupo
-        System.out.println("2. Crear un grupo");
-          //llistar grupo
-          //llamamos a crear un grupo
-        System.out.println("3.Eliminar un grupo");
-          //llistar grupo
-          //llamamos a eliminar un grupo
-        System.out.println("4. Salir");
+        System.out.println("1. Enviar mensaje."
+                + "\n2. Listar chats."
+                + "\n3. Listar usuarios."
+                + "\n4. Listar usuarios conectados."
+                + "\n5. Crear un chat."
+                + "\n6. Eliminar un chat."
+                + "\n7. Cerrar sesión.");
+
+        int option = scanner.nextInt();
+
+        switch (option) {
+            case 1:
+                // Lógica para enviar mensaje
+                break;
+            case 2:
+                // Lógica para listar grupos y al seleccionar uno
+                // entra en el.
+                break;
+            case 3:
+                // Lógica para listar usuarios
+                break;
+            case 4:
+                // Lógica para listar usuarios conectados
+                break;
+            case 5:
+                menuCrearGrupo(nombreUsuario, scanner, writer, reader);
+                break;
+            case 6:
+                // Lógica para eliminar un grupo
+                break;
+            case 7:
+                // Lógica para cerrar sesión
+                break;
+            default:
+                System.out.println("Comando no reconocido");
+                break;
+        }
+    }
+
+    private static void menuCrearGrupo(String nombreUsuario, Scanner scanner, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        System.out.println("==================\nEstás creando un chat. Selecciona una opción:");
+        System.out.println("1. Listar usuarios."
+                + "\n2. Listar usuarios conectados."
+                + "\n3. Administrar un chat."
+                + "\n4. Volver al menú principal.");
+
+        int option = scanner.nextInt();
+
+        switch (option) {
+            case 1:
+                // Lógica para listar usuarios
+                break;
+            case 2:
+                // Lógica para listar usuarios conectados
+                break;
+            case 3:
+                menuGrupo(nombreUsuario, scanner, writer, reader);
+                break;
+            case 4:
+                menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario actual
+                break;
+            default:
+                System.out.println("Comando no reconocido");
+                break;
+        }
+    }
+
+    private static void menuGrupo(String nombreUsuario, Scanner scanner, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        System.out.println("==================\nEstás en un chat. Selecciona una opción:");
+        System.out.println("1. Administrar chat."
+                + "\n2. Eliminar chat."
+                + "\n3. Descargar archivos."
+                + "\n4. Leer mensajes (automático)."
+                + "\n5. Salir del chat.");
+
+        int opcion = scanner.nextInt();
+
+        switch (opcion) {
+            case 1:
+                // Lógica para administrar el grupo
+                break;
+            case 2:
+                // Lógica para eliminar el grupo
+                break;
+            case 3:
+                // Lógica para descargar archivos
+                break;
+            case 4:
+                // Lógica para leer mensajes
+                break;
+            case 5:
+                menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario actual
+                break;
+            default:
+                System.out.println("Comando no reconocido");
+                break;
+        }
     }
 }

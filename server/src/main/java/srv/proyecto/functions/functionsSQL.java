@@ -136,6 +136,7 @@ public class functionsSQL {
             e.printStackTrace();
             return false;
         }
+        return null;
     }
 
     // *********************************************

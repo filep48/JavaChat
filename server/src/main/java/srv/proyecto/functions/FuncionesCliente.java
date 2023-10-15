@@ -6,6 +6,7 @@
 package srv.proyecto.functions;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -32,6 +33,7 @@ public class FuncionesCliente implements Runnable {
         try (
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+            Connection cn = DatabaseConnection.getConnection();
         ) {
             String inputLine;
             while ((inputLine = reader.readLine()) != null) {
@@ -45,13 +47,9 @@ public class FuncionesCliente implements Runnable {
                     writer.println("Acceso denegado");
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
-    }
-    //Enviar mensajes al servidor
-    public static void EnviarMensajeServidor(){
-        
     }
     
 
