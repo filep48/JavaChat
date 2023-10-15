@@ -4,8 +4,6 @@ import java.io.*;
 import java.net.*;
 
 import srv.proyecto.functions.functionsSQL;
-import srv.proyecto.clases.DatabaseConnection;
-import srv.proyecto.clases.Usuario;
 
 public class App {
     public static void main(String[] args) {
@@ -78,19 +76,18 @@ public class App {
         
             String[] partes = input.split(";");
             if (partes.length > 0) {
-                String commando = partes[0];
+                String comando = partes[0];
         
-                if ("iniciarSesion".equals(commando)) {
-                    functionsSQL.splitDatosUsuario(writer, reader);
+                if ("iniciarSesion".equals(comando)) {
+                    functionsSQL.splitDatosUsuario(writer, reader, input);
                 } else {
-                    System.out.println("Comando desconocido: " + commando);
+                    System.out.println("Comando desconocido: " + comando);
                     return false;
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
                 return false;
             }
-        
             return true;
         }
 

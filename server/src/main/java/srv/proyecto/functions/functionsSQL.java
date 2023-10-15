@@ -29,15 +29,15 @@ public class functionsSQL {
      * @param writer El flujo de salida para enviar una respuesta al cliente.
      * @param reader El flujo de entrada para recibir datos del cliente.
      */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader,String input) throws IOException {
         try {
-            String message = reader.readUTF();
-            String[] parts = message.split(";");
+            String[] parts = input.split(";");
             if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
+                String comando = parts[0];
                 String nombreUsuario = parts[1];
                 String contrasena = parts[2];
 
-                boolean inicioSesionExitoso = datosUsuario(nombreUsuario, contrasena);
+                boolean inicioSesionExitoso = datosUsuario(nombreUsuario, contrasena, comando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
@@ -113,10 +113,13 @@ public class functionsSQL {
      * @param contrasena La contraseña proporcionada.
      * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
-    public static boolean datosUsuario(String nombre, String contrasena) {
+    public static boolean datosUsuario(String nombre, String contrasena, String comando) {
         try {
+            // Verificar si la contraseña cumple con los requisitos en caso de que el comando sea iniciarSesion
+            
+            if (!comando.equals("iniciarSesion")) {
             validarContrasena(contrasena); // Verificar si la contraseña cumple con los requisitos
-    
+            }
             try (Connection cn = DatabaseConnection.getConnection()) {
                 String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
                 try (PreparedStatement pst = cn.prepareStatement(strSql)) {
@@ -136,7 +139,6 @@ public class functionsSQL {
             e.printStackTrace();
             return false;
         }
-        return null;
     }
 
     // *********************************************
