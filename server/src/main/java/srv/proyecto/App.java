@@ -86,8 +86,8 @@ public class App {
                 } else if ("listarGrupos".equals(comando)) {
                     String resultado = functionsSQL.llistarGruposCreados();
                     writer.writeUTF(resultado);
-                } else if ("listarUsuario".equals(comando)) {
-                    String resultado = functionsSQL.llistarGruposCreados();
+                } else if ("listarUsuarios".equals(comando)) {
+                    String resultado = functionsSQL.llistarUsuariosCreados();
                     writer.writeUTF(resultado);
                 } else {
                     System.out.println("Comando desconocido: " + comando);

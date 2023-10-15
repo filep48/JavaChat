@@ -73,8 +73,6 @@ public class App {
     public static void menuSesionIniciada(String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         boolean condition = true;
-        String ConfirmacionServer = reader.readUTF();
-        System.out.println("Mensaje del servidor: " + ConfirmacionServer);
         while (condition) {
             System.out.println("==================\nBienvenido " + nombreUsuario + "!");
             System.out.println("Seleccione una opción:");
