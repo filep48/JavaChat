@@ -106,24 +106,33 @@ public class functionsSQL {
 
     /**
      * Realiza una consulta a la base de datos para verificar si existe un usuario
-     * con el nombre de usuario y la contraseña proporcionados.
+     * con el nombre de usuario y la contraseña proporcionados. 
+     * Antes comprueba el largo de contrasena
      *
      * @param nombre     El nombre de usuario proporcionado.
      * @param contrasena La contraseña proporcionada.
      * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
     public static boolean datosUsuario(String nombre, String contrasena) {
-        try (Connection cn = DatabaseConnection.getConnection()) {
-            String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
-            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                pst.setString(1, nombre);
-                pst.setString(2, contrasena);
-
-                try (ResultSet rs = pst.executeQuery()) {
-                    return rs.next(); // Si hay resultados, las credenciales son válidas
+        try {
+            validarContrasena(contrasena); // Verificar si la contraseña cumple con los requisitos
+    
+            try (Connection cn = DatabaseConnection.getConnection()) {
+                String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
+                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                    pst.setString(1, nombre);
+                    pst.setString(2, contrasena);
+    
+                    try (ResultSet rs = pst.executeQuery()) {
+                        return rs.next(); // Si hay resultados, las credenciales son válidas
+                    }
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } catch (ContrasenaInvalidaException e) {
+            // Manejar la excepción de contraseña inválida aquí, si es necesario
             e.printStackTrace();
             return false;
         }
@@ -147,11 +156,18 @@ public class functionsSQL {
         }
     }
 
+    /**
+     * Elimina un grupo de la base de datos utilizando su ID.
+     *
+     * @param cn La conexión a la base de datos.
+     */
     public static void EliminacionGruposBBDD(Connection cn) {
         try {
+            // Solicitar al usuario el ID del grupo
+            String idGrupo = JOptionPane.showInputDialog(null, "Introduce el ID del grupo que deseas eliminar:");
+
             String strSql = "delete from grupos where id = ?";
             PreparedStatement pst = cn.prepareStatement(strSql);
-            String idGrupo = JOptionPane.showInputDialog(null, "Introduce el id del grupo");
             pst.setString(1, idGrupo);
             pst.executeUpdate();
         } catch (Exception e) {
@@ -253,6 +269,5 @@ public class functionsSQL {
             super(mensaje);
         }
     }
-
 
 }
