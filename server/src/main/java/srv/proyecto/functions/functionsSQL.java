@@ -29,7 +29,8 @@ public class functionsSQL {
      * @param writer El flujo de salida para enviar una respuesta al cliente.
      * @param reader El flujo de entrada para recibir datos del cliente.
      */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader,String input) throws IOException {
+    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
+            throws IOException {
         try {
             String[] parts = input.split(";");
             if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
@@ -106,7 +107,7 @@ public class functionsSQL {
 
     /**
      * Realiza una consulta a la base de datos para verificar si existe un usuario
-     * con el nombre de usuario y la contraseña proporcionados. 
+     * con el nombre de usuario y la contraseña proporcionados.
      * Antes comprueba el largo de contrasena
      *
      * @param nombre     El nombre de usuario proporcionado.
@@ -115,17 +116,18 @@ public class functionsSQL {
      */
     public static boolean datosUsuario(String nombre, String contrasena, String comando) {
         try {
-            // Verificar si la contraseña cumple con los requisitos en caso de que el comando sea iniciarSesion
-            
+            // Verificar si la contraseña cumple con los requisitos en caso de que el
+            // comando sea iniciarSesion
+
             if (!comando.equals("iniciarSesion")) {
-            validarContrasena(contrasena); // Verificar si la contraseña cumple con los requisitos
+                validarContrasena(contrasena); // Verificar si la contraseña cumple con los requisitos
             }
             try (Connection cn = DatabaseConnection.getConnection()) {
                 String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
                 try (PreparedStatement pst = cn.prepareStatement(strSql)) {
                     pst.setString(1, nombre);
                     pst.setString(2, contrasena);
-    
+
                     try (ResultSet rs = pst.executeQuery()) {
                         return rs.next(); // Si hay resultados, las credenciales son válidas
                     }
@@ -224,31 +226,42 @@ public class functionsSQL {
     
      */
 
-    /** función que da de alta a un usuario en la bbdd */
-    public static void darAltaUsuario(Connection cn, Usuario usuarioDatos) {
-        Console console = System.console();
-        if (console != null) {
-            char[] contrasenaChars = console.readPassword("Introduce tu contraseña: ");
-            String contrasena = new String(contrasenaChars);
-            try {
-                String strSql = "INSERT INTO Usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
-                PreparedStatement pst = cn.prepareStatement(strSql);
-                pst.setString(1, usuarioDatos.getNombreUsuarioo());
+    /**
+     * Función para dar de alta a un usuario en la base de datos.
+     *
+     * @param cn            La conexión a la base de datos.
+     * @param nombreUsuario El nombre de usuario proporcionado por el cliente.
+     * @param contrasena    La contraseña proporcionada por el cliente.
+     * @return `true` si el registro es exitoso, `false` si falla.
+     */
+    public static boolean darAltaUsuario(Connection cn, String nombreUsuario, String contrasena) {
+        try {
+
+            validarContrasena(contrasena);
+
+            String strSql = "INSERT INTO Usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                pst.setString(1, nombreUsuario);
                 pst.setString(2, contrasena);
 
                 int filasAfectadas = pst.executeUpdate();
 
                 if (filasAfectadas == 1) {
                     System.out.println("Usuario dado de alta con éxito.");
+                    return true;
                 } else {
                     System.out.println("Error al dar de alta al usuario.");
+                    return false;
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("Error al dar de alta al usuario.");
             }
-        } else {
-            System.out.println("La consola no está disponible. No se puede ingresar la contraseña.");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.out.println("Error al dar de alta al usuario.");
+            return false;
+        } catch (ContrasenaInvalidaException e) {
+            // Manejar la excepción de contraseña inválida aquí, si es necesario
+            e.printStackTrace();
+            return false;
         }
     }
 
