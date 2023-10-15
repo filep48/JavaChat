@@ -2,7 +2,9 @@ package srv.proyecto;
 
 import java.io.*;
 import java.net.*;
+import java.sql.Connection;
 
+import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.functions.functionsSQL;
 
 public class App {
@@ -28,9 +30,16 @@ public class App {
 
     static class ClientHandler extends Thread {
         private Socket clientSocket;
+        private Connection cn;
 
         public ClientHandler(Socket socket) {
             this.clientSocket = socket;
+
+        }
+
+        public ClientHandler(Socket socket, Connection dbConnection) {
+            this.clientSocket = socket;
+            this.cn = dbConnection; 
         }
 
         @Override
@@ -51,7 +60,7 @@ public class App {
                         writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
                     }
 
-                    //------------------------ Continuar con otras solicitudes del cliente
+                    // ------------------------ Continuar con otras solicitudes del cliente
                 }
             } catch (IOException e) {
                 System.out.println(
@@ -60,32 +69,48 @@ public class App {
         }
 
         /**
-         * Procesa una entrada del cliente para realizar el inicio de sesión.
+         * Procesa una entrada del cliente para realizar el inicio de sesión o el
+         * registro.
          *
-         * @param input  La cadena de entrada que viene del menu del cliente
-         *               En el formato
-         *               "iniciarSesion;nombreUsuario;contrasena".
+         * @param input  La cadena de entrada que viene del menú del cliente en el
+         *               formato "comando;nombreUsuario;contrasena".
          * @param writer El flujo de salida para enviar una respuesta al cliente.
          * @param reader El flujo de entrada para recibir datos del cliente.
-         * @return `true` si el inicio de sesión es exitoso, `false` si falla.
+         * @return `true` si el inicio de sesión o el registro es exitoso, `false` si
+         *         falla.
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
         private boolean processInput(String input, DataOutputStream writer, DataInputStream reader) throws IOException {
             System.out.println("Procesando entrada: " + input);
-        
+
             String[] partes = input.split(";");
             if (partes.length > 0) {
                 String comando = partes[0];
-        
+
                 if ("iniciarSesion".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input);
+                } else if ("registrarse".equals(comando)) {
+                    
+                    String nombreUsuario = partes[1];
+                    String contrasena = partes[2];
+
+                    // Llamar a darAltaUsuario para registrar al usuario en la base de datos
+                    boolean registroExitoso = functionsSQL.darAltaUsuario(cn, nombreUsuario, contrasena);
+
+                    // Enviar una respuesta al cliente
+                    if (registroExitoso) {
+                        writer.writeBoolean(true);
+                        
+                    } else {
+                        writer.writeBoolean(false);
+                    }
                 } else {
                     System.out.println("Comando desconocido: " + comando);
                     return false;
                 }
             } else {
-                System.out.println("Mensaje de inicio de sesión incorrecto.");
+                System.out.println("Mensaje de inicio de sesión o registro incorrecto.");
                 return false;
             }
             return true;
