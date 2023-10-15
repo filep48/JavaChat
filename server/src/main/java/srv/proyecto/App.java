@@ -47,12 +47,12 @@ public class App {
 
                     if (inicioSesionExitoso) {
                         writer.writeUTF("Inicio de sesión exitoso. ¡Bienvenido!");
-                    
+
                     } else {
                         writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
                     }
 
-                    //------------------------ Continuar con otras solicitudes del cliente
+                    // ------------------------ Continuar con otras solicitudes del cliente
                 }
             } catch (IOException e) {
                 System.out.println(
@@ -74,17 +74,22 @@ public class App {
          */
         private boolean processInput(String input, DataOutputStream writer, DataInputStream reader) throws IOException {
             System.out.println("Procesando entrada: " + input);
-        
+
             String[] partes = input.split(";");
             if (partes.length > 0) {
                 String comando = partes[0];
-        
+
                 if ("iniciarSesion".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input);
                 } else if ("registrarse".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input);
-                }
-                else {
+                } else if ("listarGrupos".equals(comando)) {
+                    String resultado = functionsSQL.llistarGruposCreados();
+                    writer.writeUTF(resultado);
+                } else if ("listarUsuario".equals(comando)) {
+                    String resultado = functionsSQL.llistarGruposCreados();
+                    writer.writeUTF(resultado);
+                } else {
                     System.out.println("Comando desconocido: " + comando);
                     return false;
                 }

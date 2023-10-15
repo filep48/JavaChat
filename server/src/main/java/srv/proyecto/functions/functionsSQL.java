@@ -8,7 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +31,8 @@ public class functionsSQL {
      * @param writer El flujo de salida para enviar una respuesta al cliente.
      * @param reader El flujo de entrada para recibir datos del cliente.
      */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader,String input) throws IOException {
+    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
+            throws IOException {
         try {
             String[] parts = input.split(";");
             if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
@@ -40,6 +44,7 @@ public class functionsSQL {
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
+
                 } else {
                     writer.writeBoolean(false);
                 }
@@ -51,18 +56,19 @@ public class functionsSQL {
         }
     }
 
-    public static String llistarUsuariosCreados(Connection cn) {
+    public static String llistarUsuariosCreados() {
         try {
+            Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
             System.out.println();
-            String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
+            String strSql = "SELECT nombre_usuario FROM usuarios";
             PreparedStatement pst = cn.prepareStatement(strSql);
 
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
             String resultado = "";
             while (rs.next()) {
-                resultado += rs.getString("nombre_usuario") + " " + rs.getString("contrasena") + "\n";
+                resultado += rs.getString("nombre_usuario") + "\n";
             }
             return resultado;
         } catch (SQLException ex) {
@@ -70,8 +76,9 @@ public class functionsSQL {
         }
     }
 
-    public static String llistarGruposCreados(Connection cn) {
+    public static String llistarGruposCreados() {
         try {
+            Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
             System.out.println();
             String strSql = "SELECT id, nombre_grupo FROM grupos";
@@ -105,7 +112,7 @@ public class functionsSQL {
 
     /**
      * Realiza una consulta a la base de datos para verificar si existe un usuario
-     * con el nombre de usuario y la contraseña proporcionados. 
+     * con el nombre de usuario y la contraseña proporcionados.
      * Antes comprueba el largo de contrasena
      *
      * @param nombre     El nombre de usuario proporcionado.
@@ -114,17 +121,18 @@ public class functionsSQL {
      */
     public static boolean datosUsuario(String nombre, String contrasena, String comando) {
         try {
-            // Verificar si la contraseña cumple con los requisitos en caso de que el comando sea iniciarSesion
-            
+            // Verificar si la contraseña cumple con los requisitos en caso de que el
+            // comando sea iniciarSesion
+
             if (!comando.equals("iniciarSesion")) {
-            validarContrasena(contrasena); // Verificar si la contraseña cumple con los requisitos
+                validarContrasena(contrasena); // Verificar si la contraseña cumple con los requisitos
             }
             try (Connection cn = DatabaseConnection.getConnection()) {
                 String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
                 try (PreparedStatement pst = cn.prepareStatement(strSql)) {
                     pst.setString(1, nombre);
                     pst.setString(2, contrasena);
-    
+
                     try (ResultSet rs = pst.executeQuery()) {
                         return rs.next(); // Si hay resultados, las credenciales son válidas
                     }
