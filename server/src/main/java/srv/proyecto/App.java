@@ -53,7 +53,6 @@ public class App {
                 boolean inicioSesionExitoso = processInput(inputLine, writer, reader,nombre);
                 if (inicioSesionExitoso) {
                     writer.writeUTF("Inicio de sesión exitoso.");
-
                 } else {
                     writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
                 }

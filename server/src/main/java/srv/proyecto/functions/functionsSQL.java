@@ -1,6 +1,5 @@
 package srv.proyecto.functions;
 
-import java.io.Console;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,12 +7,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 import javax.swing.JOptionPane;
 
@@ -35,12 +32,13 @@ public class functionsSQL {
             throws IOException {
         try {
             String[] parts = input.split(";");
-            if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
-                String commando = parts[0];
-                String nombreUsuario = parts[1];
-                String contrasena = parts[2];
 
-                boolean inicioSesionExitoso = datosUsuario(nombreUsuario, contrasena, commando);
+            String commando = parts[0];
+            String nombreUsuario = parts[1];
+            String contrasena = parts[2];
+            if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
+
+                boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
@@ -120,7 +118,7 @@ public class functionsSQL {
      * @param contrasena La contraseña proporcionada.
      * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
-    public static boolean datosUsuario(String nombre, String contrasena, String comando) {
+    /*public static boolean InicioSession(String nombre, String contrasena, String comando) {
         try {
             // Verificar si la contraseña cumple con los requisitos en caso de que el
             // comando sea iniciarSesion
@@ -144,6 +142,49 @@ public class functionsSQL {
             return false;
         } catch (ContrasenaInvalidaException e) {
             // Manejar la excepción de contraseña inválida aquí, si es necesario
+            e.printStackTrace();
+            return false;
+        }
+    }
+     */
+
+    // Creacion del registro de usuarios en la base de datos
+    public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
+        try {
+            // Si el comando es iniciarSesion, validamos la contraseña
+            if ("registrarse".equals(comando)) {
+                validarContrasena(contrasena);
+            }
+
+            try (Connection cn = DatabaseConnection.getConnection()) {
+                String strSql;
+                if ("registrarse".equals(comando)) {
+                    // Si el comando es registrar, insertamos el usuario
+                    strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
+                } else {
+                    // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
+                    // credenciales
+                    strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
+                }
+
+                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                    pst.setString(1, nombre);
+                    pst.setString(2, contrasena);
+
+                    if ("registrar".equals(comando)) {
+                        int affectedRows = pst.executeUpdate();
+                        return affectedRows > 0;
+                    } else {
+                        try (ResultSet rs = pst.executeQuery()) {
+                            return rs.next(); // Si hay resultados, las credenciales son válidas
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } catch (ContrasenaInvalidaException e) {
             e.printStackTrace();
             return false;
         }
@@ -233,30 +274,24 @@ public class functionsSQL {
      */
 
     /** función que da de alta a un usuario en la bbdd */
-    public static void darAltaUsuario(Connection cn, Usuario usuarioDatos) {
-        Console console = System.console();
-        if (console != null) {
-            char[] contrasenaChars = console.readPassword("Introduce tu contraseña: ");
-            String contrasena = new String(contrasenaChars);
-            try {
-                String strSql = "INSERT INTO Usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
-                PreparedStatement pst = cn.prepareStatement(strSql);
-                pst.setString(1, usuarioDatos.getNombreUsuarioo());
-                pst.setString(2, contrasena);
+    public static boolean darAltaUsuario(Connection cn, Usuario usuarioDatos) {
+        try {
+            String strSql = "INSERT INTO Usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            pst.setString(1, usuarioDatos.getNombreUsuarioo());
+            pst.setString(2, usuarioDatos.getContrasena());
 
-                int filasAfectadas = pst.executeUpdate();
+            int filasAfectadas = pst.executeUpdate();
 
-                if (filasAfectadas == 1) {
-                    System.out.println("Usuario dado de alta con éxito.");
-                } else {
-                    System.out.println("Error al dar de alta al usuario.");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("Error al dar de alta al usuario.");
+            if (filasAfectadas == 1) {
+                return true;
+            } else {
+                return false;
             }
-        } else {
-            System.out.println("La consola no está disponible. No se puede ingresar la contraseña.");
+
+        } catch (SQLException ex) {
+            Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
     }
 
