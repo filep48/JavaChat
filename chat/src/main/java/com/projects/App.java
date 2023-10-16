@@ -73,8 +73,9 @@ public class App {
     public static void menuSesionIniciada(String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         boolean condition = true;
+        String Serverlogin = reader.readUTF();
+        System.out.println(Serverlogin);
         while (condition) {
-            System.out.println("==================\nBienvenido " + nombreUsuario + "!");
             System.out.println("Seleccione una opción:");
             System.out.println("1. Enviar mensaje."
                     + "\n2. Listar chats."

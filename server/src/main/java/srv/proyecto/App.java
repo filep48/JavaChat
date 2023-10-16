@@ -39,20 +39,27 @@ public class App {
             try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
                     DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
 
+                // Procesar el inicio de sesión del cliente
+                String inputLine = reader.readUTF();
+                System.out.println("Recibido del cliente: " + inputLine);
+
+                boolean inicioSesionExitoso = processInput(inputLine, writer, reader);
+                if (inicioSesionExitoso) {
+                    writer.writeUTF("Inicio de sesión exitoso.");
+                } else {
+                    writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
+                }
+                // Fin del inicio de sesión
+
+                // Continuar con otras solicitudes del cliente
                 while (true) {
-                    String inputLine = reader.readUTF();
+                    inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
+                    boolean comandoProcesado = processInput(inputLine, writer, reader);
 
-                    boolean inicioSesionExitoso = processInput(inputLine, writer, reader);
-
-                    if (inicioSesionExitoso) {
-                        writer.writeUTF("Inicio de sesión exitoso. ¡Bienvenido!");
-
-                    } else {
-                        writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
+                    if (!comandoProcesado) {
+                        writer.writeUTF("Comando no reconocido o error en el procesamiento.");
                     }
-
-                    // ------------------------ Continuar con otras solicitudes del cliente
                 }
             } catch (IOException e) {
                 System.out.println(
@@ -99,6 +106,5 @@ public class App {
             }
             return true;
         }
-
     }
 }
