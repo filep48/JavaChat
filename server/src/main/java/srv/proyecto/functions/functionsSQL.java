@@ -1,17 +1,16 @@
 package srv.proyecto.functions;
 
-import java.io.Console;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 import javax.swing.JOptionPane;
 
@@ -33,15 +32,18 @@ public class functionsSQL {
             throws IOException {
         try {
             String[] parts = input.split(";");
-            if (parts.length == 3 && parts[0].equals("iniciarSesion")) {
-                String comando = parts[0];
-                String nombreUsuario = parts[1];
-                String contrasena = parts[2];
 
-                boolean inicioSesionExitoso = datosUsuario(nombreUsuario, contrasena, comando);
+            String commando = parts[0];
+            String nombreUsuario = parts[1];
+            String contrasena = parts[2];
+            if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
+
+                boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
+                    FuncionesServer.conectarUsuario(nombreUsuario, contrasena);
+
                 } else {
                     writer.writeBoolean(false);
                 }
@@ -53,18 +55,19 @@ public class functionsSQL {
         }
     }
 
-    public static String llistarUsuariosCreados(Connection cn) {
+    public static String llistarUsuariosCreados() {
         try {
+            Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
             System.out.println();
-            String strSql = "SELECT nombre_usuario, contrasena FROM usuarios";
+            String strSql = "SELECT nombre_usuario FROM usuarios";
             PreparedStatement pst = cn.prepareStatement(strSql);
 
             // Resultados de la consulta
             ResultSet rs = pst.executeQuery();
             String resultado = "";
             while (rs.next()) {
-                resultado += rs.getString("nombre_usuario") + " " + rs.getString("contrasena") + "\n";
+                resultado += rs.getString("nombre_usuario") + "\n";
             }
             return resultado;
         } catch (SQLException ex) {
@@ -72,8 +75,9 @@ public class functionsSQL {
         }
     }
 
-    public static String llistarGruposCreados(Connection cn) {
+    public static String llistarGruposCreados() {
         try {
+            Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
             System.out.println();
             String strSql = "SELECT id, nombre_grupo FROM grupos";
@@ -114,7 +118,7 @@ public class functionsSQL {
      * @param contrasena La contraseña proporcionada.
      * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
-    public static boolean datosUsuario(String nombre, String contrasena, String comando) {
+    /*public static boolean InicioSession(String nombre, String contrasena, String comando) {
         try {
             // Verificar si la contraseña cumple con los requisitos en caso de que el
             // comando sea iniciarSesion
@@ -138,6 +142,49 @@ public class functionsSQL {
             return false;
         } catch (ContrasenaInvalidaException e) {
             // Manejar la excepción de contraseña inválida aquí, si es necesario
+            e.printStackTrace();
+            return false;
+        }
+    }
+     */
+
+    // Creacion del registro de usuarios en la base de datos
+    public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
+        try {
+            // Si el comando es iniciarSesion, validamos la contraseña
+            if ("registrarse".equals(comando)) {
+                validarContrasena(contrasena);
+            }
+
+            try (Connection cn = DatabaseConnection.getConnection()) {
+                String strSql;
+                if ("registrarse".equals(comando)) {
+                    // Si el comando es registrar, insertamos el usuario
+                    strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
+                } else {
+                    // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
+                    // credenciales
+                    strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
+                }
+
+                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                    pst.setString(1, nombre);
+                    pst.setString(2, contrasena);
+
+                    if ("registrar".equals(comando)) {
+                        int affectedRows = pst.executeUpdate();
+                        return affectedRows > 0;
+                    } else {
+                        try (ResultSet rs = pst.executeQuery()) {
+                            return rs.next(); // Si hay resultados, las credenciales son válidas
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } catch (ContrasenaInvalidaException e) {
             e.printStackTrace();
             return false;
         }
@@ -244,7 +291,7 @@ public class functionsSQL {
                 pst.setString(1, nombreUsuario);
                 pst.setString(2, contrasena);
 
-                int filasAfectadas = pst.executeUpdate();
+            int filasAfectadas = pst.executeUpdate();
 
                 if (filasAfectadas == 1) {
                     System.out.println("Usuario dado de alta con éxito.");
