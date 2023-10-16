@@ -2,10 +2,16 @@ package srv.proyecto;
 
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 
+import srv.proyecto.clases.Usuario;
+import srv.proyecto.functions.FuncionesServer;
 import srv.proyecto.functions.functionsSQL;
 
 public class App {
+    public static HashMap<String, Usuario> usuariosConectados = new HashMap<>();
+    public static FuncionesServer funcionesServer = new FuncionesServer(usuariosConectados);
+
     public static void main(String[] args) {
         // SERVER
         int port = 12345;
@@ -42,10 +48,12 @@ public class App {
                 // Procesar el inicio de sesión del cliente
                 String inputLine = reader.readUTF();
                 System.out.println("Recibido del cliente: " + inputLine);
-
-                boolean inicioSesionExitoso = processInput(inputLine, writer, reader);
+                    //recoge el nombre del usuario
+                String nombre = inputLine.split(";")[1];
+                boolean inicioSesionExitoso = processInput(inputLine, writer, reader,nombre);
                 if (inicioSesionExitoso) {
                     writer.writeUTF("Inicio de sesión exitoso.");
+
                 } else {
                     writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
                 }
@@ -55,7 +63,7 @@ public class App {
                 while (true) {
                     inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
-                    boolean comandoProcesado = processInput(inputLine, writer, reader);
+                    boolean comandoProcesado = processInput(inputLine, writer, reader, nombre);
 
                     if (!comandoProcesado) {
                         writer.writeUTF("Comando no reconocido o error en el procesamiento.");
@@ -79,7 +87,7 @@ public class App {
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
-        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader) throws IOException {
+        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader,String nombre) throws IOException {
             System.out.println("Procesando entrada: " + input);
 
             String[] partes = input.split(";");
@@ -95,6 +103,13 @@ public class App {
                     writer.writeUTF(resultado);
                 } else if ("listarUsuarios".equals(comando)) {
                     String resultado = functionsSQL.llistarUsuariosCreados();
+                    writer.writeUTF(resultado);
+                } else if ("listarUsuariosConectados".equals(comando)) {
+                    String resultado = funcionesServer.listarUsuariosConectados();
+                    writer.writeUTF(resultado);
+                } else if ("CerrarSession".equals(comando)) {
+                    FuncionesServer.desconectarUsuario(nombre);
+                    String resultado = "CerrarSession";
                     writer.writeUTF(resultado);
                 } else {
                     System.out.println("Comando desconocido: " + comando);

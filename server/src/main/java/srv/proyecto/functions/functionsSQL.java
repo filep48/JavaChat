@@ -44,6 +44,7 @@ public class functionsSQL {
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
+                    FuncionesServer.conectarUsuario(nombreUsuario, contrasena);
 
                 } else {
                     writer.writeBoolean(false);

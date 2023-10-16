@@ -3,16 +3,14 @@ package srv.proyecto.functions;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
 
 
+import srv.proyecto.clases.Usuario;
 
 public class FuncionesServer {
+    private static HashMap<String, Usuario> usuarios;
+
     static String leerMensaje(InputStream is) throws IOException {
         StringBuilder mensaje = new StringBuilder();
         int byteLeido;
@@ -42,7 +40,7 @@ public class FuncionesServer {
             ex.printStackTrace();
         }
     }
-    
+
     /**
      * Función para validar la contraseña y lanzar una excepción personalizada si no
      * cumple
@@ -64,8 +62,32 @@ public class FuncionesServer {
         }
     }
 
-    
+    public FuncionesServer(HashMap<String, Usuario> usuariosConectados) {
+        FuncionesServer.usuarios = usuariosConectados;
+    }
+
+    public static void conectarUsuario(String nombreUsuario, String contrasena) {
+        Usuario nuevoUsuario = new Usuario(nombreUsuario, contrasena);
+        nuevoUsuario.setConectado(true);
+        usuarios.put(nombreUsuario, nuevoUsuario);
+    }
+
+    public static void desconectarUsuario(String nombreUsuario) {
+        if (usuarios.containsKey(nombreUsuario)) {
+            usuarios.get(nombreUsuario).setConectado(false);
+            usuarios.remove(nombreUsuario);
+        }
+    }
+
+    // crea una funcion que lee el hashmap y inidica los usuarios conectados en una
+    // string
+    public String listarUsuariosConectados() {
+        String usuariosConectados = "";
+        for (Usuario usuario : usuarios.values()) {
+            if (usuario.isConectado()) {
+                usuariosConectados += usuario.getNombreUsuarioo() + "\n";
+            }
+        }
+        return usuariosConectados;
+    }
 }
-
-
-

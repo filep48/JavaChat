@@ -9,6 +9,7 @@ import com.projects.functions.FuncionesUsuario;
 public class App {
     // CLIENTE
     public static void main(String[] args) {
+
         // CLIENTE
         String serverAddress = "localhost";
         int serverPort = 12345;
@@ -46,10 +47,10 @@ public class App {
                 + "\n3. Configuración del cliente."
                 + "\n4. Salir.");
 
-        int option = scanner.nextInt();
+        int option1 = scanner.nextInt();
         String mensaje = "";
 
-        switch (option) {
+        switch (option1) {
             case 1:
                 FuncionesUsuario.registrarse(writer, reader);
                 break;
@@ -85,9 +86,10 @@ public class App {
                     + "\n6. Eliminar un chat."
                     + "\n7. Cerrar sesión.");
 
-            int option = scanner.nextInt();
-
-            switch (option) {
+            int option2 = scanner.nextInt();
+            String mensaje = "";
+            String serverResponse = "";
+            switch (option2) {
                 case 1:
                     // Lógica para enviar mensaje
                     break;
@@ -97,15 +99,20 @@ public class App {
                 case 3:
                     // Lógica para listar grupos y al seleccionar uno
                     // entra en el.
-                    String mensaje = "listarUsuarios";
+                    mensaje = "listarUsuarios";
                     writer.writeUTF(mensaje);
-                    String serverResponse = reader.readUTF();
+                    serverResponse = reader.readUTF();
                     System.out.println("Llista de usuarios: "
                             + "\n" + serverResponse);
 
                     break;
                 case 4:
                     // Lógica para listar usuarios conectados
+                    mensaje = "listarUsuariosConectados";
+                    writer.writeUTF(mensaje);
+                    serverResponse = reader.readUTF();
+                    System.out.println("Llista de usuarios conectados: "
+                            + "\n" + serverResponse);
                     break;
                 case 5:
                     menuCrearGrupo(nombreUsuario, scanner, writer, reader);
@@ -114,8 +121,10 @@ public class App {
                     // Lógica para eliminar un grupo
                     break;
                 case 7:
+                    mensaje = "CerrarSession";
+                    writer.writeUTF(mensaje);
+                    serverResponse = reader.readUTF();
                     condition = false;
-                    System.out.println("Cerrando sesión...");
                     break;
                 default:
                     System.out.println("Comando no reconocido");
@@ -133,8 +142,8 @@ public class App {
                 + "\n3. Administrar un chat."
                 + "\n4. Volver al menú principal.");
 
-        int option = scanner.nextInt();
-        switch (option) {
+        int option3 = scanner.nextInt();
+        switch (option3) {
             case 1:
                 // Lógica para listar usuarios
                 break;
@@ -163,9 +172,9 @@ public class App {
                 + "\n4. Leer mensajes (automático)."
                 + "\n5. Salir del chat.");
 
-        int opcion = scanner.nextInt();
+        int opcion4 = scanner.nextInt();
 
-        switch (opcion) {
+        switch (opcion4) {
             case 1:
                 // Lógica para administrar el grupo
                 break;
