@@ -38,7 +38,7 @@ public class functionsSQL {
             String contrasena = parts[2];
             if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
 
-                boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
+                boolean inicioSesionExitoso = registroBBDD(nombreUsuario, contrasena, commando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
@@ -96,7 +96,7 @@ public class functionsSQL {
     }
 
     // Este metodo que manda el mensaje de x cliente a la base de datos
-    public static PreparedStatement EnviarMensajesBBDD(Connection cn, String mensaje) {
+    public static PreparedStatement enviarMensajesBBDD(Connection cn, String mensaje) {
         try {
             String strSql = "insert into mensajes (contenido) values (?)";
             PreparedStatement pst = cn.prepareStatement(strSql);
@@ -149,7 +149,7 @@ public class functionsSQL {
      */
 
     // Creacion del registro de usuarios en la base de datos
-    public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
+    public static boolean registroBBDD(String nombre, String contrasena, String comando) {
         try {
             // Si el comando es iniciarSesion, validamos la contraseña
             if ("registrarse".equals(comando)) {
@@ -184,7 +184,7 @@ public class functionsSQL {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
-        } catch (ContrasenaInvalidaException e) {
+        } catch (contrasenaInvalidaException e) {
             e.printStackTrace();
             return false;
         }
@@ -213,7 +213,7 @@ public class functionsSQL {
      *
      * @param cn La conexión a la base de datos.
      */
-    public static void EliminacionGruposBBDD(Connection cn) {
+    public static void eliminacionGruposBBDD(Connection cn) {
         try {
             // Solicitar al usuario el ID del grupo
             String idGrupo = JOptionPane.showInputDialog(null, "Introduce el ID del grupo que deseas eliminar:");
@@ -305,7 +305,7 @@ public class functionsSQL {
             ex.printStackTrace();
             System.out.println("Error al dar de alta al usuario.");
             return false;
-        } catch (ContrasenaInvalidaException e) {
+        } catch (contrasenaInvalidaException e) {
             // Manejar la excepción de contraseña inválida aquí, si es necesario
             e.printStackTrace();
             return false;
@@ -317,9 +317,9 @@ public class functionsSQL {
      * cumple
      */
 
-    static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
+    static void validarContrasena(String contrasena) throws contrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
-            throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
+            throw new contrasenaInvalidaException("La contraseña no cumple con los requisitos.");
         }
     }
 
@@ -327,8 +327,8 @@ public class functionsSQL {
      * Excepción personalizada para manejar contraseñas inválidas
      * lanza mensaje predefenido por nosotros en validarContrasena
      */
-    public static class ContrasenaInvalidaException extends Exception {
-        public ContrasenaInvalidaException(String mensaje) {
+    public static class contrasenaInvalidaException extends Exception {
+        public contrasenaInvalidaException(String mensaje) {
             super(mensaje);
         }
     }

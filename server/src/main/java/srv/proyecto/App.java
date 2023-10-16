@@ -3,9 +3,12 @@ package srv.proyecto;
 import java.io.*;
 import java.net.*;
 import java.sql.Connection;
+import java.util.HashMap;
 
 import srv.proyecto.clases.ControladorArchivos;
 import srv.proyecto.clases.DatabaseConnection;
+import srv.proyecto.clases.Usuario;
+import srv.proyecto.functions.FuncionesServer;
 import srv.proyecto.functions.functionsSQL;
 
 public class App {
