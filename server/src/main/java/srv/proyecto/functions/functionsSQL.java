@@ -273,24 +273,41 @@ public class functionsSQL {
     
      */
 
-    /** función que da de alta a un usuario en la bbdd */
-    public static boolean darAltaUsuario(Connection cn, Usuario usuarioDatos) {
+    /**
+     * Función para dar de alta a un usuario en la base de datos.
+     *
+     * @param cn            La conexión a la base de datos.
+     * @param nombreUsuario El nombre de usuario proporcionado por el cliente.
+     * @param contrasena    La contraseña proporcionada por el cliente.
+     * @return `true` si el registro es exitoso, `false` si falla.
+     */
+    public static boolean darAltaUsuario(Connection cn, String nombreUsuario, String contrasena) {
         try {
+
+            validarContrasena(contrasena);
+
             String strSql = "INSERT INTO Usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setString(1, usuarioDatos.getNombreUsuarioo());
-            pst.setString(2, usuarioDatos.getContrasena());
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                pst.setString(1, nombreUsuario);
+                pst.setString(2, contrasena);
 
             int filasAfectadas = pst.executeUpdate();
 
-            if (filasAfectadas == 1) {
-                return true;
-            } else {
-                return false;
+                if (filasAfectadas == 1) {
+                    System.out.println("Usuario dado de alta con éxito.");
+                    return true;
+                } else {
+                    System.out.println("Error al dar de alta al usuario.");
+                    return false;
+                }
             }
-
         } catch (SQLException ex) {
-            Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            System.out.println("Error al dar de alta al usuario.");
+            return false;
+        } catch (ContrasenaInvalidaException e) {
+            // Manejar la excepción de contraseña inválida aquí, si es necesario
+            e.printStackTrace();
             return false;
         }
     }
