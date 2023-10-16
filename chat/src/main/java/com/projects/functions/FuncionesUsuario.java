@@ -42,5 +42,4 @@ public class FuncionesUsuario {
             System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
         }
     }
-
 }

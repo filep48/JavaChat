@@ -9,6 +9,9 @@ import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.functions.functionsSQL;
 
 public class App {
+    public static HashMap<String, Usuario> usuariosConectados = new HashMap<>();
+    public static FuncionesServer funcionesServer = new FuncionesServer(usuariosConectados);
+
     public static void main(String[] args) {
         // SERVER
         int port = 12345;
@@ -49,16 +52,27 @@ public class App {
             try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
                     DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
 
+                // Procesar el inicio de sesión del cliente
+                String inputLine = reader.readUTF();
+                System.out.println("Recibido del cliente: " + inputLine);
+                    //recoge el nombre del usuario
+                String nombre = inputLine.split(";")[1];
+                boolean inicioSesionExitoso = processInput(inputLine, writer, reader,nombre);
+                if (inicioSesionExitoso) {
+                    writer.writeUTF("Inicio de sesión exitoso.");
+                } else {
+                    writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
+                }
+                // Fin del inicio de sesión
+
+                // Continuar con otras solicitudes del cliente
                 while (true) {
-                    String inputLine = reader.readUTF();
+                    inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
+                    boolean comandoProcesado = processInput(inputLine, writer, reader, nombre);
 
-                    boolean inicioSesionExitoso = processInput(inputLine, writer, reader);
-
-                    if (inicioSesionExitoso) {
-                        writer.writeUTF("Inicio de sesión exitoso. ¡Bienvenido!");
-                    } else {
-                        writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
+                    if (!comandoProcesado) {
+                        writer.writeUTF("Comando no reconocido o error en el procesamiento.");
                     }
 
                     // ------------------------ Continuar con otras solicitudes del cliente
@@ -82,7 +96,7 @@ public class App {
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
-        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader) throws IOException {
+        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader,String nombre) throws IOException {
             System.out.println("Procesando entrada: " + input);
 
             String[] partes = input.split(";");
@@ -118,6 +132,5 @@ public class App {
             }
             return true;
         }
-
     }
 }
