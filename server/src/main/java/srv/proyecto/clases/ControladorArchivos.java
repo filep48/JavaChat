@@ -1,4 +1,4 @@
-package srv.proyecto.functions;
+package srv.proyecto.clases;
 
 import java.io.File;
 import java.io.FileWriter;

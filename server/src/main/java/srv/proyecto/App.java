@@ -4,8 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.sql.Connection;
 
+import srv.proyecto.clases.ControladorArchivos;
 import srv.proyecto.clases.DatabaseConnection;
-import srv.proyecto.functions.ControladorArchivos;
 import srv.proyecto.functions.functionsSQL;
 
 public class App {

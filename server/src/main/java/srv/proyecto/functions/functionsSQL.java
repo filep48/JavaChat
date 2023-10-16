@@ -286,10 +286,9 @@ public class functionsSQL {
         }
     }
 
-
     public static int obtenerIdUsuario(Connection cn, String nombreUsuario) {
         int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
-    
+
         try {
             String query = "SELECT id FROM Usuarios WHERE nombre_usuario = ?";
             try (PreparedStatement pst = cn.prepareStatement(query)) {
@@ -303,9 +302,66 @@ public class functionsSQL {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    
+
         return idUsuario;
     }
+    // Eliminar al usuario de los grupos a los que pertenece
+    public static void deleteMiembrosGrupos(Connection cn, int idUsuario) {
+        String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE usuario_id = ?";
+        try (PreparedStatement pst = cn.prepareStatement(deleteMiembrosGrupos)) {
+            pst.setInt(1, idUsuario);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+     // Eliminar los mensajes del usuario
+    public static void deleteMensajes(Connection cn, int idUsuario) {
+        String deleteMensajes = "DELETE FROM Mensajes WHERE usuario_id = ?";
+        try {
+            PreparedStatement pst = cn.prepareStatement(deleteMensajes);
+            pst.setInt(1, idUsuario);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+     // Eliminar los archivos del usuario
+    public static void deleteArchivos(Connection cn, int idUsuario){
+        String deleteArchivos = "DELETE FROM Archivos WHERE usuario_id = ?";
+        try {
+            PreparedStatement pst = cn.prepareStatement(deleteArchivos);
+            pst.setInt(1, idUsuario);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+    // Eliminar el registro del usuario
+    public static void  deleteUsuario (Connection cn,int idGrupo){
+        String deleteUsuario = "DELETE FROM Usuarios WHERE id = ?";
+        try {
+            PreparedStatement pst = cn.prepareStatement(deleteUsuario);
+            pst.setInt(1, idGrupo);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+
+    public static boolean  darseDeBajaUsuario(Connection cn, int usuarioId){
+        try {
+            deleteMiembrosGrupos(cn, usuarioId);
+            deleteMensajes(cn, usuarioId);
+            deleteArchivos(cn, usuarioId);
+            deleteUsuario(cn, usuarioId);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+            return false;
+        }
+    }
+
 
 
 }
