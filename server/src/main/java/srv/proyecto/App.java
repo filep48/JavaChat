@@ -5,6 +5,7 @@ import java.net.*;
 import java.sql.Connection;
 
 import srv.proyecto.clases.DatabaseConnection;
+import srv.proyecto.functions.ControladorArchivos;
 import srv.proyecto.functions.functionsSQL;
 
 public class App {
@@ -97,6 +98,8 @@ public class App {
 
                     // Llamar a darAltaUsuario para registrar al usuario en la base de datos
                     boolean registroExitoso = functionsSQL.darAltaUsuario(cn, nombreUsuario, contrasena);
+                    int usuarioid = functionsSQL.obtenerIdUsuario(cn, nombreUsuario);
+                    ControladorArchivos.crearCarpetaServidor(cn, usuarioid);
 
                     // Enviar una respuesta al cliente
                     if (registroExitoso) {

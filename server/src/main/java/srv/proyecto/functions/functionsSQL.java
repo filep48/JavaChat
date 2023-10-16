@@ -286,4 +286,26 @@ public class functionsSQL {
         }
     }
 
+
+    public static int obtenerIdUsuario(Connection cn, String nombreUsuario) {
+        int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
+    
+        try {
+            String query = "SELECT id FROM Usuarios WHERE nombre_usuario = ?";
+            try (PreparedStatement pst = cn.prepareStatement(query)) {
+                pst.setString(1, nombreUsuario);
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        idUsuario = rs.getInt("id");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    
+        return idUsuario;
+    }
+
+
 }
