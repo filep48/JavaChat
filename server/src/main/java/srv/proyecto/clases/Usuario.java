@@ -30,7 +30,7 @@ public class Usuario{
     public void setId(int id) {
         this.id = id;
     }
-    public String getNombreUsuarioo() {
+    public String getNombreUsuario() {
         return nombreUsuarioo;
     }
     public void setNombreUsuarioo(String nombreUsuarioo) {

@@ -102,19 +102,19 @@ public class AppServer {
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
-        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader, String nombre)
+        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader, String nombre, Usuario usuario)
                 throws IOException {
             System.out.println("Procesando entrada: " + input);
 
-            String[] partes = input.split(";");
-            if (partes.length > 0) {
-                String comando = partes[0];
+            String[] mensaje = FuncionesServer.slplitMensaje(input);
+            if (mensaje.length > 0) {
+                String comando = mensaje[0];
                 if ("iniciarSesion".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input);
                 } else if ("registrarse".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input);
                 } else if ("listarGrupos".equals(comando)) {
-                    String resultado = functionsSQL.llistarGruposCreados();
+                    String resultado = functionsSQL.llistarGrupos(usuario);
                     writer.writeUTF(resultado);
                 } else if ("listarUsuarios".equals(comando)) {
                     String resultado = functionsSQL.llistarUsuariosCreados();

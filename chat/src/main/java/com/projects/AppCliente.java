@@ -41,16 +41,17 @@ public class AppCliente {
 
     private static String menuPrincipal(Scanner scanner, DataOutputStream writer, DataInputStream reader)
             throws IOException {
+        System.out.println("Bienvenido a la aplicación de chat!");
         System.out.println("Seleccione una opción:");
         System.out.println("1. Registrarse (Sign up)."
                 + "\n2. Iniciar sesión (Sign in)."
                 + "\n3. Configuración del cliente."
                 + "\n4. Salir.");
 
-        int option1 = scanner.nextInt();
+        int opcion = scanner.nextInt();
         String mensaje = "";
 
-        switch (option1) {
+        switch (opcion) {
             case 1:
                 FuncionesUsuario.registrarse(writer, reader);
                 break;
@@ -73,10 +74,11 @@ public class AppCliente {
 
     public static void menuSesionIniciada(String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader) throws IOException {
-        boolean condition = true;
+        boolean condicion = true;
         String Serverlogin = reader.readUTF();
         System.out.println(Serverlogin);
-        while (condition) {
+        while (condicion) {
+            System.out.println("==================\nBienvenido " + nombreUsuario + "!");
             System.out.println("Seleccione una opción:");
             System.out.println("1. Enviar mensaje."
                     + "\n2. Listar chats."
@@ -86,20 +88,23 @@ public class AppCliente {
                     + "\n6. Eliminar un chat."
                     + "\n7. Cerrar sesión.");
 
-            int option2 = scanner.nextInt();
+            int opcion = scanner.nextInt();
             String mensaje = "";
             String serverResponse = "";
-            switch (option2) {
+            switch (opcion) {
                 case 1:
                     // Lógica para enviar mensaje
+                    FuncionesUsuario.enviarMensaje(nombreUsuario, writer, reader);
                     break;
                 case 2:
                     // Listar chats
-                    
+                    FuncionesUsuario.listarGrupos(nombreUsuario, writer, reader);
+
                     break;
                 case 3:
                     // Lógica para listar grupos y al seleccionar uno
                     // entra en el.
+                    FuncionesUsuario.listarUsuarios(writer, reader);
                     mensaje = "listarUsuarios";
                     writer.writeUTF(mensaje);
                     serverResponse = reader.readUTF();
@@ -125,7 +130,7 @@ public class AppCliente {
                     mensaje = "CerrarSession";
                     writer.writeUTF(mensaje);
                     serverResponse = reader.readUTF();
-                    condition = false;
+                    condicion = false;
                     break;
                 default:
                     System.out.println("Comando no reconocido");
@@ -143,8 +148,8 @@ public class AppCliente {
                 + "\n3. Administrar un chat."
                 + "\n4. Volver al menú principal.");
 
-        int option3 = scanner.nextInt();
-        switch (option3) {
+        int opcion = scanner.nextInt();
+        switch (opcion) {
             case 1:
                 // Lógica para listar usuarios
                 break;
@@ -173,9 +178,9 @@ public class AppCliente {
                 + "\n4. Leer mensajes (automático)."
                 + "\n5. Salir del chat.");
 
-        int opcion4 = scanner.nextInt();
+        int opcion = scanner.nextInt();
 
-        switch (opcion4) {
+        switch (opcion) {
             case 1:
                 // Lógica para administrar el grupo
                 break;
