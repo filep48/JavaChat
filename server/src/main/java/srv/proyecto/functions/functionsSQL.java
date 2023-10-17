@@ -11,7 +11,6 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import javax.swing.JOptionPane;
 
 import srv.proyecto.clases.DatabaseConnection;
@@ -28,7 +27,7 @@ public class functionsSQL {
      * @param writer El flujo de salida para enviar una respuesta al cliente.
      * @param reader El flujo de entrada para recibir datos del cliente.
      */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
+    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input, Connection cn)
             throws IOException {
         try {
             String[] parts = input.split(";");
@@ -118,7 +117,7 @@ public class functionsSQL {
      * @param contrasena La contraseña proporcionada.
      * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
-    /*public static boolean InicioSession(String nombre, String contrasena, String comando) {
+    public static boolean datosUsuario(String nombre, String contrasena, String comando) {
         try {
             // Verificar si la contraseña cumple con los requisitos en caso de que el
             // comando sea iniciarSesion
@@ -146,7 +145,6 @@ public class functionsSQL {
             return false;
         }
     }
-     */
 
     // Creacion del registro de usuarios en la base de datos
     public static boolean registroBBDD(String nombre, String contrasena, String comando) {
@@ -156,28 +154,26 @@ public class functionsSQL {
                 validarContrasena(contrasena);
             }
 
-            try (Connection cn = DatabaseConnection.getConnection()) {
-                String strSql;
+            String strSql;
+            if ("registrarse".equals(comando)) {
+                // Si el comando es registrar, insertamos el usuario
+                strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
+            } else {
+                // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
+                // credenciales
+                strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
+            }
+
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                pst.setString(1, nombre);
+                pst.setString(2, contrasena);;
+
                 if ("registrarse".equals(comando)) {
-                    // Si el comando es registrar, insertamos el usuario
-                    strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
+                    int affectedRows = pst.executeUpdate();
+                    return affectedRows > 0;
                 } else {
-                    // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
-                    // credenciales
-                    strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
-                }
-
-                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                    pst.setString(1, nombre);
-                    pst.setString(2, contrasena);
-
-                    if ("registrar".equals(comando)) {
-                        int affectedRows = pst.executeUpdate();
-                        return affectedRows > 0;
-                    } else {
-                        try (ResultSet rs = pst.executeQuery()) {
-                            return rs.next(); // Si hay resultados, las credenciales son válidas
-                        }
+                    try (ResultSet rs = pst.executeQuery()) {
+                        return rs.next(); // Si hay resultados, las credenciales son válidas
                     }
                 }
             }

@@ -51,6 +51,12 @@ public class App {
 
         @Override
         public void run() {
+            Connection cn = null;
+            try {
+                cn = DatabaseConnection.getConnection();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
             System.out.println("Ejecutando hilo del cliente...");
             try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
                     DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
@@ -60,7 +66,7 @@ public class App {
                 System.out.println("Recibido del cliente: " + inputLine);
                     //recoge el nombre del usuario
                 String nombre = inputLine.split(";")[1];
-                boolean inicioSesionExitoso = processInput(inputLine, writer, reader,nombre);
+                boolean inicioSesionExitoso = processInput(inputLine, writer, reader,nombre, cn );
                 if (inicioSesionExitoso) {
                     writer.writeUTF("Inicio de sesión exitoso.");
                 } else {
@@ -72,7 +78,7 @@ public class App {
                 while (true) {
                     inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
-                    boolean comandoProcesado = processInput(inputLine, writer, reader, nombre);
+                    boolean comandoProcesado = processInput(inputLine, writer, reader,nombre, cn);
 
                     if (!comandoProcesado) {
                         writer.writeUTF("Comando no reconocido o error en el procesamiento.");
@@ -99,7 +105,8 @@ public class App {
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
-        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader,String nombre) throws IOException {
+        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader, String nombre,
+                Connection cn) throws IOException {
             System.out.println("Procesando entrada: " + input);
 
             String[] partes = input.split(";");
@@ -107,7 +114,7 @@ public class App {
                 String comando = partes[0];
 
                 if ("iniciarSesion".equals(comando)) {
-                    functionsSQL.splitDatosUsuario(writer, reader, input);
+                    functionsSQL.splitDatosUsuario(writer, reader, input, cn);
                 } else if ("registrarse".equals(comando)) {
                     
                     String nombreUsuario = partes[1];
