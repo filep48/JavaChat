@@ -171,7 +171,7 @@ public class functionsSQL {
                     pst.setString(1, nombre);
                     pst.setString(2, contrasena);
 
-                    if ("registrar".equals(comando)) {
+                    if ("registrarse".equals(comando)) {
                         int affectedRows = pst.executeUpdate();
                         return affectedRows > 0;
                     } else {
@@ -227,79 +227,6 @@ public class functionsSQL {
         }
     }
 
-    /*--------------------------ELIMINAR ESTA FUNCION PQ LO HAGO EN DATOSUSUARIO---------------
-     * ----------------------LA DEJO QUOTEADA POR SI DE CAS LA RECUPERAMOS LUEGO 
-     * 
-     * 
-     * Verifica si un usuario existe en la base de datos.
-     *
-     * @param cn    La conexión a la base de datos.
-     * @param datos Los datos del usuario a verificar.
-     * @return true si el usuario existe en la bbdd, o false si no existe.
-     * @throws SQLException Si ocurre un error al acceder a la bbdd.
-     * 
-     * public static boolean usuarioExiste(Connection cn, Usuario datos) throws SQLException {
-        String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ?";
-        try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-            pst.setString(1, datos.getNombreUsuarioo());
-    
-            try (ResultSet rs = pst.executeQuery()) {
-                return rs.next(); // Si hay resultados el usuario existe en la base de datos
-            }
-        } catch (SQLException e) {
-            System.err.println("Error de SQL: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    
-    
-    /**
-     * --------------OTRA FUNCION PARA BORRAR PQ HAGO LO MISMO EN EL RUN de ClientHandler
-     * 
-     * Función para derivar el flujo de acciones segun si la funcion usuarioExiste
-     * devuelve true o false
-     * 
-     * public static String login(String nombreUsuario, String contrasena, Connection cn) {
-            if (datosUsuario(nombreUsuario, contrasena, cn)) {
-                String respuesta = "Inicio de sesión exitoso. ¡Bienvenido!";
-                // Llamar aquí a la función o método para mostrar el menú al usuario
-                return respuesta;
-            } else {
-                String respuestaNegativa = "Usuario o contraseña incorrectos. ¿Quieres registrarte?";
-                return respuestaNegativa;
-                }
-        }
-    
-     */
-
-    /** función que da de alta a un usuario en la bbdd */
-    public static boolean darAltaUsuario(Connection cn, Usuario usuarioDatos) {
-        try {
-            String strSql = "INSERT INTO Usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setString(1, usuarioDatos.getNombreUsuarioo());
-            pst.setString(2, usuarioDatos.getContrasena());
-
-            int filasAfectadas = pst.executeUpdate();
-
-            if (filasAfectadas == 1) {
-                return true;
-            } else {
-                return false;
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-
-    /**
-     * Función para validar la contraseña y lanzar una excepción personalizada si no
-     * cumple
-     */
-
     static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
             throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
@@ -318,23 +245,26 @@ public class functionsSQL {
 
 
 
-    public static int obtenerIdUsuario(Connection cn, String nombreUsuario) {
+    public static int obtenerIdUsuario(String nombreUsuario) {
         int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
 
-        try {
-            String query = "SELECT id FROM Usuarios WHERE nombre_usuario = ?";
-            try (PreparedStatement pst = cn.prepareStatement(query)) {
+        try (Connection cn = DatabaseConnection.getConnection()) {
+            String strSql = "SELECT id FROM Usuarios WHERE nombre_usuario = ?";
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
                 pst.setString(1, nombreUsuario);
+
                 try (ResultSet rs = pst.executeQuery()) {
                     if (rs.next()) {
                         idUsuario = rs.getInt("id");
                     }
                 }
             }
+            return idUsuario;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error de SQL: " + e.getMessage());
+        } catch (Exception e) {
+            // TODO: handle exception
         }
-
         return idUsuario;
     }
     // Eliminar al usuario de los grupos a los que pertenece

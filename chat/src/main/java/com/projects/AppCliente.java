@@ -95,6 +95,7 @@ public class AppCliente {
                     break;
                 case 2:
                     // Listar chats
+                    
                     break;
                 case 3:
                     // Lógica para listar grupos y al seleccionar uno

@@ -2,8 +2,11 @@ package srv.proyecto;
 
 import java.io.*;
 import java.net.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 
+import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
 import srv.proyecto.functions.functionsSQL;
@@ -41,6 +44,15 @@ public class AppServer {
 
         @Override
         public void run() {
+            // Obtener una conexión a la base de datos
+            Connection cn;
+            cn = null;
+            try {
+                cn = DatabaseConnection.getConnection();
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             System.out.println("Ejecutando hilo del cliente...");
             try (DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
                     DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream())) {
@@ -50,6 +62,11 @@ public class AppServer {
                 // recoge el nombre del usuario
                 String nombre = inputLine.split(";")[1];
                 boolean inicioSesionExitoso = processInput(inputLine, writer, reader, nombre);
+                Usuario usuario = new Usuario();
+                usuario.setNombreUsuarioo(nombre);
+                usuario.setId(functionsSQL.obtenerIdUsuario(nombre));
+                usuariosConectados.put(nombre, usuario);
+                //System.out.println(usuario.toString());
                 if (inicioSesionExitoso) {
                     writer.writeUTF("Inicio de sesión exitoso.");
                 } else {

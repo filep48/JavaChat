@@ -1,6 +1,9 @@
 package srv.proyecto.clases;
 
 public class Usuario{
+    
+    public Usuario() {
+    }
     private int id;
     private String nombreUsuarioo;
     private String contrasena;
@@ -14,10 +17,9 @@ public class Usuario{
     }
 
     //Contructor completo
-    public Usuario(int id, String nombreUsuarioo, String contrasena, boolean isConectado, int grupoId) {
+    public Usuario(int id, String nombreUsuarioo, boolean isConectado, int grupoId) {
         this.id = id;
         this.nombreUsuarioo = nombreUsuarioo;
-        this.contrasena = contrasena;
         this.isConectado = isConectado;
         this.grupoId = grupoId;
     }
@@ -52,6 +54,11 @@ public class Usuario{
     }
     public void setGrupoId(int grupoId) {
         this.grupoId = grupoId;
+    }
+    @Override
+    public String toString() {
+        return "Usuario [id=" + id + ", nombreUsuarioo=" + nombreUsuarioo + ", isConectado=" + isConectado
+                + ", grupoId=" + grupoId + "]";
     }
 
     

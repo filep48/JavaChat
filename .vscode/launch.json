@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "AppCliente",
+            "request": "launch",
+            "mainClass": "com.projects.AppCliente",
+            "projectName": "chat"
+        },
+        {
+            "type": "java",
+            "name": "AppServer",
+            "request": "launch",
+            "mainClass": "srv.proyecto.AppServer",
+            "projectName": "server"
+        },
+        {
+            "type": "java",
             "name": "Server",
             "request": "launch",
             "mainClass": "srv.proyecto.functions.Server",
