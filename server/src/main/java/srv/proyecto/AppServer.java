@@ -102,7 +102,7 @@ public class AppServer {
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
-        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader, String nombre)
+        private boolean processInput(Connection cn,String input, DataOutputStream writer, DataInputStream reader, String nombre)
                 throws IOException {
             System.out.println("Procesando entrada: " + input);
 
@@ -122,6 +122,8 @@ public class AppServer {
                 } else if ("listarUsuariosConectados".equals(comando)) {
                     String resultado = funcionesServer.listarUsuariosConectados();
                     writer.writeUTF(resultado);
+                } else if ("eliminarGrupo".equals(comando)) {
+                    String resultado = functionsSQL.eliminarGrupo(cn,);
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";

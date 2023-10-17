@@ -323,4 +323,54 @@ public class functionsSQL {
             return false;
         }
     }
+
+    public static boolean eliminarGrupo(Connection cn, int usuarioId, int grupoId) {
+        try {
+            // Primero, obtenemos el rol del usuario en el grupo
+            String selectRol = "SELECT rol FROM MiembrosGrupos WHERE usuario_id = ? AND grupo_id = ?";
+            PreparedStatement pst = cn.prepareStatement(selectRol);
+            pst.setInt(1, usuarioId);
+            pst.setInt(2, grupoId);
+            ResultSet rs = pst.executeQuery();
+    
+            if (rs.next()) {
+                String rol = rs.getString("rol");
+    
+                // Comparamos si el rol es "admin"
+                if ("admin".equals(rol)) {
+                    // El usuario tiene permisos de administrador, eliminamos el grupo
+                    String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE grupo_id = ?";
+                    pst = cn.prepareStatement(deleteMiembrosGrupos);
+                    pst.setInt(1, grupoId);
+                    pst.executeUpdate();
+    
+                    String deleteMensajes = "DELETE FROM Mensajes WHERE grupo_id = ?";
+                    pst = cn.prepareStatement(deleteMensajes);
+                    pst.setInt(1, grupoId);
+                    pst.executeUpdate();
+    
+                    String deleteArchivos = "DELETE FROM Archivos WHERE grupo_id = ?";
+                    pst = cn.prepareStatement(deleteArchivos);
+                    pst.setInt(1, grupoId);
+                    pst.executeUpdate();
+    
+                    String deleteGrupo = "DELETE FROM Grupos WHERE id = ?";
+                    pst = cn.prepareStatement(deleteGrupo);
+                    pst.setInt(1, grupoId);
+                    pst.executeUpdate();
+    
+                    return true;
+                } else {
+                    System.out.println("No tienes permisos de administrador");
+                }
+            } else {
+                System.out.println("El usuario no es miembro del grupo");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al eliminar el grupo: " + e.getMessage());
+        }
+        
+        return false;
+    }
+    
 }

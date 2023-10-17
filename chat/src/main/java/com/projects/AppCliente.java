@@ -119,7 +119,7 @@ public class AppCliente {
                     menuCrearGrupo(nombreUsuario, scanner, writer, reader);
                     break;
                 case 6:
-                    // Lógica para eliminar un grupo
+                    FuncionesUsuario.eliminarGrupo(nombreUsuario, writer, reader);
                     break;
                 case 7:
                     mensaje = "CerrarSession";

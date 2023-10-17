@@ -42,4 +42,26 @@ public class FuncionesUsuario {
             System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
         }
     }
+    public static void eliminarGrupo(String nombreUsuario,DataOutputStream writer, DataInputStream reader) throws IOException{
+        Scanner scanner = new Scanner(System.in);
+        listarGrupo(nombreUsuario,writer, reader);
+        System.out.print("Introduce el nombre del grupo que deseas eliminar: ");
+        String nombreGrupo = scanner.next();
+        String mensaje = "eliminarGrupo;" + nombreUsuario + ";" + nombreGrupo;
+        writer.writeUTF(mensaje);
+        boolean eliminarGrupo = reader.readBoolean();
+        if (eliminarGrupo) {
+            System.out.println("Grupo eliminado.");
+        } else {
+            System.out.println("Error al eliminar el grupo. Inténtalo de nuevo.");
+        }
+    }
+
+    public static void listarGrupo(String nombreUsuario,DataOutputStream writer, DataInputStream reader) throws IOException{
+        String mensaje = "listarGrupos;" + nombreUsuario;
+        writer.writeUTF(mensaje);
+        String grupos = reader.readUTF();
+        System.out.println("Grupos: " + grupos);
+
+    }
 }
