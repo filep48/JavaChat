@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 import javax.swing.JOptionPane;
 
 import srv.proyecto.clases.DatabaseConnection;
@@ -27,7 +28,7 @@ public class functionsSQL {
      * @param writer El flujo de salida para enviar una respuesta al cliente.
      * @param reader El flujo de entrada para recibir datos del cliente.
      */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input, Connection cn)
+    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
             throws IOException {
         try {
             String[] parts = input.split(";");
@@ -37,7 +38,7 @@ public class functionsSQL {
             String contrasena = parts[2];
             if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
 
-                boolean inicioSesionExitoso = registroBBDD(nombreUsuario, contrasena, commando);
+                boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
@@ -95,7 +96,7 @@ public class functionsSQL {
     }
 
     // Este metodo que manda el mensaje de x cliente a la base de datos
-    public static PreparedStatement enviarMensajesBBDD(Connection cn, String mensaje) {
+    public static PreparedStatement EnviarMensajesBBDD(Connection cn, String mensaje) {
         try {
             String strSql = "insert into mensajes (contenido) values (?)";
             PreparedStatement pst = cn.prepareStatement(strSql);
@@ -117,7 +118,7 @@ public class functionsSQL {
      * @param contrasena La contraseña proporcionada.
      * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
-    public static boolean datosUsuario(String nombre, String contrasena, String comando) {
+    /*public static boolean InicioSession(String nombre, String contrasena, String comando) {
         try {
             // Verificar si la contraseña cumple con los requisitos en caso de que el
             // comando sea iniciarSesion
@@ -145,42 +146,45 @@ public class functionsSQL {
             return false;
         }
     }
+     */
 
     // Creacion del registro de usuarios en la base de datos
-    public static boolean registroBBDD(String nombre, String contrasena, String comando) {
+    public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
         try {
             // Si el comando es iniciarSesion, validamos la contraseña
             if ("registrarse".equals(comando)) {
                 validarContrasena(contrasena);
             }
 
-            String strSql;
-            if ("registrarse".equals(comando)) {
-                // Si el comando es registrar, insertamos el usuario
-                strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
-            } else {
-                // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
-                // credenciales
-                strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
-            }
-
-            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                pst.setString(1, nombre);
-                pst.setString(2, contrasena);;
-
+            try (Connection cn = DatabaseConnection.getConnection()) {
+                String strSql;
                 if ("registrarse".equals(comando)) {
-                    int affectedRows = pst.executeUpdate();
-                    return affectedRows > 0;
+                    // Si el comando es registrar, insertamos el usuario
+                    strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
                 } else {
-                    try (ResultSet rs = pst.executeQuery()) {
-                        return rs.next(); // Si hay resultados, las credenciales son válidas
+                    // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
+                    // credenciales
+                    strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
+                }
+
+                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                    pst.setString(1, nombre);
+                    pst.setString(2, contrasena);
+
+                    if ("registrar".equals(comando)) {
+                        int affectedRows = pst.executeUpdate();
+                        return affectedRows > 0;
+                    } else {
+                        try (ResultSet rs = pst.executeQuery()) {
+                            return rs.next(); // Si hay resultados, las credenciales son válidas
+                        }
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
-        } catch (contrasenaInvalidaException e) {
+        } catch (ContrasenaInvalidaException e) {
             e.printStackTrace();
             return false;
         }
@@ -209,7 +213,7 @@ public class functionsSQL {
      *
      * @param cn La conexión a la base de datos.
      */
-    public static void eliminacionGruposBBDD(Connection cn) {
+    public static void EliminacionGruposBBDD(Connection cn) {
         try {
             // Solicitar al usuario el ID del grupo
             String idGrupo = JOptionPane.showInputDialog(null, "Introduce el ID del grupo que deseas eliminar:");
@@ -269,41 +273,24 @@ public class functionsSQL {
     
      */
 
-    /**
-     * Función para dar de alta a un usuario en la base de datos.
-     *
-     * @param cn            La conexión a la base de datos.
-     * @param nombreUsuario El nombre de usuario proporcionado por el cliente.
-     * @param contrasena    La contraseña proporcionada por el cliente.
-     * @return `true` si el registro es exitoso, `false` si falla.
-     */
-    public static boolean darAltaUsuario(Connection cn, String nombreUsuario, String contrasena) {
+    /** función que da de alta a un usuario en la bbdd */
+    public static boolean darAltaUsuario(Connection cn, Usuario usuarioDatos) {
         try {
-
-            validarContrasena(contrasena);
-
             String strSql = "INSERT INTO Usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
-            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                pst.setString(1, nombreUsuario);
-                pst.setString(2, contrasena);
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            pst.setString(1, usuarioDatos.getNombreUsuarioo());
+            pst.setString(2, usuarioDatos.getContrasena());
 
             int filasAfectadas = pst.executeUpdate();
 
-                if (filasAfectadas == 1) {
-                    System.out.println("Usuario dado de alta con éxito.");
-                    return true;
-                } else {
-                    System.out.println("Error al dar de alta al usuario.");
-                    return false;
-                }
+            if (filasAfectadas == 1) {
+                return true;
+            } else {
+                return false;
             }
+
         } catch (SQLException ex) {
-            ex.printStackTrace();
-            System.out.println("Error al dar de alta al usuario.");
-            return false;
-        } catch (contrasenaInvalidaException e) {
-            // Manejar la excepción de contraseña inválida aquí, si es necesario
-            e.printStackTrace();
+            Logger.getLogger(FuncionesServer.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
     }
@@ -313,9 +300,9 @@ public class functionsSQL {
      * cumple
      */
 
-    static void validarContrasena(String contrasena) throws contrasenaInvalidaException {
+    static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
-            throw new contrasenaInvalidaException("La contraseña no cumple con los requisitos.");
+            throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
         }
     }
 
@@ -323,11 +310,13 @@ public class functionsSQL {
      * Excepción personalizada para manejar contraseñas inválidas
      * lanza mensaje predefenido por nosotros en validarContrasena
      */
-    public static class contrasenaInvalidaException extends Exception {
-        public contrasenaInvalidaException(String mensaje) {
+    public static class ContrasenaInvalidaException extends Exception {
+        public ContrasenaInvalidaException(String mensaje) {
             super(mensaje);
         }
     }
+
+
 
     public static int obtenerIdUsuario(Connection cn, String nombreUsuario) {
         int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
@@ -404,7 +393,4 @@ public class functionsSQL {
             return false;
         }
     }
-
-
-
 }
