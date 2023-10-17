@@ -3,9 +3,9 @@ package srv.proyecto;
 import java.io.*;
 import java.net.*;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 
+import srv.proyecto.clases.ControladorArchivos;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
@@ -37,9 +37,16 @@ public class App {
 
     static class ClientHandler extends Thread {
         private Socket clientSocket;
+        private Connection cn;
 
         public ClientHandler(Socket socket) {
             this.clientSocket = socket;
+
+        }
+
+        public ClientHandler(Socket socket, Connection dbConnection) {
+            this.clientSocket = socket;
+            this.cn = dbConnection; 
         }
 
         @Override
@@ -76,6 +83,8 @@ public class App {
                     if (!comandoProcesado) {
                         writer.writeUTF("Comando no reconocido o error en el procesamiento.");
                     }
+
+                    // ------------------------ Continuar con otras solicitudes del cliente
                 }
             } catch (IOException e) {
                 System.out.println(
@@ -84,14 +93,15 @@ public class App {
         }
 
         /**
-         * Procesa una entrada del cliente para realizar el inicio de sesión.
+         * Procesa una entrada del cliente para realizar el inicio de sesión o el
+         * registro.
          *
-         * @param input  La cadena de entrada que viene del menu del cliente
-         *               En el formato
-         *               "iniciarSesion;nombreUsuario;contrasena".
+         * @param input  La cadena de entrada que viene del menú del cliente en el
+         *               formato "comando;nombreUsuario;contrasena".
          * @param writer El flujo de salida para enviar una respuesta al cliente.
          * @param reader El flujo de entrada para recibir datos del cliente.
-         * @return `true` si el inicio de sesión es exitoso, `false` si falla.
+         * @return `true` si el inicio de sesión o el registro es exitoso, `false` si
+         *         falla.
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
@@ -106,26 +116,28 @@ public class App {
                 if ("iniciarSesion".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input, cn);
                 } else if ("registrarse".equals(comando)) {
-                    functionsSQL.splitDatosUsuario(writer, reader, input, cn);
-                } else if ("listarGrupos".equals(comando)) {
-                    String resultado = functionsSQL.llistarGruposCreados();
-                    writer.writeUTF(resultado);
-                } else if ("listarUsuarios".equals(comando)) {
-                    String resultado = functionsSQL.llistarUsuariosCreados();
-                    writer.writeUTF(resultado);
-                } else if ("listarUsuariosConectados".equals(comando)) {
-                    String resultado = funcionesServer.listarUsuariosConectados();
-                    writer.writeUTF(resultado);
-                } else if ("CerrarSession".equals(comando)) {
-                    FuncionesServer.desconectarUsuario(nombre);
-                    String resultado = "CerrarSession";
-                    writer.writeUTF(resultado);
+                    
+                    String nombreUsuario = partes[1];
+                    String contrasena = partes[2];
+
+                    // Llamar a darAltaUsuario para registrar al usuario en la base de datos
+                    boolean registroExitoso = functionsSQL.darAltaUsuario(cn, nombreUsuario, contrasena);
+                    int usuarioid = functionsSQL.obtenerIdUsuario(cn, nombreUsuario);
+                    ControladorArchivos.crearCarpetaServidor(cn, usuarioid);
+
+                    // Enviar una respuesta al cliente
+                    if (registroExitoso) {
+                        writer.writeBoolean(true);
+                        
+                    } else {
+                        writer.writeBoolean(false);
+                    }
                 } else {
                     System.out.println("Comando desconocido: " + comando);
                     return false;
                 }
             } else {
-                System.out.println("Mensaje de inicio de sesión incorrecto.");
+                System.out.println("Mensaje de inicio de sesión o registro incorrecto.");
                 return false;
             }
             return true;
