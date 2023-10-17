@@ -8,7 +8,7 @@ import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
 import srv.proyecto.functions.functionsSQL;
 
-public class App {
+public class AppServer {
     public static HashMap<String, Usuario> usuariosConectados = new HashMap<>();
     public static FuncionesServer funcionesServer = new FuncionesServer(usuariosConectados);
 

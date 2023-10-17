@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 import com.projects.functions.FuncionesUsuario;
 
-public class App {
+public class AppCliente {
     // CLIENTE
     public static void main(String[] args) {
 

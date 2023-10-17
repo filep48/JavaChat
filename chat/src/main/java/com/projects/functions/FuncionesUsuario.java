@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Scanner;
-import com.projects.App;
+import com.projects.AppCliente;
 
 public class FuncionesUsuario {
 
@@ -19,7 +19,7 @@ public class FuncionesUsuario {
         boolean registroExitoso = reader.readBoolean();
         if (registroExitoso) {
             System.out.println("Registro exitoso.");
-            App.menuSesionIniciada(nombreUsuario, scanner, writer, reader);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader);
         } else {
             System.out.println(
                     "Error al registrarse. El nombre de usuario puede estar en uso o hubo un problema con el servidor. Inténtalo de nuevo.");
@@ -37,7 +37,7 @@ public class FuncionesUsuario {
         boolean inicioSesionCorrecto = reader.readBoolean();
         if (inicioSesionCorrecto) {
             System.out.println("Inicio de sesión exitoso.");
-            App.menuSesionIniciada(nombreUsuario, scanner, writer, reader);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader);
         } else {
             System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
         }
