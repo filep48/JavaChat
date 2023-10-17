@@ -7,13 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
 import javax.swing.JOptionPane;
-
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
@@ -31,7 +25,7 @@ public class functionsSQL {
     public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
             throws IOException {
         try {
-            String[] parts = input.split(";");
+            String[] parts = FuncionesServer.slplitMensaje(input);
 
             String commando = parts[0];
             String nombreUsuario = parts[1];
@@ -80,7 +74,10 @@ public class functionsSQL {
             Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
             System.out.println();
-            String strSql = "SELECT id, nombre_grupo FROM grupos";
+            String strSql = "SELECT g.id, g.nombre_grupo " +
+                    "FROM grupos g " +
+                    "JOIN miembrosgrupos mg ON g.id = mg.grupo_id " +
+                    "WHERE mg.usuario_id = ?";
             PreparedStatement pst = cn.prepareStatement(strSql);
 
             // Resultados de la consulta
@@ -118,34 +115,39 @@ public class functionsSQL {
      * @param contrasena La contraseña proporcionada.
      * @return `true` si las credenciales son válidas, `false` en caso contrario.
      */
-    /*public static boolean InicioSession(String nombre, String contrasena, String comando) {
-        try {
-            // Verificar si la contraseña cumple con los requisitos en caso de que el
-            // comando sea iniciarSesion
-
-            if (!comando.equals("iniciarSesion")) {
-                validarContrasena(contrasena); // Verificar si la contraseña cumple con los requisitos
-            }
-            try (Connection cn = DatabaseConnection.getConnection()) {
-                String strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?";
-                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                    pst.setString(1, nombre);
-                    pst.setString(2, contrasena);
-
-                    try (ResultSet rs = pst.executeQuery()) {
-                        return rs.next(); // Si hay resultados, las credenciales son válidas
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        } catch (ContrasenaInvalidaException e) {
-            // Manejar la excepción de contraseña inválida aquí, si es necesario
-            e.printStackTrace();
-            return false;
-        }
-    }
+    /*
+     * public static boolean InicioSession(String nombre, String contrasena, String
+     * comando) {
+     * try {
+     * // Verificar si la contraseña cumple con los requisitos en caso de que el
+     * // comando sea iniciarSesion
+     * 
+     * if (!comando.equals("iniciarSesion")) {
+     * validarContrasena(contrasena); // Verificar si la contraseña cumple con los
+     * requisitos
+     * }
+     * try (Connection cn = DatabaseConnection.getConnection()) {
+     * String strSql =
+     * "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?"
+     * ;
+     * try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+     * pst.setString(1, nombre);
+     * pst.setString(2, contrasena);
+     * 
+     * try (ResultSet rs = pst.executeQuery()) {
+     * return rs.next(); // Si hay resultados, las credenciales son válidas
+     * }
+     * }
+     * }
+     * } catch (SQLException e) {
+     * e.printStackTrace();
+     * return false;
+     * } catch (ContrasenaInvalidaException e) {
+     * // Manejar la excepción de contraseña inválida aquí, si es necesario
+     * e.printStackTrace();
+     * return false;
+     * }
+     * }
      */
 
     // Creacion del registro de usuarios en la base de datos
@@ -191,20 +193,18 @@ public class functionsSQL {
     }
 
     // *********************************************
-    public static void creacionGruposBBDD(Connection cn) {
+    public static boolean creacionGruposBBDD(Usuario usuario,String[] mensaje,DataInputStream reader) {
         try {
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("Introduce el nombre del grupo: ");
-            String nombreGrupo = scanner.nextLine();
-
-            String strSql = "INSERT INTO grupos (nombre_grupo) VALUES (?)";
+            Connection cn = DatabaseConnection.getConnection();
+            String strSql = "INSERT INTO grupos (nombre_grupo, administrador_id) VALUES (?,?)";
             PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setString(1, nombreGrupo);
+            pst.setString(1, mensaje[1]);
+            pst.setInt(2, usuario.getId());
             pst.executeUpdate();
-
-            System.out.println("Grupo creado con éxito.");
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -243,8 +243,6 @@ public class functionsSQL {
         }
     }
 
-
-
     public static int obtenerIdUsuario(String nombreUsuario) {
         int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
 
@@ -267,6 +265,7 @@ public class functionsSQL {
         }
         return idUsuario;
     }
+
     // Eliminar al usuario de los grupos a los que pertenece
     public static void deleteMiembrosGrupos(Connection cn, int idUsuario) {
         String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE usuario_id = ?";
@@ -277,7 +276,8 @@ public class functionsSQL {
             System.err.println("Error al eliminar ");
         }
     }
-     // Eliminar los mensajes del usuario
+
+    // Eliminar los mensajes del usuario
     public static void deleteMensajes(Connection cn, int idUsuario) {
         String deleteMensajes = "DELETE FROM Mensajes WHERE usuario_id = ?";
         try {
@@ -288,8 +288,9 @@ public class functionsSQL {
             System.err.println("Error al eliminar ");
         }
     }
-     // Eliminar los archivos del usuario
-    public static void deleteArchivos(Connection cn, int idUsuario){
+
+    // Eliminar los archivos del usuario
+    public static void deleteArchivos(Connection cn, int idUsuario) {
         String deleteArchivos = "DELETE FROM Archivos WHERE usuario_id = ?";
         try {
             PreparedStatement pst = cn.prepareStatement(deleteArchivos);
@@ -299,8 +300,9 @@ public class functionsSQL {
             System.err.println("Error al eliminar ");
         }
     }
+
     // Eliminar el registro del usuario
-    public static void  deleteUsuario (Connection cn,int idGrupo){
+    public static void deleteUsuario(Connection cn, int idGrupo) {
         String deleteUsuario = "DELETE FROM Usuarios WHERE id = ?";
         try {
             PreparedStatement pst = cn.prepareStatement(deleteUsuario);
@@ -311,7 +313,7 @@ public class functionsSQL {
         }
     }
 
-    public static boolean  darseDeBajaUsuario(Connection cn, int usuarioId){
+    public static boolean darseDeBajaUsuario(Connection cn, int usuarioId) {
         try {
             deleteMiembrosGrupos(cn, usuarioId);
             deleteMensajes(cn, usuarioId);
@@ -323,4 +325,5 @@ public class functionsSQL {
             return false;
         }
     }
+
 }

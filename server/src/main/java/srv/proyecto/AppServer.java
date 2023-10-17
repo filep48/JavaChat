@@ -61,12 +61,14 @@ public class AppServer {
                 System.out.println("Recibido del cliente: " + inputLine);
                 // recoge el nombre del usuario
                 String nombre = inputLine.split(";")[1];
-                boolean inicioSesionExitoso = processInput(inputLine, writer, reader, nombre);
+                boolean inicioSesionExitoso = processInput(null, inputLine, writer, reader, nombre);
                 Usuario usuario = new Usuario();
                 usuario.setNombreUsuarioo(nombre);
                 usuario.setId(functionsSQL.obtenerIdUsuario(nombre));
+                usuario.setConectado(inicioSesionExitoso);
                 usuariosConectados.put(nombre, usuario);
-                //System.out.println(usuario.toString());
+                System.out.println(usuariosConectados.toString());
+                // System.out.println(usuario.toString());
                 if (inicioSesionExitoso) {
                     writer.writeUTF("Inicio de sesión exitoso.");
                 } else {
@@ -78,7 +80,7 @@ public class AppServer {
                 while (true) {
                     inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
-                    boolean comandoProcesado = processInput(inputLine, writer, reader, nombre);
+                    boolean comandoProcesado = processInput(usuario, inputLine, writer, reader, nombre);
 
                     if (!comandoProcesado) {
                         writer.writeUTF("Comando no reconocido o error en el procesamiento.");
@@ -102,13 +104,14 @@ public class AppServer {
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
-        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader, String nombre)
+        private boolean processInput(Usuario usuario, String input, DataOutputStream writer, DataInputStream reader,
+                String nombre)
                 throws IOException {
             System.out.println("Procesando entrada: " + input);
 
-            String[] partes = input.split(";");
-            if (partes.length > 0) {
-                String comando = partes[0];
+            String[] mensaje = FuncionesServer.slplitMensaje(input);
+            if (mensaje.length > 0) {
+                String comando = mensaje[0];
                 if ("iniciarSesion".equals(comando)) {
                     functionsSQL.splitDatosUsuario(writer, reader, input);
                 } else if ("registrarse".equals(comando)) {
@@ -122,6 +125,9 @@ public class AppServer {
                 } else if ("listarUsuariosConectados".equals(comando)) {
                     String resultado = funcionesServer.listarUsuariosConectados();
                     writer.writeUTF(resultado);
+                } else if ("crearGrupo".equals(comando)) {
+                    boolean resultado = functionsSQL.creacionGruposBBDD(usuario, mensaje, reader);
+                    writer.writeBoolean(resultado);
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";

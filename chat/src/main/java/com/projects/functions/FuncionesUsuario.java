@@ -42,4 +42,20 @@ public class FuncionesUsuario {
             System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
         }
     }
+
+    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce el nombre del grupo: ");
+        String nombreGrupo = scanner.next();
+        String mensaje = "crearGrupo;" + nombreGrupo;
+        writer.writeUTF(mensaje);
+        boolean creacionGrupoCorrecto = reader.readBoolean();
+        if (creacionGrupoCorrecto) {
+            System.out.println("Creación de grupo exitosa.");
+            AppCliente.menuSesionIniciada(nombreGrupo,scanner, writer, reader);
+        } else {
+            System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
+        }
+
+    }
 }

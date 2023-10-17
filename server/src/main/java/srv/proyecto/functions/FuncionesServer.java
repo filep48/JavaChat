@@ -5,11 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-
 import srv.proyecto.clases.Usuario;
 
 public class FuncionesServer {
     private static HashMap<String, Usuario> usuarios;
+
+    public static String[] slplitMensaje(String mensaje) {
+        String[] mensajeSplit = mensaje.split(";");
+        return mensajeSplit;
+    }
 
     static String leerMensaje(InputStream is) throws IOException {
         StringBuilder mensaje = new StringBuilder();

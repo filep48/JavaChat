@@ -105,7 +105,6 @@ public class AppCliente {
                     serverResponse = reader.readUTF();
                     System.out.println("Llista de usuarios: "
                             + "\n" + serverResponse);
-
                     break;
                 case 4:
                     // Lógica para listar usuarios conectados
@@ -116,7 +115,9 @@ public class AppCliente {
                             + "\n" + serverResponse);
                     break;
                 case 5:
-                    menuCrearGrupo(nombreUsuario, scanner, writer, reader);
+                    FuncionesUsuario.creacionGrupo(writer, reader);
+                    
+                    // Lógica para crear un grupo
                     break;
                 case 6:
                     // Lógica para eliminar un grupo
