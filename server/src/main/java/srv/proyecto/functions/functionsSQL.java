@@ -38,7 +38,7 @@ public class functionsSQL {
             String contrasena = parts[2];
             if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
 
-                boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
+                boolean inicioSesionExitoso = registroBBDD(nombreUsuario, contrasena, commando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
@@ -96,7 +96,7 @@ public class functionsSQL {
     }
 
     // Este metodo que manda el mensaje de x cliente a la base de datos
-    public static PreparedStatement EnviarMensajesBBDD(Connection cn, String mensaje) {
+    public static PreparedStatement enviarMensajesBBDD(Connection cn, String mensaje) {
         try {
             String strSql = "insert into mensajes (contenido) values (?)";
             PreparedStatement pst = cn.prepareStatement(strSql);
@@ -149,7 +149,7 @@ public class functionsSQL {
      */
 
     // Creacion del registro de usuarios en la base de datos
-    public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
+    public static boolean registroBBDD(String nombre, String contrasena, String comando) {
         try {
             // Si el comando es iniciarSesion, validamos la contraseña
             if ("registrarse".equals(comando)) {
@@ -184,7 +184,7 @@ public class functionsSQL {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
-        } catch (ContrasenaInvalidaException e) {
+        } catch (contrasenaInvalidaException e) {
             e.printStackTrace();
             return false;
         }
@@ -213,7 +213,7 @@ public class functionsSQL {
      *
      * @param cn La conexión a la base de datos.
      */
-    public static void EliminacionGruposBBDD(Connection cn) {
+    public static void eliminacionGruposBBDD(Connection cn) {
         try {
             // Solicitar al usuario el ID del grupo
             String idGrupo = JOptionPane.showInputDialog(null, "Introduce el ID del grupo que deseas eliminar:");
@@ -305,7 +305,7 @@ public class functionsSQL {
             ex.printStackTrace();
             System.out.println("Error al dar de alta al usuario.");
             return false;
-        } catch (ContrasenaInvalidaException e) {
+        } catch (contrasenaInvalidaException e) {
             // Manejar la excepción de contraseña inválida aquí, si es necesario
             e.printStackTrace();
             return false;
@@ -317,9 +317,9 @@ public class functionsSQL {
      * cumple
      */
 
-    static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
+    static void validarContrasena(String contrasena) throws contrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
-            throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
+            throw new contrasenaInvalidaException("La contraseña no cumple con los requisitos.");
         }
     }
 
@@ -327,10 +327,88 @@ public class functionsSQL {
      * Excepción personalizada para manejar contraseñas inválidas
      * lanza mensaje predefenido por nosotros en validarContrasena
      */
-    public static class ContrasenaInvalidaException extends Exception {
-        public ContrasenaInvalidaException(String mensaje) {
+    public static class contrasenaInvalidaException extends Exception {
+        public contrasenaInvalidaException(String mensaje) {
             super(mensaje);
         }
     }
+
+    public static int obtenerIdUsuario(Connection cn, String nombreUsuario) {
+        int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
+
+        try {
+            String query = "SELECT id FROM Usuarios WHERE nombre_usuario = ?";
+            try (PreparedStatement pst = cn.prepareStatement(query)) {
+                pst.setString(1, nombreUsuario);
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        idUsuario = rs.getInt("id");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return idUsuario;
+    }
+    // Eliminar al usuario de los grupos a los que pertenece
+    public static void deleteMiembrosGrupos(Connection cn, int idUsuario) {
+        String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE usuario_id = ?";
+        try (PreparedStatement pst = cn.prepareStatement(deleteMiembrosGrupos)) {
+            pst.setInt(1, idUsuario);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+     // Eliminar los mensajes del usuario
+    public static void deleteMensajes(Connection cn, int idUsuario) {
+        String deleteMensajes = "DELETE FROM Mensajes WHERE usuario_id = ?";
+        try {
+            PreparedStatement pst = cn.prepareStatement(deleteMensajes);
+            pst.setInt(1, idUsuario);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+     // Eliminar los archivos del usuario
+    public static void deleteArchivos(Connection cn, int idUsuario){
+        String deleteArchivos = "DELETE FROM Archivos WHERE usuario_id = ?";
+        try {
+            PreparedStatement pst = cn.prepareStatement(deleteArchivos);
+            pst.setInt(1, idUsuario);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+    // Eliminar el registro del usuario
+    public static void  deleteUsuario (Connection cn,int idGrupo){
+        String deleteUsuario = "DELETE FROM Usuarios WHERE id = ?";
+        try {
+            PreparedStatement pst = cn.prepareStatement(deleteUsuario);
+            pst.setInt(1, idGrupo);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+    }
+
+    public static boolean  darseDeBajaUsuario(Connection cn, int usuarioId){
+        try {
+            deleteMiembrosGrupos(cn, usuarioId);
+            deleteMensajes(cn, usuarioId);
+            deleteArchivos(cn, usuarioId);
+            deleteUsuario(cn, usuarioId);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+            return false;
+        }
+    }
+
+
 
 }
