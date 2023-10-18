@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -324,54 +325,66 @@ public class functionsSQL {
         }
     }
 
-    public static boolean eliminarGrupo(Connection cn, int usuarioId, int grupoId) {
+    public static boolean eliminarGrupo(Connection cn, HashMap<String, Usuario> usuariosConectados) {
         try {
-            // Primero, obtenemos el rol del usuario en el grupo
-            String selectRol = "SELECT rol FROM MiembrosGrupos WHERE usuario_id = ? AND grupo_id = ?";
-            PreparedStatement pst = cn.prepareStatement(selectRol);
-            pst.setInt(1, usuarioId);
-            pst.setInt(2, grupoId);
-            ResultSet rs = pst.executeQuery();
+            // Obtener el usuario del HashMap a partir de su nombre
+            
+            Usuario usuario = usuariosConectados.get(nombreUsuario);
     
-            if (rs.next()) {
-                String rol = rs.getString("rol");
+            if (usuario != null) {
+                int usuarioId = usuario.getId();
     
-                // Comparamos si el rol es "admin"
-                if ("admin".equals(rol)) {
-                    
-                    String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE grupo_id = ?";
-                    pst = cn.prepareStatement(deleteMiembrosGrupos);
-                    pst.setInt(1, grupoId);
-                    pst.executeUpdate();
+                // Primero, obtenemos el rol del usuario en el grupo
+                String selectRol = "SELECT rol FROM MiembrosGrupos WHERE usuario_id = ? AND grupo_id IN (SELECT id FROM Grupos WHERE nombre = ?)";
+                PreparedStatement pst = cn.prepareStatement(selectRol);
+                pst.setInt(1, usuarioId);
+                pst.setString(2, nombreGrupo);
+                ResultSet rs = pst.executeQuery();
     
-                    String deleteMensajes = "DELETE FROM Mensajes WHERE grupo_id = ?";
-                    pst = cn.prepareStatement(deleteMensajes);
-                    pst.setInt(1, grupoId);
-                    pst.executeUpdate();
+                if (rs.next()) {
+                    String rol = rs.getString("rol");
     
-                    String deleteArchivos = "DELETE FROM Archivos WHERE grupo_id = ?";
-                    pst = cn.prepareStatement(deleteArchivos);
-                    pst.setInt(1, grupoId);
-                    pst.executeUpdate();
+                    // Comparamos si el rol es "admin"
+                    if ("admin".equals(rol)) {
+                        // Eliminar 
+                        String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE grupo_id IN (SELECT id FROM Grupos WHERE nombre = ?)";
+                        pst = cn.prepareStatement(deleteMiembrosGrupos);
+                        pst.setString(1, nombreGrupo);
+                        pst.executeUpdate();
     
-                    String deleteGrupo = "DELETE FROM Grupos WHERE id = ?";
-                    pst = cn.prepareStatement(deleteGrupo);
-                    pst.setInt(1, grupoId);
-                    pst.executeUpdate();
+                        String deleteMensajes = "DELETE FROM Mensajes WHERE grupo_id IN (SELECT id FROM Grupos WHERE nombre = ?)";
+                        pst = cn.prepareStatement(deleteMensajes);
+                        pst.setString(1, nombreGrupo);
+                        pst.executeUpdate();
     
-                    return true;
+                        String deleteArchivos = "DELETE FROM Archivos WHERE grupo_id IN (SELECT id FROM Grupos WHERE nombre = ?)";
+                        pst = cn.prepareStatement(deleteArchivos);
+                        pst.setString(1, nombreGrupo);
+                        pst.executeUpdate();
+    
+                        String deleteGrupo = "DELETE FROM Grupos WHERE nombre = ?";
+                        pst = cn.prepareStatement(deleteGrupo);
+                        pst.setString(1, nombreGrupo);
+                        pst.executeUpdate();
+    
+                        return true;
+                    } else {
+                        System.out.println("No tienes permisos de administrador");
+                    }
                 } else {
-                    System.out.println("No tienes permisos de administrador");
+                    System.out.println("El usuario no es miembro del grupo o el grupo no existe.");
                 }
             } else {
-                System.out.println("El usuario no es miembro del grupo");
+                System.out.println("Usuario no encontrado en la lista de usuarios conectados.");
             }
         } catch (Exception e) {
             System.err.println("Error al eliminar el grupo: " + e.getMessage());
         }
-        
+    
         return false;
     }
+    
+
 
     public static boolean creacionGruposBBDD(Usuario usuario,String[] mensaje,DataInputStream reader) {
         try {

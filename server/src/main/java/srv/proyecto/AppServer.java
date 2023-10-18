@@ -37,7 +37,7 @@ public class AppServer {
     }
 
     static class ClientHandler extends Thread {
-        
+
         private Socket clientSocket;
         private String nombre;
 
@@ -70,16 +70,8 @@ public class AppServer {
                         boolean comandoProcesado = false;
 
                         // Procesar comandos
-                        // Procesar comandos
                         if ("iniciarSesion".equals(comando) || "registrarse".equals(comando)) {
-                            Usuario usuario = functionsSQL.splitDatosUsuario(writer, reader, inputLine);
-                            if (usuario != null) {
-                                // AQUI METEMOS AL HASMAP LO Q QUERAMOS
-                                usuariosConectados.put(nombre, usuario);
-                                writer.writeUTF("Inicio de sesión exitoso.");
-                            } else {
-                                writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
-                            }
+                            comandoProcesado = functionsSQL.splitDatosUsuario(writer, reader, inputLine);
                         } else if ("listarGrupos".equals(comando)) {
                             String resultado = functionsSQL.llistarGruposCreados();
                             writer.writeUTF(resultado);
@@ -93,7 +85,7 @@ public class AppServer {
                             writer.writeUTF(resultado);
                             comandoProcesado = true;
                         } else if ("eliminarGrupo".equals(comando)) {
-                            String resultado = functionsSQL.eliminarGrupo(cn, inputLine);
+                            String resultado = functionsSQL.eliminarGrupo();
                             if (resultado != null) {
                                 writer.writeUTF(resultado);
                             }
@@ -124,6 +116,8 @@ public class AppServer {
                 }
             }
         }
+    }
+
     }
 
     /**

@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Scanner;
 import com.projects.AppCliente;
-import srv.proyecto.clases.Usuario;
+
 
 
 
@@ -73,19 +73,16 @@ public class FuncionesUsuario {
         }
 
     }
-    public static void eliminarGrupo(DataOutputStream writer, DataInputStream reader, Usuario usuario) throws IOException {
+    public static void eliminarGrupo(DataOutputStream writer, DataInputStream reader) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del grupo a eliminar: ");
         String nombreGrupo = scanner.next();
     
-        //  el ID del usuario a partir del objeto Usuario
-        int usuarioId = usuario.getId(); 
-    
         String mensaje = "eliminarGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
     
-        // Pasar Usuario a la función eliminarGrupo
-        boolean eliminacionGrupoCorrecta = FuncionesUsuario.eliminarGrupo(writer, reader, usuarioId);
+        // Esperar la respuesta del servidor
+        boolean eliminacionGrupoCorrecta = reader.readBoolean();
     
         if (eliminacionGrupoCorrecta) {
             System.out.println("Grupo eliminado con éxito.");
