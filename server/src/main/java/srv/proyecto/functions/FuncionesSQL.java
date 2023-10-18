@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
-public class functionsSQL {
+public class FuncionesSQL {
     /**
      * Divide y procesa los datos de inicio de sesión.
      * Lee la cadena de entrada del cliente, la divide en partes y verifica si se

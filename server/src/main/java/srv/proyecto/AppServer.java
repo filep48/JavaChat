@@ -9,11 +9,13 @@ import java.util.HashMap;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
-import srv.proyecto.functions.functionsSQL;
+import srv.proyecto.functions.FuncionesSQL;
 
 public class AppServer {
     public static HashMap<String, Usuario> usuariosConectados = new HashMap<>();
-    public static FuncionesServer funcionesServer = new FuncionesServer(usuariosConectados);
+    public static HashMap<String, Usuario> usuariosExistentes = new HashMap<>();
+    // public static FuncionesServer funcionesServer = new
+    // FuncionesServer(usuariosConectados);
 
     public static void main(String[] args) {
         // SERVER
@@ -64,15 +66,15 @@ public class AppServer {
                 Usuario usuario = new Usuario();
                 boolean inicioSesionExitoso = processInput(usuario, inputLine, writer, reader, nombre);
                 usuario.setNombreUsuario(nombre);
-                usuario.setId(functionsSQL.obtenerIdUsuario(nombre));
+                usuario.setId(FuncionesSQL.obtenerIdUsuario(nombre));
                 usuario.setConectado(inicioSesionExitoso);
                 usuariosConectados.put(nombre, usuario);
                 System.out.println(usuariosConectados.toString());
                 // System.out.println(usuario.toString());
                 if (inicioSesionExitoso) {
-                writer.writeUTF("Inicio de sesión exitoso.");
+                    writer.writeUTF("Inicio de sesión exitoso.");
                 } else {
-                writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
+                    writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
                 }
                 // Fin del inicio de sesión
 
@@ -112,21 +114,21 @@ public class AppServer {
             String[] mensaje = FuncionesServer.slplitMensaje(input);
             if (mensaje.length > 0) {
                 String comando = mensaje[0];
-                if ("iniciarSesion".equals(comando)) {
-                    functionsSQL.splitDatosUsuario(writer, reader, input);
-                } else if ("registrarse".equals(comando)) {
-                    functionsSQL.splitDatosUsuario(writer, reader, input);
+                if ("iniciarSesion".equals(comando) || "registrarse".equals(comando)) {
+                    FuncionesSQL.splitDatosUsuario(writer, reader, input);
+                    usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
+                    usuariosConectados.put(nombre, usuario);
                 } else if ("listarGrupos".equals(comando)) {
-                    String resultado = functionsSQL.llistarGruposCreados();
+                    String resultado = FuncionesSQL.llistarGruposCreados();
                     writer.writeUTF(resultado);
                 } else if ("listarUsuarios".equals(comando)) {
-                    String resultado = functionsSQL.llistarUsuariosCreados();
+                    String resultado = FuncionesSQL.llistarUsuariosCreados();
                     writer.writeUTF(resultado);
                 } else if ("listarUsuariosConectados".equals(comando)) {
-                    String resultado = funcionesServer.listarUsuariosConectados();
+                    String resultado = FuncionesServer.listarUsuariosConectados();
                     writer.writeUTF(resultado);
                 } else if ("crearGrupo".equals(comando)) {
-                    boolean resultado = functionsSQL.creacionGruposBBDD(usuario, mensaje, reader);
+                    boolean resultado = FuncionesSQL.creacionGruposBBDD(usuario, mensaje, reader);
                     writer.writeBoolean(resultado);
                     if (resultado) {
                         writer.writeUTF("Grupo creado correctamente");
