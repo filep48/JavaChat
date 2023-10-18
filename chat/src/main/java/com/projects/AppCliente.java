@@ -116,7 +116,6 @@ public class AppCliente {
                     break;
                 case 5:
                     FuncionesUsuario.creacionGrupo(writer, reader);
-                    
                     // Lógica para crear un grupo
                     break;
                 case 6:

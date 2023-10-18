@@ -128,6 +128,11 @@ public class AppServer {
                 } else if ("crearGrupo".equals(comando)) {
                     boolean resultado = functionsSQL.creacionGruposBBDD(usuario, mensaje, reader);
                     writer.writeBoolean(resultado);
+                    if (resultado) {
+                        writer.writeUTF("Grupo creado correctamente");
+                    } else {
+                        writer.writeUTF("Error al crear el grupo");
+                    }
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";

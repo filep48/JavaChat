@@ -50,9 +50,10 @@ public class FuncionesUsuario {
         String mensaje = "crearGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
         boolean creacionGrupoCorrecto = reader.readBoolean();
+        System.out.println(reader.readUTF());
         if (creacionGrupoCorrecto) {
             System.out.println("Creación de grupo exitosa.");
-            AppCliente.menuSesionIniciada(nombreGrupo,scanner, writer, reader);
+            AppCliente.menuSesionIniciada(nombreGrupo, scanner, writer, reader);
         } else {
             System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
         }
