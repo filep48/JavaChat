@@ -9,6 +9,7 @@ public class Usuario{
     private String contrasena;
     private boolean isConectado;
     private int grupoId;
+    private boolean isAdmin;
     
     //Contructor InicioSession  
     public Usuario(String nombreUsuarioo, String contrasena) {
@@ -17,13 +18,19 @@ public class Usuario{
     }
 
     //Contructor completo
-    public Usuario(int id, String nombreUsuarioo, boolean isConectado, int grupoId) {
+    public Usuario(int id, String nombreUsuarioo, boolean isConectado, int grupoId,boolean isAdmin) {
         this.id = id;
         this.nombreUsuarioo = nombreUsuarioo;
         this.isConectado = isConectado;
         this.grupoId = grupoId;
+        this.isAdmin = isAdmin;
     }
-    
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
     public int getId() {
         return id;
     }

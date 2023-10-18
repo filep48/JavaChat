@@ -13,7 +13,10 @@ import srv.proyecto.functions.functionsSQL;
 
 public class AppServer {
     public static HashMap<String, Usuario> usuariosConectados = new HashMap<>();
+
     public static FuncionesServer funcionesServer = new FuncionesServer(usuariosConectados);
+
+    
 
     public static void main(String[] args) {
         // SERVER
@@ -61,7 +64,7 @@ public class AppServer {
                 System.out.println("Recibido del cliente: " + inputLine);
                 // recoge el nombre del usuario
                 String nombre = inputLine.split(";")[1];
-                boolean inicioSesionExitoso = processInput(inputLine, writer, reader, nombre);
+                boolean inicioSesionExitoso = processInput(null, inputLine, writer, reader, nombre);
                 Usuario usuario = new Usuario();
                 usuario.setNombreUsuarioo(nombre);
                 usuario.setId(functionsSQL.obtenerIdUsuario(nombre));
@@ -78,7 +81,7 @@ public class AppServer {
                 while (true) {
                     inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
-                    boolean comandoProcesado = processInput(inputLine, writer, reader, nombre);
+                    boolean comandoProcesado = processInput(cn, inputLine, writer, reader, nombre);
 
                     if (!comandoProcesado) {
                         writer.writeUTF("Comando no reconocido o error en el procesamiento.");
@@ -123,7 +126,7 @@ public class AppServer {
                     String resultado = funcionesServer.listarUsuariosConectados();
                     writer.writeUTF(resultado);
                 } else if ("eliminarGrupo".equals(comando)) {
-                    String resultado = functionsSQL.eliminarGrupo(cn,);
+                    String resultado = functionsSQL.eliminarGrupo(cn, input);
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";

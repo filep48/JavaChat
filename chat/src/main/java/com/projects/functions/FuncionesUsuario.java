@@ -6,7 +6,12 @@ import java.io.IOException;
 import java.util.Scanner;
 import com.projects.AppCliente;
 
+
+
+
 public class FuncionesUsuario {
+
+
 
     public static void registrarse(DataOutputStream writer, DataInputStream reader) throws IOException {
         Scanner scanner = new Scanner(System.in);
@@ -42,20 +47,7 @@ public class FuncionesUsuario {
             System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
         }
     }
-    public static void eliminarGrupo(String nombreUsuario,DataOutputStream writer, DataInputStream reader) throws IOException{
-        Scanner scanner = new Scanner(System.in);
-        listarGrupo(nombreUsuario,writer, reader);
-        System.out.print("Introduce el nombre del grupo que deseas eliminar: ");
-        String nombreGrupo = scanner.next();
-        String mensaje = "eliminarGrupo;" + nombreUsuario + ";" + nombreGrupo;
-        writer.writeUTF(mensaje);
-        boolean eliminarGrupo = reader.readBoolean();
-        if (eliminarGrupo) {
-            System.out.println("Grupo eliminado.");
-        } else {
-            System.out.println("Error al eliminar el grupo. Inténtalo de nuevo.");
-        }
-    }
+    
 
     public static void listarGrupo(String nombreUsuario,DataOutputStream writer, DataInputStream reader) throws IOException{
         String mensaje = "listarGrupos;" + nombreUsuario;
@@ -64,4 +56,42 @@ public class FuncionesUsuario {
         System.out.println("Grupos: " + grupos);
 
     }
+    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce el nombre del grupo: ");
+        String nombreGrupo = scanner.next();
+        String mensaje = "crearGrupo;" + nombreGrupo;
+        writer.writeUTF(mensaje);
+        boolean creacionGrupoCorrecto = reader.readBoolean();
+        if (creacionGrupoCorrecto) {
+            System.out.println("Creación de grupo exitosa.");
+            AppCliente.menuSesionIniciada(nombreGrupo,scanner, writer, reader);
+        } else {
+            System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
+        }
+
+    }
+    public static void eliminarGrupo(DataOutputStream writer, DataInputStream reader, Usuario usuario) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce el nombre del grupo a eliminar: ");
+        String nombreGrupo = scanner.next();
+    
+        //  el ID del usuario a partir del objeto Usuario
+        int usuarioId = usuario.getId(); 
+    
+        String mensaje = "eliminarGrupo;" + nombreGrupo;
+        writer.writeUTF(mensaje);
+    
+        // Pasar Usuario a la función eliminarGrupo
+        boolean eliminacionGrupoCorrecta = FuncionesUsuario.eliminarGrupo(writer, reader, usuarioId);
+    
+        if (eliminacionGrupoCorrecta) {
+            System.out.println("Grupo eliminado con éxito.");
+        } else {
+            System.out.println("No se pudo eliminar el grupo. Asegúrate de tener los permisos adecuados o que el grupo existe.");
+        }
+    }
+    
+    
+
 }

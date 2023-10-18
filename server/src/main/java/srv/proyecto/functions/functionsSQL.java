@@ -19,31 +19,29 @@ import srv.proyecto.clases.Usuario;
 
 public class functionsSQL {
     /**
-     * Divide y procesa los datos de inicio de sesión.
-     * Lee la cadena de entrada del cliente, la divide en partes y verifica si se
-     * trata de una solicitud de inicio de sesión válida. Si es válida, llama a la
-     * función `datosUsuario` para verificar las credenciales y envía una respuesta
-     * al cliente.
-     *
-     * @param writer El flujo de salida para enviar una respuesta al cliente.
-     * @param reader El flujo de entrada para recibir datos del cliente.
-     */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
-            throws IOException {
+ * Procesa los datos de inicio de sesión o registro de un usuario a partir de un mensaje recibido.
+ * 
+ * @param writer         El flujo de salida para enviar una respuesta al cliente.
+ * @param reader         El flujo de entrada para recibir datos del cliente.
+ * @param input          El mensaje de entrada que contiene los datos de inicio de sesión o registro.
+ * @return Un objeto Usuario si el inicio de sesión o registro es exitoso, o null si falla.
+ * @throws IOException  Si ocurre un error de entrada/salida al comunicarse con el cliente.
+ */
+    public static Usuario splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input) throws IOException {
         try {
-            String[] parts = input.split(";");
-
-            String commando = parts[0];
-            String nombreUsuario = parts[1];
-            String contrasena = parts[2];
+            String[] mensaje = FuncionesServer.slplitMensaje(input);
+    
+            String commando = mensaje[0];
+            String nombreUsuario = mensaje[1];
+            String contrasena = mensaje[2];
             if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
-
                 boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
-
+    
                 if (inicioSesionExitoso) {
-                    writer.writeBoolean(true);
-                    FuncionesServer.conectarUsuario(nombreUsuario, contrasena);
-
+                    Usuario usuario = new Usuario();
+                    usuario.setNombreUsuarioo(nombreUsuario);
+                    usuario.setId(obtenerIdUsuario(nombreUsuario));
+                    return usuario;
                 } else {
                     writer.writeBoolean(false);
                 }
@@ -53,7 +51,9 @@ public class functionsSQL {
         } catch (IOException e) {
             System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
         }
+        return null; 
     }
+    
 
     public static String llistarUsuariosCreados() {
         try {
@@ -338,7 +338,7 @@ public class functionsSQL {
     
                 // Comparamos si el rol es "admin"
                 if ("admin".equals(rol)) {
-                    // El usuario tiene permisos de administrador, eliminamos el grupo
+                    
                     String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE grupo_id = ?";
                     pst = cn.prepareStatement(deleteMiembrosGrupos);
                     pst.setInt(1, grupoId);
@@ -372,5 +372,21 @@ public class functionsSQL {
         
         return false;
     }
+
+    public static boolean creacionGruposBBDD(Usuario usuario,String[] mensaje,DataInputStream reader) {
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            String strSql = "INSERT INTO grupos (nombre_grupo, administrador_id) VALUES (?,?)";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            pst.setString(1, mensaje[1]);
+            pst.setInt(2, usuario.getId());
+            pst.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     
 }
