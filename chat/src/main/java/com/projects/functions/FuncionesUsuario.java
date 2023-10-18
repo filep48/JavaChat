@@ -59,4 +59,30 @@ public class FuncionesUsuario {
         }
 
     }
+
+    public static void LlistarUsuarios(DataOutputStream writer, DataInputStream reader) throws IOException {
+        String mensaje = "listarUsuarios";
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+        System.out.println("Llista de usuarios: "
+                + "\n" + serverResponse);
+    }
+
+    public static void LlistarUsuariosConectados(DataOutputStream writer, DataInputStream reader) throws IOException {
+        String mensaje = "listarUsuariosConectados";
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+        System.out.println("Llista de usuarios conectados: "
+                + "\n" + serverResponse);
+    }
+
+    public static void LlistarGruposCreados(String nombreUsuario,DataOutputStream writer, DataInputStream reader) throws IOException {
+        String mensaje = "listarGrupos;" + nombreUsuario;
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+
+        System.out.println("Llista de grupos: "
+                + "\n" + serverResponse);
+
+    }
 }
