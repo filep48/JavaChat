@@ -127,6 +127,10 @@ public class AppServer {
                     } else {
                         writer.writeUTF("Error al crear el grupo");
                     }
+                } else if ("eliminarGrupo".equals(comando)) {
+                    usuario.getId();
+                    String  resultado = FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader);
+                    writer.writeUTF(resultado);
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";

@@ -119,7 +119,7 @@ public class AppCliente {
                     break;
                 case 6:
                     // Lógica para eliminar un grupo
-                    break;
+                    FuncionesUsuario.eliminarGrupo(writer, reader);
                 case 7:
                     mensaje = "CerrarSession";
                     writer.writeUTF(mensaje);
