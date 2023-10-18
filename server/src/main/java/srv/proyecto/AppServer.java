@@ -69,18 +69,10 @@ public class AppServer {
                 usuario.setId(FuncionesSQL.obtenerIdUsuario(nombre));
                 usuario.setConectado(inicioSesionExitoso);
                 usuariosConectados.put(nombre, usuario);
-                System.out.println(usuariosConectados.toString());
-                // System.out.println(usuario.toString());
-                if (inicioSesionExitoso) {
-                    writer.writeUTF("Inicio de sesión exitoso.");
-                } else {
-                    writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
-                }
                 // Fin del inicio de sesión
 
                 // Continuar con otras solicitudes del cliente
                 while ((inputLine = reader.readUTF()) != null) {
-                    inputLine = reader.readUTF();
                     System.out.println("Recibido del cliente: " + inputLine);
                     boolean comandoProcesado = processInput(usuario, inputLine, writer, reader, nombre);
 

@@ -3,8 +3,6 @@ package srv.proyecto.functions;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-
 import srv.proyecto.AppServer;
 import srv.proyecto.clases.Usuario;
 
