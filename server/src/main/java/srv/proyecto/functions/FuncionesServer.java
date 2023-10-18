@@ -3,13 +3,17 @@ package srv.proyecto.functions;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-
-
+import srv.proyecto.AppServer;
 import srv.proyecto.clases.Usuario;
 
 public class FuncionesServer {
-    private static HashMap<String, Usuario> usuarios;
+    // Eliminada la variable estática 'usuarios'
+    // private static HashMap<String, Usuario> usuarios;
+
+    public static String[] slplitMensaje(String mensaje) {
+        String[] mensajeSplit = mensaje.split(";");
+        return mensajeSplit;
+    }
 
     static String leerMensaje(InputStream is) throws IOException {
         StringBuilder mensaje = new StringBuilder();
@@ -62,32 +66,35 @@ public class FuncionesServer {
         }
     }
 
-    public FuncionesServer(HashMap<String, Usuario> usuariosConectados) {
-        FuncionesServer.usuarios = usuariosConectados;
-    }
+    // Eliminado el constructor que recibe el HashMap
+    /*
+     * public FuncionesServer(HashMap<String, Usuario> usuariosConectados) {
+     * FuncionesServer.usuarios = usuariosConectados;
+     * }
+     */
 
     public static void conectarUsuario(String nombreUsuario, String contrasena) {
         Usuario nuevoUsuario = new Usuario(nombreUsuario, contrasena);
         nuevoUsuario.setConectado(true);
-        usuarios.put(nombreUsuario, nuevoUsuario);
+        AppServer.usuariosConectados.put(nombreUsuario, nuevoUsuario);
     }
 
     public static void desconectarUsuario(String nombreUsuario) {
-        if (usuarios.containsKey(nombreUsuario)) {
-            usuarios.get(nombreUsuario).setConectado(false);
-            usuarios.remove(nombreUsuario);
+        if (AppServer.usuariosConectados.containsKey(nombreUsuario)) {
+            AppServer.usuariosConectados.get(nombreUsuario).setConectado(false);
+            AppServer.usuariosConectados.remove(nombreUsuario);
         }
     }
 
     // crea una funcion que lee el hashmap y inidica los usuarios conectados en una
     // string
-    public String listarUsuariosConectados() {
-        String usuariosConectados = "";
-        for (Usuario usuario : usuarios.values()) {
+    public static String listarUsuariosConectados() {
+        StringBuilder usuariosConectadosStr = new StringBuilder();
+        for (Usuario usuario : AppServer.usuariosConectados.values()) {
             if (usuario.isConectado()) {
-                usuariosConectados += usuario.getNombreUsuarioo() + "\n";
+                usuariosConectadosStr.append(usuario.getNombreUsuario()).append("\n");
             }
         }
-        return usuariosConectados;
+        return usuariosConectadosStr.toString();
     }
 }

@@ -21,12 +21,14 @@ public class AppCliente {
 
             System.out.println("Conectado al servidor en " + serverAddress + ":" + serverPort);
 
-            while (true) {
-                String mensaje = menuPrincipal(scanner, writer, reader);
-                writer.writeUTF(mensaje);
-                String serverResponse = reader.readUTF();
-                System.out.println("Mensaje del servidor: " + serverResponse);
-            }
+            menuPrincipal(scanner, writer, reader);
+
+            // while (true) {
+            // String mensaje = menuPrincipal(scanner, writer, reader);
+            // writer.writeUTF(mensaje);
+            // String serverResponse = reader.readUTF();
+            // System.out.println("Mensaje del servidor: " + serverResponse);
+            // }
 
         } catch (UnknownHostException e) {
             System.err.println("No se pudo encontrar el host " + serverAddress);
@@ -39,7 +41,7 @@ public class AppCliente {
         }
     }
 
-    private static String menuPrincipal(Scanner scanner, DataOutputStream writer, DataInputStream reader)
+    private static void menuPrincipal(Scanner scanner, DataOutputStream writer, DataInputStream reader)
             throws IOException {
         System.out.println("Seleccione una opción:");
         System.out.println("1. Registrarse (Sign up)."
@@ -68,14 +70,11 @@ public class AppCliente {
                 break;
         }
 
-        return mensaje;
     }
 
     public static void menuSesionIniciada(String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         boolean condition = true;
-        String Serverlogin = reader.readUTF();
-        System.out.println(Serverlogin);
         while (condition) {
             System.out.println("Seleccione una opción:");
             System.out.println("1. Enviar mensaje."
@@ -95,7 +94,7 @@ public class AppCliente {
                     break;
                 case 2:
                     // Listar chats
-                    
+
                     break;
                 case 3:
                     // Lógica para listar grupos y al seleccionar uno
@@ -105,7 +104,6 @@ public class AppCliente {
                     serverResponse = reader.readUTF();
                     System.out.println("Llista de usuarios: "
                             + "\n" + serverResponse);
-
                     break;
                 case 4:
                     // Lógica para listar usuarios conectados
@@ -116,7 +114,8 @@ public class AppCliente {
                             + "\n" + serverResponse);
                     break;
                 case 5:
-                    menuCrearGrupo(nombreUsuario, scanner, writer, reader);
+                    FuncionesUsuario.creacionGrupo(writer, reader);
+                    // Lógica para crear un grupo
                     break;
                 case 6:
                     // Lógica para eliminar un grupo

@@ -9,11 +9,13 @@ import java.util.HashMap;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
-import srv.proyecto.functions.functionsSQL;
+import srv.proyecto.functions.FuncionesSQL;
 
 public class AppServer {
     public static HashMap<String, Usuario> usuariosConectados = new HashMap<>();
-    public static FuncionesServer funcionesServer = new FuncionesServer(usuariosConectados);
+    public static HashMap<String, Usuario> usuariosExistentes = new HashMap<>();
+    // public static FuncionesServer funcionesServer = new
+    // FuncionesServer(usuariosConectados);
 
     public static void main(String[] args) {
         // SERVER
@@ -61,24 +63,18 @@ public class AppServer {
                 System.out.println("Recibido del cliente: " + inputLine);
                 // recoge el nombre del usuario
                 String nombre = inputLine.split(";")[1];
-                boolean inicioSesionExitoso = processInput(inputLine, writer, reader, nombre);
                 Usuario usuario = new Usuario();
-                usuario.setNombreUsuarioo(nombre);
-                usuario.setId(functionsSQL.obtenerIdUsuario(nombre));
+                boolean inicioSesionExitoso = processInput(usuario, inputLine, writer, reader, nombre);
+                usuario.setNombreUsuario(nombre);
+                usuario.setId(FuncionesSQL.obtenerIdUsuario(nombre));
+                usuario.setConectado(inicioSesionExitoso);
                 usuariosConectados.put(nombre, usuario);
-                //System.out.println(usuario.toString());
-                if (inicioSesionExitoso) {
-                    writer.writeUTF("Inicio de sesión exitoso.");
-                } else {
-                    writer.writeUTF("Error al iniciar sesión. ¿Quieres registrarte?");
-                }
                 // Fin del inicio de sesión
 
                 // Continuar con otras solicitudes del cliente
-                while (true) {
-                    inputLine = reader.readUTF();
+                while ((inputLine = reader.readUTF()) != null) {
                     System.out.println("Recibido del cliente: " + inputLine);
-                    boolean comandoProcesado = processInput(inputLine, writer, reader, nombre);
+                    boolean comandoProcesado = processInput(usuario, inputLine, writer, reader, nombre);
 
                     if (!comandoProcesado) {
                         writer.writeUTF("Comando no reconocido o error en el procesamiento.");
@@ -102,26 +98,35 @@ public class AppServer {
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
-        private boolean processInput(String input, DataOutputStream writer, DataInputStream reader, String nombre)
+        private boolean processInput(Usuario usuario, String input, DataOutputStream writer, DataInputStream reader,
+                String nombre)
                 throws IOException {
             System.out.println("Procesando entrada: " + input);
 
-            String[] partes = input.split(";");
-            if (partes.length > 0) {
-                String comando = partes[0];
-                if ("iniciarSesion".equals(comando)) {
-                    functionsSQL.splitDatosUsuario(writer, reader, input);
-                } else if ("registrarse".equals(comando)) {
-                    functionsSQL.splitDatosUsuario(writer, reader, input);
+            String[] mensaje = FuncionesServer.slplitMensaje(input);
+            if (mensaje.length > 0) {
+                String comando = mensaje[0];
+                if ("iniciarSesion".equals(comando) || "registrarse".equals(comando)) {
+                    FuncionesSQL.splitDatosUsuario(writer, reader, input);
+                    usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
+                    usuariosConectados.put(nombre, usuario);
                 } else if ("listarGrupos".equals(comando)) {
-                    String resultado = functionsSQL.llistarGruposCreados();
+                    String resultado = FuncionesSQL.llistarGruposCreados();
                     writer.writeUTF(resultado);
                 } else if ("listarUsuarios".equals(comando)) {
-                    String resultado = functionsSQL.llistarUsuariosCreados();
+                    String resultado = FuncionesSQL.llistarUsuariosCreados();
                     writer.writeUTF(resultado);
                 } else if ("listarUsuariosConectados".equals(comando)) {
-                    String resultado = funcionesServer.listarUsuariosConectados();
+                    String resultado = FuncionesServer.listarUsuariosConectados();
                     writer.writeUTF(resultado);
+                } else if ("crearGrupo".equals(comando)) {
+                    boolean resultado = FuncionesSQL.creacionGruposBBDD(usuario, mensaje, reader);
+                    writer.writeBoolean(resultado);
+                    if (resultado) {
+                        writer.writeUTF("Grupo creado correctamente");
+                    } else {
+                        writer.writeUTF("Error al crear el grupo");
+                    }
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";
