@@ -193,7 +193,7 @@ public class functionsSQL {
     }
 
     // *********************************************
-    public static boolean creacionGruposBBDD(Usuario usuario,String[] mensaje,DataInputStream reader) {
+    public static boolean creacionGruposBBDD(Usuario usuario, String[] mensaje, DataInputStream reader) {
         try {
             Connection cn = DatabaseConnection.getConnection();
             String strSql = "INSERT INTO grupos (nombre_grupo, administrador_id) VALUES (?,?)";

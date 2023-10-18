@@ -89,7 +89,7 @@ public class FuncionesServer {
         String usuariosConectados = "";
         for (Usuario usuario : usuarios.values()) {
             if (usuario.isConectado()) {
-                usuariosConectados += usuario.getNombreUsuarioo() + "\n";
+                usuariosConectados += usuario.getNombreUsuario() + "\n";
             }
         }
         return usuariosConectados;
