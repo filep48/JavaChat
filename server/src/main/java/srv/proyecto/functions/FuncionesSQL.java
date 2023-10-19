@@ -159,7 +159,8 @@ public class FuncionesSQL {
                 validarContrasena(contrasena);
             }
 
-            try (Connection cn = DatabaseConnection.getConnection()) {
+            try  {
+                Connection cn = DatabaseConnection.getConnection();
                 String strSql;
                 if ("registrarse".equals(comando)) {
                     // Si el comando es registrar, insertamos el usuario
@@ -184,9 +185,10 @@ public class FuncionesSQL {
                     }
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
         } catch (ContrasenaInvalidaException e) {
             e.printStackTrace();
             return false;
@@ -214,13 +216,16 @@ public class FuncionesSQL {
     public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje, DataInputStream reader) {
         try {
             int idGrupo = obtenerIdGrupo(mensaje[1]);
-            
+            System.out.println("vamos a meter el admin antes del if");
             if(idGrupo != -1) {  // Asegurarse de que el ID del grupo es válido
                 String strSql = "INSERT INTO miembrosgrupos (usuario_id, grupo_id, rol) VALUES (?, ?, 'admin')";
+                System.out.println("despues del insert");
                 PreparedStatement pst = cn.prepareStatement(strSql);
                 pst.setInt(1, usuario.getId());
                 pst.setInt(2, idGrupo);
+
                 pst.executeUpdate();
+                System.out.println("despues de todo funciona?????????????????????");
             } else {
                 System.out.println("No se pudo obtener el ID del grupo para: " + mensaje[1]);
             }
@@ -254,7 +259,8 @@ public class FuncionesSQL {
     public static int obtenerIdUsuario(String nombreUsuario) {
         int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
 
-        try (Connection cn = DatabaseConnection.getConnection()) {
+        try {
+            Connection cn = DatabaseConnection.getConnection();
             String strSql = "SELECT id FROM Usuarios WHERE nombre_usuario = ?";
             try (PreparedStatement pst = cn.prepareStatement(strSql)) {
                 pst.setString(1, nombreUsuario);
@@ -387,7 +393,8 @@ public class FuncionesSQL {
     public static int obtenerIdGrupo(String nombreGrupo) {
         int idGrupo = -1; // Valor predeterminado en caso de que no se encuentre el usuario
 
-        try (Connection cn = DatabaseConnection.getConnection()) {
+        try {
+            Connection cn = DatabaseConnection.getConnection();
             String strSql = "SELECT id FROM grupos WHERE nombre_grupo = ?";
             try (PreparedStatement pst = cn.prepareStatement(strSql)) {
                 pst.setString(1, nombreGrupo);
@@ -409,31 +416,34 @@ public class FuncionesSQL {
 
     public static String listarMiembrosGrupo(Usuario usuario, String nombreGrupo, DataInputStream reader) {
         int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo); 
-        StringBuilder listaMiembros = new StringBuilder();
+        String listaMiembros = "";
     
-        try (Connection cn = DatabaseConnection.getConnection()) {
-            
+        try  {
+            Connection cn = DatabaseConnection.getConnection();
             String strSql = "SELECT nombre_usuario " +
-                            "FROM Usuarios " +
-                            "WHERE id IN (SELECT usuario_id FROM MiembrosGrupos WHERE grupo_id = ?)";
+                        "FROM Usuarios " +
+                        "WHERE id IN (SELECT usuario_id FROM MiembrosGrupos WHERE grupo_id = ?)";
     
             try (PreparedStatement pst = cn.prepareStatement(strSql)) {
                 pst.setInt(1, idGrupo);
     
                 try (ResultSet rs = pst.executeQuery()) {
-                    String resultado =" ";
                     while (rs.next()) {
-                        resultado += rs.getString("nombre_usuario") + "\n";
+                        listaMiembros += rs.getString("nombre_usuario") + "\n";
                     }
                 }
             }
-            return listaMiembros.toString().trim();
+    
+            return listaMiembros;
+    
         } catch (SQLException e) {
             System.err.println("Error de SQL: " + e.getMessage());
         } catch (Exception e) {
         }
+    
         return "No se pudieron listar los miembros del grupo.";
     }
+    
     
 
 
