@@ -82,7 +82,7 @@ public class AppCliente {
                     + "\n3. Listar usuarios."
                     + "\n4. Listar usuarios conectados."
                     + "\n5. Crear un chat."
-                    + "\n6. Eliminar un chat."
+                    + "\n6. Administrar un chat."
                     + "\n7. Cerrar sesión.");
 
             int option2 = scanner.nextInt();
@@ -94,32 +94,25 @@ public class AppCliente {
                     break;
                 case 2:
                     // Listar chats
-
+                    FuncionesUsuario.LlistarGruposCreados(nombreUsuario, writer, reader);
                     break;
                 case 3:
                     // Lógica para listar grupos y al seleccionar uno
                     // entra en el.
-                    mensaje = "listarUsuarios";
-                    writer.writeUTF(mensaje);
-                    serverResponse = reader.readUTF();
-                    System.out.println("Llista de usuarios: "
-                            + "\n" + serverResponse);
+                    FuncionesUsuario.LlistarUsuarios(writer, reader);
                     break;
                 case 4:
                     // Lógica para listar usuarios conectados
-                    mensaje = "listarUsuariosConectados";
-                    writer.writeUTF(mensaje);
-                    serverResponse = reader.readUTF();
-                    System.out.println("Llista de usuarios conectados: "
-                            + "\n" + serverResponse);
+                    FuncionesUsuario.LlistarUsuariosConectados(writer, reader);
                     break;
                 case 5:
-                    FuncionesUsuario.creacionGrupo(writer, reader);
                     // Lógica para crear un grupo
+                    FuncionesUsuario.creacionGrupo(writer, reader);
                     break;
                 case 6:
-                    // Lógica para eliminar un grupo
-                    FuncionesUsuario.eliminarGrupo(writer, reader);
+                    // Lógica para administrar un grupo
+                    menuAdministrarGrupo(nombreUsuario, scanner, writer, reader);
+                    break;
                 case 7:
                     mensaje = "CerrarSession";
                     writer.writeUTF(mensaje);
@@ -134,11 +127,56 @@ public class AppCliente {
         }
     }
 
+    private static void menuAdministrarGrupo(String nombreUsuario, Scanner scanner, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        FuncionesUsuario.LlistarGruposCreados(nombreUsuario, writer, reader);
+        String mensaje = "";
+        System.out.println("Introduce el nombre del grupo que quieres administrar: ");
+        String nombreGrupo = scanner.next();
+
+        mensaje = "administrarGrupo;" + nombreGrupo;
+        writer.writeUTF(mensaje);
+
+        System.out.println("==================\nEstás administrando un chat. Selecciona una opción:");
+        System.out.println("1. Listar usuarios."
+                + "\n2. Listar usuarios"
+                + "\n3. Añadir usuario."
+                + "\n4. Eliminar usuario del grupo"
+                + "\n5. Salir del chat."
+                + "\n6. Eliminar grupo."
+                + "\n7. Volver al menú principal.");
+        int OpcionAdministrarGrupo = 0;
+        switch (OpcionAdministrarGrupo) {
+            case 1:
+                FuncionesUsuario.LlistarUsuarios(writer, reader);
+                break;
+            case 2:
+                // Lógica para añadir usuario
+                break;
+            case 3:
+                // Lógica para eliminar usuario de un grupo
+                break;
+            case 4:
+                // Lógica para salir del grupo
+                break;
+            case 6:
+                // Lógica para eliminar grupo
+                break;
+            case 7:
+                // Lógica para volver al menú principal
+                menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario
+                break;
+            default:
+                System.out.println("Comando no reconocido");
+                break;
+        }
+    }
+
     private static void menuCrearGrupo(String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         System.out.println("==================\nEstás creando un chat. Selecciona una opción:");
         System.out.println("1. Listar usuarios."
-                + "\n2. Listar usuarios conectados."
+                + "\n2. Listar usuarios."
                 + "\n3. Administrar un chat."
                 + "\n4. Volver al menú principal.");
 
@@ -167,10 +205,9 @@ public class AppCliente {
             DataInputStream reader) throws IOException {
         System.out.println("==================\nEstás en un chat. Selecciona una opción:");
         System.out.println("1. Administrar chat."
-                + "\n2. Eliminar chat."
-                + "\n3. Descargar archivos."
-                + "\n4. Leer mensajes (automático)."
-                + "\n5. Salir del chat.");
+                + "\n2. Descargar archivos."
+                + "\n3. Leer mensajes."
+                + "\n4. Salir del chat.");
 
         int opcion4 = scanner.nextInt();
 
@@ -179,15 +216,12 @@ public class AppCliente {
                 // Lógica para administrar el grupo
                 break;
             case 2:
-                // Lógica para eliminar el grupo
-                break;
-            case 3:
                 // Lógica para descargar archivos
                 break;
-            case 4:
+            case 3:
                 // Lógica para leer mensajes
                 break;
-            case 5:
+            case 4:
                 menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario
                                                                             // actual
                 break;
