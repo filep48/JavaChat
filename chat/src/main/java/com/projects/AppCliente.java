@@ -139,13 +139,13 @@ public class AppCliente {
 
         System.out.println("==================\nEstás administrando un chat. Selecciona una opción:");
         System.out.println("1. Listar usuarios."
-                + "\n2. Listar usuarios"
-                + "\n3. Añadir usuario."
-                + "\n4. Eliminar usuario del grupo"
-                + "\n5. Salir del chat."
-                + "\n6. Eliminar grupo."
-                + "\n7. Volver al menú principal.");
+                + "\n2. Añadir usuario."
+                + "\n3. Eliminar usuario del grupo"
+                + "\n4. Salir del chat."
+                + "\n5. Eliminar grupo."
+                + "\n6. Volver al menú principal.");
         int OpcionAdministrarGrupo = 0;
+        OpcionAdministrarGrupo = scanner.nextInt();
         switch (OpcionAdministrarGrupo) {
             case 1:
                 FuncionesUsuario.LlistarUsuarios(writer, reader);
@@ -154,15 +154,16 @@ public class AppCliente {
                 // Lógica para añadir usuario
                 break;
             case 3:
-                // Lógica para eliminar usuario de un grupo
+                // Lógica para eliminar usuario del grupo
                 break;
             case 4:
                 // Lógica para salir del grupo
                 break;
-            case 6:
+            case 5:
                 // Lógica para eliminar grupo
+                FuncionesUsuario.eliminarGrupo(nombreGrupo,writer, reader);
                 break;
-            case 7:
+            case 6:
                 // Lógica para volver al menú principal
                 menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario
                 break;

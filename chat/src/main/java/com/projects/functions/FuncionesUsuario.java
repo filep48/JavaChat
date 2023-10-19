@@ -59,10 +59,8 @@ public class FuncionesUsuario {
         }
     }
 
-    public static void eliminarGrupo(DataOutputStream writer, DataInputStream reader) throws IOException{
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce el nombre del grupo a eliminar: ");
-        String nombreGrupo = scanner.next();
+    public static void eliminarGrupo(String nombreGrupo,DataOutputStream writer, DataInputStream reader) throws IOException{
+        
         String mensaje = "eliminarGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
 
