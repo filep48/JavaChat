@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import srv.proyecto.clases.DatabaseConnection;
+import srv.proyecto.clases.Grupo;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
 import srv.proyecto.functions.FuncionesSQL;
@@ -128,8 +129,9 @@ public class AppServer {
                         writer.writeUTF("Error al crear el grupo");
                     }
                 } else if ("administrarGrupo".equals(comando)) {
-                    System.out.println("Id del grupo: " + FuncionesSQL.obtenerIdGrupo(mensaje[1]));
                     
+                }else if ("eliminarGrupo".equals(comando)){
+                    writer.writeUTF(FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader));
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";
