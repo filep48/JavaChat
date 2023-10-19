@@ -57,6 +57,17 @@ public class FuncionesUsuario {
         } else {
             System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
         }
+    }
+
+    public static void eliminarGrupo(DataOutputStream writer, DataInputStream reader) throws IOException{
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce el nombre del grupo a eliminar: ");
+        String nombreGrupo = scanner.next();
+        String mensaje = "eliminarGrupo;" + nombreGrupo;
+        writer.writeUTF(mensaje);
+
+        System.out.println(reader.readUTF());
+        
 
     }
 
