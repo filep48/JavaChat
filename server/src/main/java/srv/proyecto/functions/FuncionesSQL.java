@@ -263,29 +263,6 @@ public class FuncionesSQL {
         return idUsuario;
     }
 
-    public static int obtenerIdGrupo(String nombreGrupo) {
-        int idGrupo = -1; // Valor predeterminado en caso de que no se encuentre el usuario
-
-        try (Connection cn = DatabaseConnection.getConnection()) {
-            String strSql = "SELECT id FROM grupos WHERE nombre_grupo = ?";
-            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                pst.setString(1, nombreGrupo);
-
-                try (ResultSet rs = pst.executeQuery()) {
-                    if (rs.next()) {
-                        idGrupo = rs.getInt("id");
-                    }
-                }
-            }
-            return idGrupo;
-        } catch (SQLException e) {
-            System.err.println("Error de SQL: " + e.getMessage());
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-        return idGrupo;
-    }
-
     // Eliminar al usuario de los grupos a los que pertenece
     public static void deleteMiembrosGrupos(Connection cn, int idUsuario) {
         String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE usuario_id = ?";
