@@ -111,7 +111,7 @@ public class AppServer {
                     usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
                     usuariosConectados.put(nombre, usuario);
                 } else if ("listarGrupos".equals(comando)) {
-                    String resultado = FuncionesSQL.llistarGruposCreados();
+                    String resultado = FuncionesSQL.llistarGruposCreados(usuario);
                     writer.writeUTF(resultado);
                 } else if ("listarUsuarios".equals(comando)) {
                     String resultado = FuncionesSQL.llistarUsuariosCreados();
@@ -127,10 +127,9 @@ public class AppServer {
                     } else {
                         writer.writeUTF("Error al crear el grupo");
                     }
-                } else if ("eliminarGrupo".equals(comando)) {
-                    usuario.getId();
-                    String  resultado = FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader);
-                    writer.writeUTF(resultado);
+                } else if ("administrarGrupo".equals(comando)) {
+                    System.out.println("Id del grupo: " + FuncionesSQL.obtenerIdGrupo(mensaje[1]));
+                    
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";
