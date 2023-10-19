@@ -326,52 +326,51 @@ public class FuncionesSQL {
     public static String eliminarGrupo(Usuario usuario, String nombreGrupo, DataInputStream reader) {
         try {
             Connection cn = DatabaseConnection.getConnection();
-            String selectRol = "SELECT rol FROM MiembrosGrupos WHERE usuario_id = ? AND grupo_id WHERE (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
+            String selectRol = "SELECT rol FROM MiembrosGrupos WHERE usuario_id = ? AND grupo_id = (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
             PreparedStatement pst = cn.prepareStatement(selectRol);
             pst.setInt(1, usuario.getId());
             pst.setString(2, nombreGrupo);
             ResultSet rs = pst.executeQuery();
-
+    
             if (rs.next()) {
                 String rol = rs.getString("rol");
-
+    
                 // Comparamos si el rol es "admin"
                 if ("admin".equals(rol)) {
                     // Eliminar
-                    String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE grupo_id IN (SELECT id FROM Grupos WHERE  = ?)";
+                    String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE grupo_id = (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
                     pst = cn.prepareStatement(deleteMiembrosGrupos);
                     pst.setString(1, nombreGrupo);
                     pst.executeUpdate();
-
-                    String deleteMensajes = "DELETE FROM Mensajes WHERE grupo_id IN (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
+    
+                    String deleteMensajes = "DELETE FROM Mensajes WHERE grupo_id = (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
                     pst = cn.prepareStatement(deleteMensajes);
                     pst.setString(1, nombreGrupo);
                     pst.executeUpdate();
-
-                    String deleteArchivos = "DELETE FROM Archivos WHERE grupo_id IN (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
+    
+                    String deleteArchivos = "DELETE FROM Archivos WHERE grupo_id = (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
                     pst = cn.prepareStatement(deleteArchivos);
                     pst.setString(1, nombreGrupo);
                     pst.executeUpdate();
-
+    
                     String deleteGrupo = "DELETE FROM Grupos WHERE nombre_grupo = ?";
                     pst = cn.prepareStatement(deleteGrupo);
                     pst.setString(1, nombreGrupo);
                     pst.executeUpdate();
-
+    
                     return "Grupo eliminado con éxito.";
                 } else {
                     return "El usuario no es administrador del grupo.";
                 }
             } else {
-                return "El usuario no pertenece al grupo.";
+                return "El usuario no pertenece al grupo o el grupo no existe.";
             }
-
+    
         } catch (Exception e) {
-            return "Error al eliminar el grupo.";
-            // TODO: handle exception
-
+            return "Error al eliminar el grupo: " + e.getMessage();
         }
     }
+    
 
     public static int obtenerIdGrupo(String nombreGrupo) {
         int idGrupo = -1; // Valor predeterminado en caso de que no se encuentre el usuario
