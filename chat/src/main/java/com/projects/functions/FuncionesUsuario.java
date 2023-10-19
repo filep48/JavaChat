@@ -59,13 +59,13 @@ public class FuncionesUsuario {
         }
     }
 
-    public static void eliminarGrupo(String nombreGrupo,DataOutputStream writer, DataInputStream reader) throws IOException{
-        
+    public static void eliminarGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
+
         String mensaje = "eliminarGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
 
         System.out.println(reader.readUTF());
-        
 
     }
 
@@ -85,7 +85,8 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
     }
 
-    public static void LlistarGruposCreados(String nombreUsuario,DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void LlistarGruposCreados(String nombreUsuario, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
         String mensaje = "listarGrupos;" + nombreUsuario;
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
@@ -93,5 +94,19 @@ public class FuncionesUsuario {
         System.out.println("Llista de grupos: "
                 + "\n" + serverResponse);
 
+    }
+
+    public static void AñadirUsuarioAGrupo(String nombreGrupo, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce el nombre del usuario que quieres añadir: ");
+        String nombreUsuario = scanner.next();
+        String mensaje = "AñadirUsuarioAGrupo;" + nombreUsuario + ";" + nombreGrupo;
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+        String serverResponse2 = reader.readUTF();
+        System.out.println(serverResponse);
+        System.out.println("Llistado de usuarios: "
+                + "\n" + serverResponse2);
     }
 }
