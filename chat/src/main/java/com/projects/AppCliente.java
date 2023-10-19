@@ -157,7 +157,7 @@ public class AppCliente {
                 // Lógica para eliminar usuario del grupo
                 break;
             case 4:
-                // Lógica para salir del grupo
+                FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);
                 break;
             case 5:
                 // Lógica para eliminar grupo

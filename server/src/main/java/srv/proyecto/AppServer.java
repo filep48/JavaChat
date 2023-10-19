@@ -132,7 +132,10 @@ public class AppServer {
                     
                 }else if ("eliminarGrupo".equals(comando)){
                     writer.writeUTF(FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader));
-                } else if ("CerrarSession".equals(comando)) {
+                } else if ("listarMiembrosGrupo".equals(comando)){
+                    writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
+                }
+                else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";
                     writer.writeUTF(resultado);

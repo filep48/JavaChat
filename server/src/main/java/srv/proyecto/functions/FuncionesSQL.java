@@ -209,18 +209,31 @@ public class FuncionesSQL {
         }
     }
 
+
+
     public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje, DataInputStream reader) {
         try {
             int idGrupo = obtenerIdGrupo(mensaje[1]);
-            String strSql = "INSERT INTO miembrosgrupos (usuario_id, grupo_id, rol) VALUES (?, ?, 'admin')";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setInt(1, usuario.getId());
-            pst.setInt(2, idGrupo);
-            pst.executeUpdate();
+            
+            if(idGrupo != -1) {  // Asegurarse de que el ID del grupo es válido
+                String strSql = "INSERT INTO miembrosgrupos (usuario_id, grupo_id, rol) VALUES (?, ?, 'admin')";
+                PreparedStatement pst = cn.prepareStatement(strSql);
+                pst.setInt(1, usuario.getId());
+                pst.setInt(2, idGrupo);
+                pst.executeUpdate();
+            } else {
+                System.out.println("No se pudo obtener el ID del grupo para: " + mensaje[1]);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+
+
+
+
+
 
     static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
@@ -325,17 +338,17 @@ public class FuncionesSQL {
 
     public static String eliminarGrupo(Usuario usuario, String nombreGrupo, DataInputStream reader) {
         try {
-            int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo); 
+            int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
             Connection cn = DatabaseConnection.getConnection();
             String selectRol = "SELECT rol FROM MiembrosGrupos WHERE usuario_id = ? AND grupo_id = (SELECT id FROM Grupos WHERE id = ?)";
             PreparedStatement pst = cn.prepareStatement(selectRol);
             pst.setInt(1, usuario.getId());
             pst.setInt(2, idGrupo);
             ResultSet rs = pst.executeQuery();
-    
+
             if (rs.next()) {
                 String rol = rs.getString("rol");
-    
+
                 // Comparamos si el rol es "admin"
                 if ("admin".equals(rol)) {
                     // Eliminar
@@ -343,22 +356,22 @@ public class FuncionesSQL {
                     pst = cn.prepareStatement(deleteMiembrosGrupos);
                     pst.setInt(1, idGrupo);
                     pst.executeUpdate();
-    
+
                     String deleteMensajes = "DELETE FROM Mensajes WHERE grupo_id = (SELECT id FROM Grupos WHERE id = ?)";
                     pst = cn.prepareStatement(deleteMensajes);
                     pst.setInt(1, idGrupo);
                     pst.executeUpdate();
-    
+
                     String deleteArchivos = "DELETE FROM Archivos WHERE grupo_id = (SELECT id FROM Grupos WHERE id = ?)";
                     pst = cn.prepareStatement(deleteArchivos);
                     pst.setInt(1, idGrupo);
                     pst.executeUpdate();
-    
+
                     String deleteGrupo = "DELETE FROM Grupos WHERE id = ?";
                     pst = cn.prepareStatement(deleteGrupo);
                     pst.setInt(1, idGrupo);
                     pst.executeUpdate();
-    
+
                     return "Grupo eliminado con éxito.";
                 } else {
                     return "El usuario no es administrador del grupo.";
@@ -393,4 +406,51 @@ public class FuncionesSQL {
         }
         return idGrupo;
     }
+
+    public static String listarMiembrosGrupo(Usuario usuario, String nombreGrupo, DataInputStream reader) {
+        int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo); 
+        StringBuilder listaMiembros = new StringBuilder();
+    
+        try (Connection cn = DatabaseConnection.getConnection()) {
+            
+            String strSql = "SELECT nombre_usuario " +
+                            "FROM Usuarios " +
+                            "WHERE id IN (SELECT usuario_id FROM MiembrosGrupos WHERE grupo_id = ?)";
+    
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                pst.setInt(1, idGrupo);
+    
+                try (ResultSet rs = pst.executeQuery()) {
+                    String resultado =" ";
+                    while (rs.next()) {
+                        resultado += rs.getString("nombre_usuario") + "\n";
+                    }
+                }
+            }
+            return listaMiembros.toString().trim();
+        } catch (SQLException e) {
+            System.err.println("Error de SQL: " + e.getMessage());
+        } catch (Exception e) {
+        }
+        return "No se pudieron listar los miembros del grupo.";
+    }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

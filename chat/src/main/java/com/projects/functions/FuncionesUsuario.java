@@ -94,4 +94,15 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
 
     }
+
+    public static void listarMiembrosGrupo(String nombreGrupo,DataOutputStream writer, DataInputStream reader) throws IOException {
+        String mensaje = "listarMiembrosGrupo;" + nombreGrupo;
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+
+        System.out.println("Llista de miembros del grupo: "
+                + "\n" + serverResponse);
+
+    }
+
 }
