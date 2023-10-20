@@ -137,70 +137,43 @@ public class AppCliente {
 
         mensaje = "administrarGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
-
-        System.out.println("==================\nEstás administrando un chat. Selecciona una opción:");
-        System.out.println("1. Listar usuarios."
-                + "\n2. Añadir usuario a grupo."
-                + "\n3. Eliminar usuario del grupo"
-                + "\n4. Salir del chat."
-                + "\n5. Eliminar grupo."
-                + "\n6. Volver al menú principal.");
-        int opcion = 0;
-        opcion = scanner.nextInt();
-        switch (opcion) {
-            case 1:
-                FuncionesUsuario.listarUsuarios(writer, reader);
-                break;
-            case 2:
-                // Lógica para añadir usuario
-                FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo, writer, reader);
-                break;
-            case 3:
-                // Lógica para eliminar usuario del grupo
-                break;
-            case 4:
-                FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);
-                break;
-            case 5:
-                // Lógica para eliminar grupo
-                FuncionesUsuario.eliminarGrupo(nombreGrupo, writer, reader);
-                break;
-            case 6:
-                // Lógica para volver al menú principal
-                menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario
-                break;
-            default:
-                System.out.println(COMANDO_NO_RECONOCIDO);
-                break;
-        }
-    }
-
-    private static void menuCrearGrupo(String nombreUsuario, Scanner scanner, DataOutputStream writer,
-            DataInputStream reader) throws IOException {
-        System.out.println("==================\nEstás creando un chat. Selecciona una opción:");
-        System.out.println("1. Listar usuarios."
-                + "\n2. Listar usuarios."
-                + "\n3. Administrar un chat."
-                + "\n4. Volver al menú principal.");
-
-        int opcion = scanner.nextInt();
-        switch (opcion) {
-            case 1:
-                // Lógica para listar usuarios
-                break;
-            case 2:
-
-                break;
-            case 3:
-                menuGrupo(nombreUsuario, scanner, writer, reader);
-                break;
-            case 4:
-                menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario
-                                                                            // actual
-                break;
-            default:
-                System.out.println(COMANDO_NO_RECONOCIDO);
-                break;
+        boolean salir = false;
+        while (salir != true) {
+            System.out.println("==================\nEstás administrando un chat. Selecciona una opción:");
+            System.out.println("1. Listar usuarios del grupo."
+                    + "\n2. Añadir usuario a grupo."
+                    + "\n3. Eliminar usuario del grupo"
+                    + "\n4. Salir del chat."
+                    + "\n5. Eliminar grupo."
+                    + "\n6. Volver al menú principal.");
+            int opcion = 0;
+            opcion = scanner.nextInt();
+            switch (opcion) {
+                case 1:
+                    FuncionesUsuario.listarMiembrosGrupo(nombreGrupo,writer, reader);
+                    break;
+                case 2:
+                    // Lógica para añadir usuario
+                    FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo, writer, reader);
+                    break;
+                case 3:
+                    // Lógica para eliminar usuario del grupo
+                    break;
+                case 4:
+                    FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);
+                    break;
+                case 5:
+                    // Lógica para eliminar grupo
+                    FuncionesUsuario.eliminarGrupo(nombreGrupo, writer, reader);
+                    break;
+                case 6:
+                    // Lógica para volver al menú principal
+                    salir = true;
+                    break;
+                default:
+                    System.out.println(COMANDO_NO_RECONOCIDO);
+                    break;
+            }
         }
     }
 
