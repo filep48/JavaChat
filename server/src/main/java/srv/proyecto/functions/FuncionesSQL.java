@@ -49,7 +49,7 @@ public class FuncionesSQL {
         }
     }
 
-    public static String llistarUsuariosCreados() {
+    public static String listarUsuariosCreados(Usuario usuario) {
         try {
             Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
@@ -61,7 +61,9 @@ public class FuncionesSQL {
             ResultSet rs = pst.executeQuery();
             String resultado = "";
             while (rs.next()) {
-                resultado += rs.getString("nombre_usuario") + "\n";
+                if (!rs.getString("nombre_usuario").equals(usuario.getNombreUsuario())) {
+                    resultado += rs.getString("nombre_usuario") + "\n";
+                }
             }
             return resultado;
         } catch (SQLException ex) {
@@ -461,7 +463,10 @@ public class FuncionesSQL {
     
                 try (ResultSet rs = pst.executeQuery()) {
                     while (rs.next()) {
-                        listaMiembros += rs.getString("nombre_usuario") + "\n";
+                        if (rs.getString("nombre_usuario").equals(usuario.getNombreUsuario()))
+                            listaMiembros += rs.getString("nombre_usuario") + " (tú)" + "\n";
+                        else
+                            listaMiembros += rs.getString("nombre_usuario") + "\n";
                     }
                 }
             }
