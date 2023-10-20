@@ -129,9 +129,12 @@ public class AppServer {
                         writer.writeUTF("Error al crear el grupo");
                     }
                 } else if ("administrarGrupo".equals(comando)) {
-                    
+
                 }else if ("eliminarGrupo".equals(comando)){
                     writer.writeUTF(FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader));
+                } else if ("AñadirUsuarioAGrupo".equals(comando)) {
+                    writer.writeUTF(FuncionesSQL.anadirUsuarioAGrupo(usuario, mensaje[1], mensaje[2], reader));
+                    writer.writeUTF(FuncionesSQL.LlistarUsuariosPorGrupo(mensaje[1]));
                 } else if ("listarMiembrosGrupo".equals(comando)){
                     writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
                 }

@@ -107,50 +107,6 @@ public class FuncionesSQL {
         }
     }
 
-    /**
-     * Realiza una consulta a la base de datos para verificar si existe un usuario
-     * con el nombre de usuario y la contraseña proporcionados.
-     * Antes comprueba el largo de contrasena
-     *
-     * @param nombre     El nombre de usuario proporcionado.
-     * @param contrasena La contraseña proporcionada.
-     * @return `true` si las credenciales son válidas, `false` en caso contrario.
-     */
-    /*
-     * public static boolean InicioSession(String nombre, String contrasena, String
-     * comando) {
-     * try {
-     * // Verificar si la contraseña cumple con los requisitos en caso de que el
-     * // comando sea iniciarSesion
-     * 
-     * if (!comando.equals("iniciarSesion")) {
-     * validarContrasena(contrasena); // Verificar si la contraseña cumple con los
-     * requisitos
-     * }
-     * try (Connection cn = DatabaseConnection.getConnection()) {
-     * String strSql =
-     * "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?"
-     * ;
-     * try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-     * pst.setString(1, nombre);
-     * pst.setString(2, contrasena);
-     * 
-     * try (ResultSet rs = pst.executeQuery()) {
-     * return rs.next(); // Si hay resultados, las credenciales son válidas
-     * }
-     * }
-     * }
-     * } catch (SQLException e) {
-     * e.printStackTrace();
-     * return false;
-     * } catch (ContrasenaInvalidaException e) {
-     * // Manejar la excepción de contraseña inválida aquí, si es necesario
-     * e.printStackTrace();
-     * return false;
-     * }
-     * }
-     */
-
     // Creacion del registro de usuarios en la base de datos
     public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
         try {
@@ -159,8 +115,7 @@ public class FuncionesSQL {
                 validarContrasena(contrasena);
             }
 
-            try  {
-                Connection cn = DatabaseConnection.getConnection();
+            try (Connection cn = DatabaseConnection.getConnection()) {
                 String strSql;
                 if ("registrarse".equals(comando)) {
                     // Si el comando es registrar, insertamos el usuario
@@ -183,13 +138,15 @@ public class FuncionesSQL {
                             return rs.next(); // Si hay resultados, las credenciales son válidas
                         }
                     }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return false;
                 }
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
                 return false;
             }
-        } catch (ContrasenaInvalidaException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -412,6 +369,81 @@ public class FuncionesSQL {
             // TODO: handle exception
         }
         return idGrupo;
+    }
+
+    public static boolean isAdmin(Usuario usuario, String nombreGrupo) {
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            String selectRol = "SELECT rol FROM MiembrosGrupos WHERE usuario_id = ? AND grupo_id = (SELECT id FROM Grupos WHERE nombre_grupo = ?)";
+            PreparedStatement pst = cn.prepareStatement(selectRol);
+            pst.setInt(1, usuario.getId());
+            pst.setString(2, nombreGrupo);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                String rol = rs.getString("rol");
+
+                // Comparamos si el rol es "admin"
+                if ("admin".equals(rol)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static String anadirUsuarioAGrupo(Usuario usuario, String usuarioAnadir, String nombreGrupo,
+            DataInputStream reader) {
+        // Llama a la función isAdmin
+        if (isAdmin(usuario, nombreGrupo)) {
+            try {
+                Connection cn = DatabaseConnection.getConnection();
+                int idUsuarioAnadido = FuncionesSQL.obtenerIdUsuario(usuarioAnadir);
+                int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
+
+                // Corregir la creación de PreparedStatement con la consulta SQL
+                String insertMiembrosGrupos = "INSERT INTO miembrosgrupos (usuario_id, grupo_id, rol) VALUES (?, ?, 'miembro')";
+                PreparedStatement pst = cn.prepareStatement(insertMiembrosGrupos);
+                pst.setInt(1, idUsuarioAnadido);
+                pst.setInt(2, idGrupo);
+                pst.executeUpdate();
+                return "Usuario añadido con éxito.";
+            } catch (Exception e) {
+                return "Error al añadir el usuario: " + e.getMessage();
+            }
+        } else {
+            return "El usuario no es administrador del grupo.";
+        }
+    }
+
+    public static String LlistarUsuariosPorGrupo(String string) {
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            System.out.println("Listado de usuarios creados");
+            System.out.println();
+            String strSql = "SELECT u.nombre_usuario " +
+                    "FROM usuarios u " +
+                    "JOIN miembrosgrupos mg ON u.id = mg.usuario_id " +
+                    "JOIN grupos g ON g.id = mg.grupo_id " +
+                    "WHERE g.nombre_grupo = ?";
+            PreparedStatement pst = cn.prepareStatement(strSql);
+            pst.setString(1, string);
+
+            // Resultados de la consulta
+            ResultSet rs = pst.executeQuery();
+            String resultado = "";
+            while (rs.next()) {
+                resultado += rs.getString("nombre_usuario") + "\n"; // Solo añadimos el nombre del grupo
+            }
+            return resultado;
+        } catch (SQLException ex) {
+            return "Error: " + ex.toString();
+        }
     }
 
     public static String listarMiembrosGrupo(Usuario usuario, String nombreGrupo, DataInputStream reader) {

@@ -140,7 +140,7 @@ public class AppCliente {
 
         System.out.println("==================\nEstás administrando un chat. Selecciona una opción:");
         System.out.println("1. Listar usuarios."
-                + "\n2. Añadir usuario."
+                + "\n2. Añadir usuario a grupo."
                 + "\n3. Eliminar usuario del grupo"
                 + "\n4. Salir del chat."
                 + "\n5. Eliminar grupo."
@@ -153,6 +153,7 @@ public class AppCliente {
                 break;
             case 2:
                 // Lógica para añadir usuario
+                FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo,writer, reader);
                 break;
             case 3:
                 // Lógica para eliminar usuario del grupo
@@ -188,7 +189,7 @@ public class AppCliente {
                 // Lógica para listar usuarios
                 break;
             case 2:
-                // Lógica para listar usuarios conectados
+        
                 break;
             case 3:
                 menuGrupo(nombreUsuario, scanner, writer, reader);
