@@ -103,10 +103,8 @@ public class FuncionesUsuario {
         String mensaje = "AñadirUsuarioAGrupo;" + nombreUsuario + ";" + nombreGrupo;
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
-        String serverResponse2 = reader.readUTF();
         System.out.println(serverResponse);
-        System.out.println("Llistado de usuarios: "
-                + "\n" + serverResponse2);
+        listarMiembrosGrupo(nombreGrupo, writer, reader);
     }
 
     public static void listarMiembrosGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
@@ -119,16 +117,17 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
 
     }
-    public static void eliminarMiembro(String nombreUsuario,String nombreGrupo, DataOutputStream writer, DataInputStream reader) throws IOException{
 
+    public static void eliminarMiembro(String nombreUsuario, String nombreGrupo, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        listarMiembrosGrupo(nombreGrupo, writer, reader);
         Scanner scanner = new Scanner(System.in);
         System.out.println("Introduce el nombre del usuario que quieres eliminar: ");
         nombreUsuario = scanner.next();
-        String mensaje = "eliminarMiembro;"+nombreUsuario +";"+nombreGrupo;
+        String mensaje = "eliminarMiembro;" + nombreUsuario + ";" + nombreGrupo;
         writer.writeUTF(mensaje);
-        String serverResponse  = reader.readUTF();
+        String serverResponse = reader.readUTF();
         System.out.println(serverResponse);
-
 
     }
 

@@ -150,14 +150,14 @@ public class AppCliente {
             opcion = scanner.nextInt();
             switch (opcion) {
                 case 1:
-                    FuncionesUsuario.listarMiembrosGrupo(nombreGrupo,writer, reader);
+                    FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);
                     break;
                 case 2:
                     // Lógica para añadir usuario
                     FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo, writer, reader);
                     break;
                 case 3:
-                    // Lógica para eliminar usuario del grupo
+                    FuncionesUsuario.eliminarMiembro(nombreUsuario,nombreGrupo , writer, reader);
                     break;
                 case 4:
                     FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);

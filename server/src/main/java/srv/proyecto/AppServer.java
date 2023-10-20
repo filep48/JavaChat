@@ -133,14 +133,11 @@ public class AppServer {
                     writer.writeUTF(FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader));
                 } else if ("AñadirUsuarioAGrupo".equals(comando)) {
                     writer.writeUTF(FuncionesSQL.anadirUsuarioAGrupo(usuario, mensaje[1], mensaje[2], reader));
-                    writer.writeUTF(FuncionesSQL.LlistarUsuariosPorGrupo(mensaje[1]));
                 } else if ("listarMiembrosGrupo".equals(comando)){
                     writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
-                } else if("eliminarMiembro".equals(comando)){
-                    writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader));
-                    
-                }
-                else if ("CerrarSession".equals(comando)) {
+                }else if ("eliminarMiembro".equals(comando)){
+                    writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader)); 
+                }else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";
                     writer.writeUTF(resultado);
