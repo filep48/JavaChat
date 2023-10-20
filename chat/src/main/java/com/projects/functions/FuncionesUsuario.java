@@ -119,4 +119,17 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
 
     }
+    public static void eliminarMiembro(String nombreUsuario,String nombreGrupo, DataOutputStream writer, DataInputStream reader) throws IOException{
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Introduce el nombre del usuario que quieres eliminar: ");
+        nombreUsuario = scanner.next();
+        String mensaje = "eliminarMiembro;"+nombreUsuario +";"+nombreGrupo;
+        writer.writeUTF(mensaje);
+        String serverResponse  = reader.readUTF();
+        System.out.println(serverResponse);
+
+
+    }
+
 }
