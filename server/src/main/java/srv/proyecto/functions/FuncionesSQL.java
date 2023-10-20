@@ -49,7 +49,7 @@ public class FuncionesSQL {
         }
     }
 
-    public static String llistarUsuariosCreados() {
+    public static String listarUsuariosCreados(Usuario usuario) {
         try {
             Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
@@ -61,7 +61,9 @@ public class FuncionesSQL {
             ResultSet rs = pst.executeQuery();
             String resultado = "";
             while (rs.next()) {
-                resultado += rs.getString("nombre_usuario") + "\n";
+                if (!rs.getString("nombre_usuario").equals(usuario.getNombreUsuario())) {
+                    resultado += rs.getString("nombre_usuario") + "\n";
+                }
             }
             return resultado;
         } catch (SQLException ex) {
@@ -461,20 +463,43 @@ public class FuncionesSQL {
     
                 try (ResultSet rs = pst.executeQuery()) {
                     while (rs.next()) {
-                        listaMiembros += rs.getString("nombre_usuario") + "\n";
+                        if (rs.getString("nombre_usuario").equals(usuario.getNombreUsuario()))
+                            listaMiembros += rs.getString("nombre_usuario") + " (tú)" + "\n";
+                        else
+                            listaMiembros += rs.getString("nombre_usuario") + "\n";
                     }
                 }
             }
-    
             return listaMiembros;
-    
         } catch (SQLException e) {
             System.err.println("Error de SQL: " + e.getMessage());
         } catch (Exception e) {
         }
-    
         return "No se pudieron listar los miembros del grupo.";
     }
+
+
+public static String eliminarMiebro (Usuario usuario, String usuarioBorrado, String nombreGrupo, DataInputStream reader) {
+    if (isAdmin(usuario, nombreGrupo)){
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            int idUsuarioBorrado = FuncionesSQL.obtenerIdUsuario(usuarioBorrado);
+            int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
+
+            String borrarMiembrosGrupos = "DELETE FROM miembrosGrupos WHERE usuario_id = ? AND grupo_id = ?";
+            PreparedStatement pst = cn.prepareStatement(borrarMiembrosGrupos);
+            pst.setInt(1, idUsuarioBorrado);
+            pst.setInt(2, idGrupo);
+            pst.executeUpdate();
+            return "Usuario eliminado con éxito.";
+        } catch (Exception e) {
+            return "Error al eliminar el usuario: " + e.getMessage();
+        }
+    } else {
+        return "El usuario no es administrador del grupo.";
+    }
+}
+    
     
     
 

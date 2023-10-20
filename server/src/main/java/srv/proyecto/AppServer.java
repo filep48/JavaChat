@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import srv.proyecto.clases.DatabaseConnection;
-import srv.proyecto.clases.Grupo;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
 import srv.proyecto.functions.FuncionesSQL;
@@ -115,7 +114,7 @@ public class AppServer {
                     String resultado = FuncionesSQL.llistarGruposCreados(usuario);
                     writer.writeUTF(resultado);
                 } else if ("listarUsuarios".equals(comando)) {
-                    String resultado = FuncionesSQL.llistarUsuariosCreados();
+                    String resultado = FuncionesSQL.listarUsuariosCreados(usuario);
                     writer.writeUTF(resultado);
                 } else if ("listarUsuariosConectados".equals(comando)) {
                     String resultado = FuncionesServer.listarUsuariosConectados();
@@ -137,6 +136,9 @@ public class AppServer {
                     writer.writeUTF(FuncionesSQL.LlistarUsuariosPorGrupo(mensaje[1]));
                 } else if ("listarMiembrosGrupo".equals(comando)){
                     writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
+                } else if("eliminarMiembro".equals(comando)){
+                    writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader));
+                    
                 }
                 else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
