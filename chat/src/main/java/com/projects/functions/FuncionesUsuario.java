@@ -64,12 +64,11 @@ public class FuncionesUsuario {
 
         String mensaje = "eliminarGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
-
         System.out.println(reader.readUTF());
 
     }
 
-    public static void LlistarUsuarios(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void listarUsuarios(DataOutputStream writer, DataInputStream reader) throws IOException {
         String mensaje = "listarUsuarios";
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
@@ -77,7 +76,7 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
     }
 
-    public static void LlistarUsuariosConectados(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void listarUsuariosConectados(DataOutputStream writer, DataInputStream reader) throws IOException {
         String mensaje = "listarUsuariosConectados";
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
@@ -109,4 +108,16 @@ public class FuncionesUsuario {
         System.out.println("Llistado de usuarios: "
                 + "\n" + serverResponse2);
     }
+
+    public static void listarMiembrosGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
+        String mensaje = "listarMiembrosGrupo;" + nombreGrupo;
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+
+        System.out.println("Llista de miembros del grupo: "
+                + "\n" + serverResponse);
+
+    }
+
 }

@@ -8,6 +8,8 @@ import com.projects.functions.FuncionesUsuario;
 
 public class AppCliente {
     // CLIENTE
+    final static String COMANDO_NO_RECONOCIDO = "Comando no reconocido";
+
     public static void main(String[] args) {
 
         // CLIENTE
@@ -49,10 +51,8 @@ public class AppCliente {
                 + "\n3. Configuración del cliente."
                 + "\n4. Salir.");
 
-        int option1 = scanner.nextInt();
-        String mensaje = "";
-
-        switch (option1) {
+        int opcion = scanner.nextInt();
+        switch (opcion) {
             case 1:
                 FuncionesUsuario.registrarse(writer, reader);
                 break;
@@ -66,7 +66,7 @@ public class AppCliente {
                 System.exit(0);
                 break;
             default:
-                mensaje = "Comando no reconocido";
+                System.out.println(COMANDO_NO_RECONOCIDO);
                 break;
         }
 
@@ -85,25 +85,25 @@ public class AppCliente {
                     + "\n6. Administrar un chat."
                     + "\n7. Cerrar sesión.");
 
-            int option2 = scanner.nextInt();
+            int opcion = scanner.nextInt();
             String mensaje = "";
             String serverResponse = "";
-            switch (option2) {
+            switch (opcion) {
                 case 1:
                     // Lógica para enviar mensaje
                     break;
                 case 2:
                     // Listar chats
-                    FuncionesUsuario.LlistarGruposCreados(nombreUsuario, writer, reader);
+                    FuncionesUsuario.listarGruposCreados(nombreUsuario, writer, reader);
                     break;
                 case 3:
                     // Lógica para listar grupos y al seleccionar uno
                     // entra en el.
-                    FuncionesUsuario.LlistarUsuarios(writer, reader);
+                    FuncionesUsuario.listarUsuarios(writer, reader);
                     break;
                 case 4:
                     // Lógica para listar usuarios conectados
-                    FuncionesUsuario.LlistarUsuariosConectados(writer, reader);
+                    FuncionesUsuario.listarUsuariosConectados(writer, reader);
                     break;
                 case 5:
                     // Lógica para crear un grupo
@@ -117,10 +117,11 @@ public class AppCliente {
                     mensaje = "CerrarSession";
                     writer.writeUTF(mensaje);
                     serverResponse = reader.readUTF();
+                    System.out.println(serverResponse);
                     condition = false;
                     break;
                 default:
-                    System.out.println("Comando no reconocido");
+                    System.out.println(COMANDO_NO_RECONOCIDO);
                     break;
             }
             System.out.println();
@@ -129,7 +130,7 @@ public class AppCliente {
 
     private static void menuAdministrarGrupo(String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader) throws IOException {
-        FuncionesUsuario.LlistarGruposCreados(nombreUsuario, writer, reader);
+        FuncionesUsuario.listarGruposCreados(nombreUsuario, writer, reader);
         String mensaje = "";
         System.out.println("Introduce el nombre del grupo que quieres administrar: ");
         String nombreGrupo = scanner.next();
@@ -144,11 +145,11 @@ public class AppCliente {
                 + "\n4. Salir del chat."
                 + "\n5. Eliminar grupo."
                 + "\n6. Volver al menú principal.");
-        int OpcionAdministrarGrupo = 0;
-        OpcionAdministrarGrupo = scanner.nextInt();
-        switch (OpcionAdministrarGrupo) {
+        int opcion = 0;
+        opcion = scanner.nextInt();
+        switch (opcion) {
             case 1:
-                FuncionesUsuario.LlistarUsuarios(writer, reader);
+                FuncionesUsuario.listarUsuarios(writer, reader);
                 break;
             case 2:
                 // Lógica para añadir usuario
@@ -158,18 +159,18 @@ public class AppCliente {
                 // Lógica para eliminar usuario del grupo
                 break;
             case 4:
-                // Lógica para salir del grupo
+                FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);
                 break;
             case 5:
                 // Lógica para eliminar grupo
-                FuncionesUsuario.eliminarGrupo(nombreGrupo,writer, reader);
+                FuncionesUsuario.eliminarGrupo(nombreGrupo, writer, reader);
                 break;
             case 6:
                 // Lógica para volver al menú principal
                 menuSesionIniciada(nombreUsuario, scanner, writer, reader); // Aquí deberías pasar el nombre del usuario
                 break;
             default:
-                System.out.println("Comando no reconocido");
+                System.out.println(COMANDO_NO_RECONOCIDO);
                 break;
         }
     }
@@ -182,8 +183,8 @@ public class AppCliente {
                 + "\n3. Administrar un chat."
                 + "\n4. Volver al menú principal.");
 
-        int option3 = scanner.nextInt();
-        switch (option3) {
+        int opcion = scanner.nextInt();
+        switch (opcion) {
             case 1:
                 // Lógica para listar usuarios
                 break;
@@ -198,7 +199,7 @@ public class AppCliente {
                                                                             // actual
                 break;
             default:
-                System.out.println("Comando no reconocido");
+                System.out.println(COMANDO_NO_RECONOCIDO);
                 break;
         }
     }
@@ -211,9 +212,9 @@ public class AppCliente {
                 + "\n3. Leer mensajes."
                 + "\n4. Salir del chat.");
 
-        int opcion4 = scanner.nextInt();
+        int opcion = scanner.nextInt();
 
-        switch (opcion4) {
+        switch (opcion) {
             case 1:
                 // Lógica para administrar el grupo
                 break;
@@ -228,7 +229,7 @@ public class AppCliente {
                                                                             // actual
                 break;
             default:
-                System.out.println("Comando no reconocido");
+                System.out.println(COMANDO_NO_RECONOCIDO);
                 break;
         }
     }
