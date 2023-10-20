@@ -91,6 +91,9 @@ public class AppCliente {
             switch (opcion) {
                 case 1:
                     // Lógica para enviar mensaje
+                    System.out.println("==================");
+                    FuncionesUsuario.listarGruposCreados(nombreUsuario, writer, reader);
+                    FuncionesUsuario.enviarMensaje(nombreUsuario, writer, reader);
                     break;
                 case 2:
                     // Listar chats

@@ -68,6 +68,29 @@ public class FuncionesUsuario {
 
     }
 
+    public static void enviarMensaje(String nombreUsuario, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce el nombre del chat al que quieres enviar el mensaje: ");
+        String nombreGrupo = scanner.next();
+        System.out.print("Introduce el mensaje que quieres enviar al chat " + nombreGrupo + ": ");
+        String mensajeChat = scanner.next();
+        String mensaje = "enviarMensaje;" + nombreGrupo + ";" + mensajeChat;
+        writer.writeUTF(mensaje);
+        if (reader.readBoolean()) {
+            System.out.println("Mensaje enviado correctamente. Quieres enviar otro mensaje? (S/N)");
+            String respuesta = scanner.next();
+            if (respuesta.equals("S")) {
+                enviarMensaje(nombreUsuario, writer, reader);
+            } else {
+                AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader);
+            }
+        } else {
+            System.out.println("Error al enviar el mensaje. Inténtalo de nuevo.");
+            enviarMensaje(nombreUsuario, writer, reader);
+        }
+    }
+
     public static void listarUsuarios(DataOutputStream writer, DataInputStream reader) throws IOException {
         String mensaje = "listarUsuarios";
         writer.writeUTF(mensaje);
@@ -90,7 +113,7 @@ public class FuncionesUsuario {
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
 
-        System.out.println("Llista de grupos: "
+        System.out.println("Llista de chats: "
                 + "\n" + serverResponse);
 
     }
