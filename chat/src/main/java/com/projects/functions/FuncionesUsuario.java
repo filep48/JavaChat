@@ -84,7 +84,7 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
     }
 
-    public static void LlistarGruposCreados(String nombreUsuario, DataOutputStream writer, DataInputStream reader)
+    public static void listarGruposCreados(String nombreUsuario, DataOutputStream writer, DataInputStream reader)
             throws IOException {
         String mensaje = "listarGrupos;" + nombreUsuario;
         writer.writeUTF(mensaje);

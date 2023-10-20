@@ -153,7 +153,7 @@ public class AppCliente {
                 break;
             case 2:
                 // Lógica para añadir usuario
-                FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo,writer, reader);
+                FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo, writer, reader);
                 break;
             case 3:
                 // Lógica para eliminar usuario del grupo
@@ -189,7 +189,7 @@ public class AppCliente {
                 // Lógica para listar usuarios
                 break;
             case 2:
-        
+
                 break;
             case 3:
                 menuGrupo(nombreUsuario, scanner, writer, reader);
