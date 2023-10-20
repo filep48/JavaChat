@@ -137,6 +137,9 @@ public class AppServer {
                     writer.writeUTF(FuncionesSQL.LlistarUsuariosPorGrupo(mensaje[1]));
                 } else if ("listarMiembrosGrupo".equals(comando)){
                     writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
+                } else if("eliminarMiembro".equals(comando)){
+                    writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader));
+                    
                 }
                 else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);

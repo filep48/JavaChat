@@ -465,16 +465,36 @@ public class FuncionesSQL {
                     }
                 }
             }
-    
             return listaMiembros;
-    
         } catch (SQLException e) {
             System.err.println("Error de SQL: " + e.getMessage());
         } catch (Exception e) {
         }
-    
         return "No se pudieron listar los miembros del grupo.";
     }
+
+
+public static String eliminarMiebro (Usuario usuario, String usuarioBorrado, String nombreGrupo, DataInputStream reader) {
+    if (isAdmin(usuario, nombreGrupo)){
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            int idUsuarioBorrado = FuncionesSQL.obtenerIdUsuario(usuarioBorrado);
+            int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
+
+            String borrarMiembrosGrupos = "DELETE FROM miembrosGrupos WHERE usuario_id = ? AND grupo_id = ?";
+            PreparedStatement pst = cn.prepareStatement(borrarMiembrosGrupos);
+            pst.setInt(1, idUsuarioBorrado);
+            pst.setInt(2, idGrupo);
+            pst.executeUpdate();
+            return "Usuario eliminado con éxito.";
+        } catch (Exception e) {
+            return "Error al eliminar el usuario: " + e.getMessage();
+        }
+    } else {
+        return "El usuario no es administrador del grupo.";
+    }
+}
+    
     
     
 
