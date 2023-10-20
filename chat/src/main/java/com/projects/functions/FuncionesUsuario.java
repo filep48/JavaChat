@@ -59,17 +59,15 @@ public class FuncionesUsuario {
         }
     }
 
-    public static void eliminarGrupo(String nombreGrupo,DataOutputStream writer, DataInputStream reader) throws IOException{
-        
+    public static void eliminarGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
         String mensaje = "eliminarGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
-
         System.out.println(reader.readUTF());
-        
 
     }
 
-    public static void LlistarUsuarios(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void listarUsuarios(DataOutputStream writer, DataInputStream reader) throws IOException {
         String mensaje = "listarUsuarios";
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
@@ -77,7 +75,7 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
     }
 
-    public static void LlistarUsuariosConectados(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void listarUsuariosConectados(DataOutputStream writer, DataInputStream reader) throws IOException {
         String mensaje = "listarUsuariosConectados";
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
@@ -85,7 +83,8 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
     }
 
-    public static void LlistarGruposCreados(String nombreUsuario,DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void listarGruposCreados(String nombreUsuario, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
         String mensaje = "listarGrupos;" + nombreUsuario;
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
@@ -95,7 +94,8 @@ public class FuncionesUsuario {
 
     }
 
-    public static void listarMiembrosGrupo(String nombreGrupo,DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void listarMiembrosGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
         String mensaje = "listarMiembrosGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
