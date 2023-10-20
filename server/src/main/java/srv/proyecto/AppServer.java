@@ -135,6 +135,9 @@ public class AppServer {
                 } else if ("AñadirUsuarioAGrupo".equals(comando)) {
                     writer.writeUTF(FuncionesSQL.anadirUsuarioAGrupo(usuario, mensaje[1], mensaje[2], reader));
                     writer.writeUTF(FuncionesSQL.LlistarUsuariosPorGrupo(mensaje[1]));
+                } else if ("salirGrupo".equals(comando)) {
+                    writer.writeUTF(FuncionesSQL.salirGrupo(usuario, mensaje[1], reader));
+
                 } else if ("CerrarSession".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
                     String resultado = "CerrarSession";

@@ -152,17 +152,19 @@ public class AppCliente {
                 break;
             case 2:
                 // Lógica para añadir usuario
-                FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo,writer, reader);
+                FuncionesUsuario.anadirUsuarioAGrupo(nombreGrupo, writer, reader);
                 break;
             case 3:
                 // Lógica para eliminar usuario del grupo
+                
                 break;
             case 4:
                 // Lógica para salir del grupo
+                FuncionesUsuario.salirGrupo(nombreGrupo, writer, reader);
                 break;
             case 5:
                 // Lógica para eliminar grupo
-                FuncionesUsuario.eliminarGrupo(nombreGrupo,writer, reader);
+                FuncionesUsuario.eliminarGrupo(nombreGrupo, writer, reader);
                 break;
             case 6:
                 // Lógica para volver al menú principal
@@ -188,7 +190,7 @@ public class AppCliente {
                 // Lógica para listar usuarios
                 break;
             case 2:
-        
+
                 break;
             case 3:
                 menuGrupo(nombreUsuario, scanner, writer, reader);

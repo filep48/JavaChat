@@ -96,7 +96,7 @@ public class FuncionesUsuario {
 
     }
 
-    public static void AñadirUsuarioAGrupo(String nombreGrupo, DataOutputStream writer,
+    public static void anadirUsuarioAGrupo(String nombreGrupo, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del usuario que quieres añadir: ");
@@ -108,5 +108,20 @@ public class FuncionesUsuario {
         System.out.println(serverResponse);
         System.out.println("Llistado de usuarios: "
                 + "\n" + serverResponse2);
+    }
+
+    public static void salirGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
+        System.out.println("¿Estás seguro que quieres salir del grupo? (S/N)");
+        Scanner scanner = new Scanner(System.in);
+        String respuesta = scanner.next();
+        if (respuesta.equals("S")) {
+            String mensaje = "salirGrupo;" + nombreGrupo;
+            writer.writeUTF(mensaje);
+            String serverResponse = reader.readUTF();
+            System.out.println(serverResponse);
+        } else {
+            System.out.println("Operacion cancelada");
+        }
     }
 }

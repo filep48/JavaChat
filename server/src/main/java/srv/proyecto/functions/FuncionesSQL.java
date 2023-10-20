@@ -430,4 +430,18 @@ public class FuncionesSQL {
             return "Error: " + ex.toString();
         }
     }
+
+    public static String salirGrupo(Usuario usuario, String string, DataInputStream reader) {
+        try  {
+            
+            String deleteMiembroGrupo = "DELETE FROM miembrosgrupos WHERE usuario_id = ?";
+            Connection cn = DatabaseConnection.getConnection();
+            PreparedStatement pst = cn.prepareStatement(deleteMiembroGrupo);
+            pst.setInt(1, usuario.getId());
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+        }
+        return null;
+    }
 }
