@@ -133,18 +133,14 @@ public class FuncionesUsuario {
     }
     public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer, DataInputStream reader, Socket socket) {
         try {
-            // Enviar mensaje para cerrar sesión al servidor
             String mensaje = "cerrarSesion;" + nombreUsuario;
             writer.writeUTF(mensaje);
             String serverResponse = reader.readUTF();
-            
             System.out.println("¡Hasta luego, " + nombreUsuario + "!");
             System.out.println();
         
-            // Cerrar flujos de entrada y salida
             writer.close();
             reader.close();
-        
             socket.close();
         } catch (IOException e) {
             e.printStackTrace(); 
