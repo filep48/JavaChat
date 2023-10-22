@@ -7,9 +7,32 @@ import java.net.Socket;
 import java.util.Scanner;
 import com.projects.AppCliente;
 
+
+/**
+ * Clase que contiene funciones para interactuar con el servidor y realizar operaciones
+ * relacionadas con usuarios y grupos.
+ * @author Gerard Albesa,Kevin Felipe Vasquez, Vanessa Pedrola.
+ * @version 1.0
+ */
 public class FuncionesUsuario {
 
-    public static void registrarse(DataOutputStream writer, DataInputStream reader,Socket socket) throws IOException {
+    /**
+     * Registra a un usuario en el servidor utilizando un socket para comunicación.
+     *
+     * Esta función toma un nombre de usuario y una contraseña del usuario y los
+     * envía al servidor para su registro.
+     * Luego, verifica la respuesta del servidor y muestra un
+     * mensaje de éxito o error.
+     *
+     * @param writer El flujo de salida de datos utilizado para enviar mensajes al
+     *               servidor.
+     * @param reader El flujo de entrada de datos utilizado para recibir respuestas
+     *               del servidor.
+     * @param socket El socket que se utiliza para la comunicación con el servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
+
+    public static void registrarse(DataOutputStream writer, DataInputStream reader, Socket socket) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce tu nombre de usuario deseado: ");
         String nombreUsuario = scanner.next();
@@ -20,14 +43,29 @@ public class FuncionesUsuario {
         boolean registroExitoso = reader.readBoolean();
         if (registroExitoso) {
             System.out.println("Registro exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader,socket);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
         } else {
             System.out.println(
                     "Error al registrarse. El nombre de usuario puede estar en uso o hubo un problema con el servidor. Inténtalo de nuevo.");
         }
     }
 
-    public static void iniciarSesion(DataOutputStream writer, DataInputStream reader,Socket socket) throws IOException {
+    /**
+     * Inicia sesión en el servidor utilizando un socket para comunicación con
+     * nombre y contraseña.
+     * Luego, verifica la respuesta del servidor y muestra un
+     * mensaje de éxito o error.
+     * 
+     * @param writer El flujo de salida de datos utilizado para enviar mensajes al
+     *               servidor.
+     * @param reader El flujo de entrada de datos utilizado para recibir respuestas
+     *               del servidor.
+     * @param socket El socket que se utiliza para la comunicación con el servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
+
+    public static void iniciarSesion(DataOutputStream writer, DataInputStream reader, Socket socket)
+            throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce tu nombre de usuario: ");
         String nombreUsuario = scanner.next();
@@ -38,13 +76,29 @@ public class FuncionesUsuario {
         boolean inicioSesionCorrecto = reader.readBoolean();
         if (inicioSesionCorrecto) {
             System.out.println("Inicio de sesión exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader,socket);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
         } else {
             System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
         }
     }
 
-    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader, Socket socket) throws IOException {
+    /**
+     * Crea un grupo en el servidor utilizando un socket para comunicación.
+     * Permite al usuario crear un nuevo grupo especificando su nombre. Luego, envía
+     * una solicitud al servidor para crear el grupo y muestra un mensaje de éxito o
+     * error según la respuesta del servidor.
+     * del servidor.
+     * 
+     * @param writer El flujo de salida de datos utilizado para enviar mensajes al
+     *               servidor.
+     * @param reader El flujo de entrada de datos utilizado para recibir respuestas
+     *               del servidor.
+     * @param socket El socket que se utiliza para la comunicación con el servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
+
+    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader, Socket socket)
+            throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del grupo: ");
         String nombreGrupo = scanner.next();
@@ -54,11 +108,28 @@ public class FuncionesUsuario {
         System.out.println(reader.readUTF());
         if (creacionGrupoCorrecto) {
             System.out.println("Creación de grupo exitosa.");
-            AppCliente.menuSesionIniciada(nombreGrupo, scanner, writer, reader,socket);
+            AppCliente.menuSesionIniciada(nombreGrupo, scanner, writer, reader, socket);
         } else {
             System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
         }
     }
+
+    /**
+     * Elimina un grupo específico en el servidor utilizando un socket para
+     * comunicación.
+     *
+     * Esta función permite al usuario eliminar un grupo existente especificando su
+     * nombre. Luego, envía
+     * una solicitud al servidor para eliminar el grupo y muestra la respuesta del
+     * servidor.
+     *
+     * @param nombreGrupo El nombre del grupo que se desea eliminar.
+     * @param writer      El flujo de salida de datos utilizado para enviar mensajes
+     *                    al servidor.
+     * @param reader      El flujo de entrada de datos utilizado para recibir
+     *                    respuestas del servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
 
     public static void eliminarGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
             throws IOException {
@@ -69,6 +140,21 @@ public class FuncionesUsuario {
 
     }
 
+    /**
+     * Obtiene la lista de usuarios registrados en el servidor y la muestra por
+     * pantalla.
+     *
+     * Esta función envía una solicitud al servidor para obtener la lista de
+     * usuarios registrados
+     * y luego muestra la lista por pantalla. Cada usuario en la lista se muestra en
+     * una nueva línea.
+     *
+     * @param writer El flujo de salida de datos utilizado para enviar mensajes al
+     *               servidor.
+     * @param reader El flujo de entrada de datos utilizado para recibir la lista de
+     *               usuarios desde el servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
     public static void listarUsuarios(DataOutputStream writer, DataInputStream reader) throws IOException {
         String mensaje = "listarUsuarios";
         writer.writeUTF(mensaje);
@@ -77,6 +163,22 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
     }
 
+    /**
+     * Obtiene la lista de usuarios actualmente conectados al servidor y la muestra
+     * por pantalla.
+     *
+     * Esta función envía una solicitud al servidor para obtener la lista de
+     * usuarios que están
+     * actualmente conectados y luego muestra esta lista por pantalla. Cada usuario
+     * en la lista se muestra
+     * en una nueva línea.
+     *
+     * @param writer El flujo de salida de datos utilizado para enviar mensajes al
+     *               servidor.
+     * @param reader El flujo de entrada de datos utilizado para recibir la lista de
+     *               usuarios conectados desde el servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
     public static void listarUsuariosConectados(DataOutputStream writer, DataInputStream reader) throws IOException {
         String mensaje = "listarUsuariosConectados";
         writer.writeUTF(mensaje);
@@ -85,6 +187,22 @@ public class FuncionesUsuario {
                 + "\n" + serverResponse);
     }
 
+    /**
+     * Obtiene la lista de grupos creados por el usuario y la muestra por pantalla.
+     *
+     * Esta función envía una solicitud al servidor para obtener la lista de grupos
+     * creados
+     * y luego muestra esta lista por pantalla. Cada grupo en la lista se muestra
+     * en una nueva línea.
+     *
+     * @param nombreUsuario El nombre del usuario que desea obtener la lista de
+     *                      grupos creados.
+     * @param writer        El flujo de salida de datos utilizado para enviar
+     *                      mensajes al servidor.
+     * @param reader        El flujo de entrada de datos utilizado para recibir la
+     *                      lista de grupos creados desde el servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
     public static void listarGruposCreados(String nombreUsuario, DataOutputStream writer, DataInputStream reader)
             throws IOException {
         String mensaje = "listarGrupos;" + nombreUsuario;
@@ -96,6 +214,24 @@ public class FuncionesUsuario {
 
     }
 
+    /**
+     * Añade un usuario a un grupo específico en el servidor utilizando un socket
+     * para comunicación.
+     *
+     * Esta función permite al usuario especificar el nombre del usuario que desea
+     * añadir a un grupo existente.
+     * Luego, envía una solicitud al servidor para llevar a cabo esta acción y
+     * muestra la respuesta del servidor.
+     * Además, llama a la función listarMiembrosGrupo para mostrar la lista
+     * actualizada de miembros en el grupo.
+     *
+     * @param nombreUsuario El nombre del usuario que se desea añadir al grupo.
+     * @param writer        El flujo de salida de datos utilizado para enviar
+     *                      mensajes al servidor.
+     * @param reader        El flujo de entrada de datos utilizado para recibir
+     *                      respuestas del servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
     public static void AñadirUsuarioAGrupo(String nombreGrupo, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         Scanner scanner = new Scanner(System.in);
@@ -108,6 +244,18 @@ public class FuncionesUsuario {
         listarMiembrosGrupo(nombreGrupo, writer, reader);
     }
 
+    /**
+     * Obtiene la lista de miembros de un grupo específico y la muestra por
+     * pantalla.
+     * 
+     * @param writer El flujo de salida de datos utilizado para enviar
+     *               mensajes al
+     *               servidor.
+     * 
+     * @param reader El flujo de entrada de datos utilizado para recibir respuestas
+     *               del servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
     public static void listarMiembrosGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
             throws IOException {
         String mensaje = "listarMiembrosGrupo;" + nombreGrupo;
@@ -119,6 +267,20 @@ public class FuncionesUsuario {
 
     }
 
+    /**
+     * Esta función permite al usuario eliminar un miembro especificado de un grupo
+     * existente en el servidor.
+     * Se solicita el nombre del usuario a eliminar y se envía una solicitud al
+     * servidor para realizar la operación.
+     *
+     * @param nombreUsuario El nombre del usuario que se desea eliminar del grupo.
+     * @param nombreGrupo   El nombre del grupo del que se eliminará el usuario.
+     * @param writer        El flujo de salida de datos utilizado para enviar
+     *                      mensajes al servidor.
+     * @param reader        El flujo de entrada de datos utilizado para recibir
+     *                      respuestas del servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
     public static void eliminarMiembro(String nombreUsuario, String nombreGrupo, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         listarMiembrosGrupo(nombreGrupo, writer, reader);
@@ -131,24 +293,39 @@ public class FuncionesUsuario {
         System.out.println(serverResponse);
 
     }
-    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer, DataInputStream reader, Socket socket) {
+
+    /**
+     * Desconecta a un usuario del servidor y cierra los flujos y el socket de
+     * comunicación.
+     *
+     * Esta función se encarga de desconectar a un usuario del servidor. Se envía
+     * una solicitud al servidor
+     * para cerrar la sesión del usuario especificado. Luego, se cierran los flujos
+     * de entrada y salida de datos,
+     * así como el socket de comunicación.
+     *
+     * @param nombreUsuario El nombre del usuario que se desconectará del servidor.
+     * @param writer        El flujo de salida de datos utilizado para enviar
+     *                      mensajes al servidor.
+     * @param reader        El flujo de entrada de datos utilizado para recibir
+     *                      respuestas del servidor.
+     * @param socket        El socket de comunicación con el servidor.
+     */
+    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer, DataInputStream reader,
+            Socket socket) {
         try {
             String mensaje = "cerrarSesion;" + nombreUsuario;
             writer.writeUTF(mensaje);
             String serverResponse = reader.readUTF();
             System.out.println("¡Hasta luego, " + nombreUsuario + "!");
             System.out.println();
-        
+
             writer.close();
             reader.close();
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
         }
     }
-    
-    
-    
-    
 
 }

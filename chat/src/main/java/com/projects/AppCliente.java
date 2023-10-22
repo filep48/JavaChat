@@ -3,8 +3,17 @@ package com.projects;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
-
 import com.projects.functions.FuncionesUsuario;
+
+
+
+/**
+ * Cliente que se conecta al servidor para interactuar con él.
+ * Contine menus para mostrar al usuario y controla la logica de las acciones
+ *
+ * @author Gerard Albesa,Kevin Felipe Vasquez, Vanessa Pedrola.
+ * @version 1.0
+ */
 
 public class AppCliente {
     // CLIENTE
@@ -16,6 +25,8 @@ public class AppCliente {
         String serverAddress = "localhost";
         int serverPort = 12345;
         Scanner scanner = new Scanner(System.in);
+
+        // se establece el servidor al que se conecta el cliente y se inicializa el flujo de comunicacion E/S.
 
         try (Socket socket = new Socket(serverAddress, serverPort);
                 DataInputStream reader = new DataInputStream(socket.getInputStream());
