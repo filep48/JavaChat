@@ -137,9 +137,9 @@ public class AppServer {
                     writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
                 }else if ("eliminarMiembro".equals(comando)){
                     writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader)); 
-                }else if ("CerrarSession".equals(comando)) {
+                }else if ("cerrarSesion".equals(comando)) {
                     FuncionesServer.desconectarUsuario(nombre);
-                    String resultado = "CerrarSession";
+                    String resultado = "cerrarSesion";
                     writer.writeUTF(resultado);
                 } else {
                     System.out.println("Comando desconocido: " + comando);

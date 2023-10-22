@@ -3,12 +3,13 @@ package com.projects.functions;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.Scanner;
 import com.projects.AppCliente;
 
 public class FuncionesUsuario {
 
-    public static void registrarse(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void registrarse(DataOutputStream writer, DataInputStream reader,Socket socket) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce tu nombre de usuario deseado: ");
         String nombreUsuario = scanner.next();
@@ -19,14 +20,14 @@ public class FuncionesUsuario {
         boolean registroExitoso = reader.readBoolean();
         if (registroExitoso) {
             System.out.println("Registro exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader,socket);
         } else {
             System.out.println(
                     "Error al registrarse. El nombre de usuario puede estar en uso o hubo un problema con el servidor. Inténtalo de nuevo.");
         }
     }
 
-    public static void iniciarSesion(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void iniciarSesion(DataOutputStream writer, DataInputStream reader,Socket socket) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce tu nombre de usuario: ");
         String nombreUsuario = scanner.next();
@@ -37,13 +38,13 @@ public class FuncionesUsuario {
         boolean inicioSesionCorrecto = reader.readBoolean();
         if (inicioSesionCorrecto) {
             System.out.println("Inicio de sesión exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader,socket);
         } else {
             System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
         }
     }
 
-    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader) throws IOException {
+    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader, Socket socket) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del grupo: ");
         String nombreGrupo = scanner.next();
@@ -53,7 +54,7 @@ public class FuncionesUsuario {
         System.out.println(reader.readUTF());
         if (creacionGrupoCorrecto) {
             System.out.println("Creación de grupo exitosa.");
-            AppCliente.menuSesionIniciada(nombreGrupo, scanner, writer, reader);
+            AppCliente.menuSesionIniciada(nombreGrupo, scanner, writer, reader,socket);
         } else {
             System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
         }
@@ -130,5 +131,24 @@ public class FuncionesUsuario {
         System.out.println(serverResponse);
 
     }
+    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer, DataInputStream reader, Socket socket) {
+        try {
+            String mensaje = "cerrarSesion;" + nombreUsuario;
+            writer.writeUTF(mensaje);
+            String serverResponse = reader.readUTF();
+            System.out.println("¡Hasta luego, " + nombreUsuario + "!");
+            System.out.println();
+        
+            writer.close();
+            reader.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace(); 
+        }
+    }
+    
+    
+    
+    
 
 }
