@@ -32,7 +32,7 @@ public class FuncionesSQL {
             String contrasena = parts[2];
             if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
 
-                boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
+                boolean inicioSesionExitoso = registroBBDD(nombreUsuario, contrasena, commando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
@@ -49,6 +49,14 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Obtiene una lista de usuarios creados en la base de datos, excluyendo al
+     * usuario actual.
+     *
+     * @param usuario El objeto Usuario actual del cliente.
+     * @return Una cadena que contiene la lista de usuarios creados.
+     *         En caso de error, se retorna un mensaje de error.
+     */
     public static String listarUsuariosCreados(Usuario usuario) {
         try {
             Connection cn = DatabaseConnection.getConnection();
@@ -71,6 +79,14 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Obtiene una lista de grupos creados a los que el usuario actual pertenece.
+     *
+     * @param usuario El objeto Usuario actual del cliente.
+     * @return Una cadena que contiene la lista de nombres de grupos a los que el
+     *         usuario pertenece.
+     *         En caso de error, se retorna un mensaje de error.
+     */
     public static String llistarGruposCreados(Usuario usuario) {
         try {
             Connection cn = DatabaseConnection.getConnection();
@@ -95,8 +111,18 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Este método registra un mensaje en la base de datos.
+     *
+     * @param cn      La conexión a la base de datos a utilizar.
+     * @param mensaje El mensaje que se va a registrar en la base de datos.
+     * @return Una instancia de PreparedStatement utilizada para ejecutar la
+     *         inserción en la base de datos.
+     *         Si la operación tiene éxito, se devuelve la instancia. En caso de
+     *         error, se devuelve null.
+     */
     // Este metodo que manda el mensaje de x cliente a la base de datos
-    public static PreparedStatement EnviarMensajesBBDD(Connection cn, String mensaje) {
+    public static PreparedStatement enviarMensajesBBDD(Connection cn, String mensaje) {
         try {
             String strSql = "insert into mensajes (contenido) values (?)";
             PreparedStatement pst = cn.prepareStatement(strSql);
@@ -109,100 +135,165 @@ public class FuncionesSQL {
         }
     }
 
-    // Creacion del registro de usuarios en la base de datos
-    public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
+    /**
+     * Registra un usuario en la base de datos o verifica las credenciales del
+     * usuario.
+     *
+     * @param nombre     El nombre de usuario que se va a registrar o verificar.
+     * @param contrasena La contraseña asociada al nombre de usuario.
+     * @param comando    El comando que indica la operación a realizar.
+     *                   - "registrarse": para el proceso de registro.
+     *                   - "iniciarSesion": para verificar las credenciales y
+     *                   realizar el inicio de sesión.
+     * @return `true` si el proceso seleccionado (registro/inicio de sesión) es
+     *         exitoso,
+     *         `false` en caso contrario.
+     * @throws SQLException             En caso de errores relacionados con la base
+     *                                  de datos.
+     * @throws IllegalArgumentException En caso de argumentos inválidos.
+     * @throws Exception                Para otros errores no específicos que puedan
+     *                                  surgir.
+     */
+
+    public static boolean registroBBDD(String nombre, String contrasena, String comando) {
         try {
-            // Si el comando es iniciarSesion, validamos la contraseña
+            // Si el comando es iniciarSesion, validamos la contraseña (funcion
+            // validarContrasena)
             if ("registrarse".equals(comando)) {
-                validarContrasena(contrasena);
-            }
-
-            try (Connection cn = DatabaseConnection.getConnection()) {
-                String strSql;
-                if ("registrarse".equals(comando)) {
-                    // Si el comando es registrar, insertamos el usuario
-                    strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
-                } else {
-                    // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
-                    // credenciales
-                    strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
-                }
-
-                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                    pst.setString(1, nombre);
-                    pst.setString(2, contrasena);
-
-                    if ("registrarse".equals(comando)) {
-                        int affectedRows = pst.executeUpdate();
-                        return affectedRows > 0;
-                    } else {
-                        try (ResultSet rs = pst.executeQuery()) {
-                            return rs.next(); // Si hay resultados, las credenciales son válidas
-                        }
+                boolean correcta = false;
+                do {
+                    try {
+                        correcta=validarContrasena(contrasena);
+                    } catch (ContrasenaInvalidaException e) {
+                        e.printStackTrace();
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
+                } while (!correcta);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
-    // *********************************************
-    public static boolean creacionGruposBBDD(Usuario usuario, String[] mensaje, DataInputStream reader) {
-        try {
             Connection cn = DatabaseConnection.getConnection();
-            String strSql = "INSERT INTO grupos (nombre_grupo) VALUES (?)";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setString(1, mensaje[1]);
-            pst.executeUpdate();
-            meterCreadorAlGrupo(cn, usuario, mensaje, reader);
-            return true;
+            String strSql;
+
+            if ("registrarse".equals(comando)) {
+                // Si el comando es registrar, insertamos el usuario
+                strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
+            } else {
+                // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
+                // credenciales
+                strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
+            }
+
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                pst.setString(1, nombre);
+                pst.setString(2, contrasena);
+
+                if ("registrarse".equals(comando)) {
+                    int affectedRows = pst.executeUpdate();
+                    return affectedRows > 0;
+                } else {
+                    try (ResultSet rs = pst.executeQuery()) {
+                        return rs.next(); // Si hay resultados, las credenciales son válidas
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error relacionado con la base de datos: " + e.getMessage());
+            return false;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Argumento inválido: " + e.getMessage());
+            return false;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error desconocido: " + e.getMessage());
             return false;
         }
     }
 
+    /**
+     * Crea un grupo en la base de datos y agrega al usuario como creador del grupo.
+     *
+     * @param usuario El usuario que se añadirá como creador del grupo.
+     * @param mensaje Un array con mensajes del cliente. Se espera que el nombre del
+     *                grupo esté en mensaje[1].
+     * @return `true` si el grupo se creó exitosamente y el usuario se agregó como
+     *         creador, o `false` en caso de error.
+     * 
+     * @exception SQLException Si hay un error relacionado con la operación en la
+     *                         base
+     *                         de datos.
+     */
+    public static boolean creacionGruposBBDD(Usuario usuario, String[] mensaje) {
+        String nombreGrupo = mensaje[1];
+        PreparedStatement pst=null;
+        try  {
+            Connection cn = DatabaseConnection.getConnection();
+            pst = cn.prepareStatement("INSERT INTO grupos (nombre_grupo) VALUES (?)");
+            pst.setString(1, nombreGrupo);
+            pst.executeUpdate();
 
+            meterCreadorAlGrupo(cn, usuario, mensaje);
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Error al crear el grupo y agregar al creador en la base de datos: " + e.getMessage());
+            return false;
+        } finally {
+            if (pst != null) {
+                try {
+                    pst.close();
+                } catch (SQLException e) {
+                    System.err.println("Error al cerrar el pst " + e.getMessage()); 
+                }
+            }
+        }
+    }
 
-    public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje, DataInputStream reader) {
+    /**
+     * Agrega al usuario especificado como administrador de un grupo en la base de
+     * datos.
+     * Se basa en el nombre del grupo proporcionado en el mensaje para determinar a
+     * qué grupo agregar al usuario como administrador.
+     *
+     * @param cn      La conexión activa a la base de datos.
+     * @param usuario El usuario que se añadirá como administrador del grupo.
+     * @param mensaje Un array con mensajes del cliente. Se espera que el nombre del
+     *                grupo esté en mensaje[1].
+     * 
+     * @exception SQLException Si hay un error relacionado con la operación en la base
+     *                      de datos.
+     */
+    public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje) {
         try {
             int idGrupo = obtenerIdGrupo(mensaje[1]);
-            System.out.println("vamos a meter el admin antes del if");
-            if(idGrupo != -1) {  // Asegurarse de que el ID del grupo es válido
+            if (idGrupo != -1) {
                 String strSql = "INSERT INTO miembrosgrupos (usuario_id, grupo_id, rol) VALUES (?, ?, 'admin')";
-                System.out.println("despues del insert");
-                PreparedStatement pst = cn.prepareStatement(strSql);
-                pst.setInt(1, usuario.getId());
-                pst.setInt(2, idGrupo);
 
-                pst.executeUpdate();
-                System.out.println("despues de todo funciona?????????????????????");
+                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                    pst.setInt(1, usuario.getId());
+                    pst.setInt(2, idGrupo);
+                    pst.executeUpdate();
+                } // PreparedStatement se cierra automáticamente aquí
+
             } else {
                 System.out.println("No se pudo obtener el ID del grupo para: " + mensaje[1]);
             }
+        } catch (SQLException e) {
+            System.out.println(
+                    "Error al agregar al usuario como administrador del grupo en la base de datos: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error inesperado: " + e.getMessage());
         }
     }
-    
 
-
-
-
-
-
-    static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
+    /**
+     * Valida una contraseña según los requisitos de seguridad.
+     * - Puede contener cualquier carácter, mínimo 6 máximo 32.
+     *
+     * @param contrasena La contraseña que se va a validar.
+     * @throws ContrasenaInvalidaException Si la contraseña no cumple con los
+     *                                     requisitos de seguridad.
+     */
+    static boolean validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
             throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
-        }
+        }else return true;
     }
 
     /**
@@ -215,6 +306,13 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Obtiene el ID de un usuario a partir de su nombre de usuario.
+     *
+     * @param nombreUsuario El nombre de usuario del cual se desea obtener el ID.
+     * @return El ID del usuario si se encuentra en la base de datos, o -1 si el
+     *         usuario no se encuentra.
+     */
     public static int obtenerIdUsuario(String nombreUsuario) {
         int idUsuario = -1; // Valor predeterminado en caso de que no se encuentre el usuario
 
@@ -239,7 +337,12 @@ public class FuncionesSQL {
         return idUsuario;
     }
 
-    // Eliminar al usuario de los grupos a los que pertenece
+    /**
+     * Elimina al usuario de los grupos a los que pertenece en la base de datos.
+     *
+     * @param cn        La conexión a la base de datos.
+     * @param idUsuario El ID del usuario que se eliminará de los grupos.
+     */
     public static void deleteMiembrosGrupos(Connection cn, int idUsuario) {
         String deleteMiembrosGrupos = "DELETE FROM MiembrosGrupos WHERE usuario_id = ?";
         try (PreparedStatement pst = cn.prepareStatement(deleteMiembrosGrupos)) {
@@ -250,7 +353,12 @@ public class FuncionesSQL {
         }
     }
 
-    // Eliminar los mensajes del usuario
+    /**
+     * Elimina los mensajes del usuario de la base de datos.
+     *
+     * @param cn        La conexión a la base de datos.
+     * @param idUsuario El ID del usuario cuyos mensajes se eliminarán.
+     */
     public static void deleteMensajes(Connection cn, int idUsuario) {
         String deleteMensajes = "DELETE FROM Mensajes WHERE usuario_id = ?";
         try {
@@ -262,7 +370,12 @@ public class FuncionesSQL {
         }
     }
 
-    // Eliminar los archivos del usuario
+    /**
+     * Elimina los archivos del usuario de la base de datos.
+     *
+     * @param cn        La conexión a la base de datos.
+     * @param idUsuario El ID del usuario cuyos archivos se eliminarán.
+     */
     public static void deleteArchivos(Connection cn, int idUsuario) {
         String deleteArchivos = "DELETE FROM Archivos WHERE usuario_id = ?";
         try {
@@ -274,7 +387,12 @@ public class FuncionesSQL {
         }
     }
 
-    // Eliminar el registro del usuario
+    /**
+     * Elimina el registro de un usuario de la base de datos.
+     *
+     * @param cn        La conexión a la base de datos.
+     * @param idUsuario El ID del usuario cuyo registro se eliminará.
+     */
     public static void deleteUsuario(Connection cn, int idGrupo) {
         String deleteUsuario = "DELETE FROM Usuarios WHERE id = ?";
         try {
@@ -286,6 +404,14 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Realiza el proceso de dar de baja a un usuario, eliminando sus registros y
+     * pertenencia a grupos.
+     *
+     * @param cn        La conexión a la base de datos.
+     * @param usuarioId El ID del usuario que se dará de baja.
+     * @return `true` si el proceso se realiza con éxito, `false` en caso de error.
+     */
     public static boolean darseDeBajaUsuario(Connection cn, int usuarioId) {
         try {
             deleteMiembrosGrupos(cn, usuarioId);
@@ -299,7 +425,18 @@ public class FuncionesSQL {
         }
     }
 
-    // funcion que en la bbbd elimina un grupo si el que lo pide es admin del grupo
+    /**
+     * Elimina un grupo de la base de datos si el usuario que realiza la solicitud
+     * es administrador de ese grupo.
+     *
+     * @param usuario     El usuario que realiza la solicitud y cuyo rol se
+     *                    verificará.
+     * @param nombreGrupo El nombre del grupo que se eliminará.
+     * @param reader      El flujo de entrada para recibir datos adicionales si es
+     *                    necesario.
+     * @return Un mensaje que indica si el grupo se eliminó con éxito o si se
+     *         produjo un error.
+     */
 
     public static String eliminarGrupo(Usuario usuario, String nombreGrupo, DataInputStream reader) {
         try {
@@ -349,8 +486,17 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Obtiene el identificador (ID) de un grupo en la base de datos a partir de su
+     * nombre.
+     *
+     * @param nombreGrupo El nombre del grupo del cual se desea obtener el ID.
+     * @return El ID del grupo si se encuentra en la base de datos, o -1 si el grupo
+     *         no existe.
+     */
+
     public static int obtenerIdGrupo(String nombreGrupo) {
-        int idGrupo = -1; // Valor predeterminado en caso de que no se encuentre el usuario
+        int idGrupo = -1; // es el return si no existe el grupo
 
         try {
             Connection cn = DatabaseConnection.getConnection();
@@ -373,6 +519,17 @@ public class FuncionesSQL {
         return idGrupo;
     }
 
+    /**
+     * Verifica si un usuario es administrador (admin) de un grupo específico en la
+     * base de datos.
+     *
+     * @param usuario     El usuario del cual se desea verificar el rol de
+     *                    administrador.
+     * @param nombreGrupo El nombre del grupo en el cual se verifica el rol de
+     *                    administrador.
+     * @return `true` si el usuario es administrador del grupo, `false` en caso
+     *         contrario o si ocurre un error.
+     */
     public static boolean isAdmin(Usuario usuario, String nombreGrupo) {
         try {
             Connection cn = DatabaseConnection.getConnection();
@@ -399,6 +556,19 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Añade un usuario a un grupo específico en la base de datos si el usuario
+     * actual es administrador del grupo.
+     *
+     * @param usuario       El usuario que realiza la acción de añadir al nuevo
+     *                      usuario.
+     * @param usuarioAnadir El nombre del usuario que se añadirá al grupo.
+     * @param nombreGrupo   El nombre del grupo al cual se añadirá el usuario.
+     * @param reader        El flujo de entrada de datos, utilizado para lectura
+     *                      adicional si es necesario.
+     * @return Un mensaje que indica si la operación se realizó con éxito o si se
+     *         produjo un error.
+     */
     public static String anadirUsuarioAGrupo(Usuario usuario, String usuarioAnadir, String nombreGrupo,
             DataInputStream reader) {
         // Llama a la función isAdmin
@@ -407,8 +577,6 @@ public class FuncionesSQL {
                 Connection cn = DatabaseConnection.getConnection();
                 int idUsuarioAnadido = FuncionesSQL.obtenerIdUsuario(usuarioAnadir);
                 int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
-
-                // Corregir la creación de PreparedStatement con la consulta SQL
                 String insertMiembrosGrupos = "INSERT INTO miembrosgrupos (usuario_id, grupo_id, rol) VALUES (?, ?, 'miembro')";
                 PreparedStatement pst = cn.prepareStatement(insertMiembrosGrupos);
                 pst.setInt(1, idUsuarioAnadido);
@@ -422,6 +590,17 @@ public class FuncionesSQL {
             return "El usuario no es administrador del grupo.";
         }
     }
+
+    /**
+     * Obtiene una lista de usuarios pertenecientes a un grupo específico en la base
+     * de datos.
+     *
+     * @param nombreGrupo El nombre del grupo del cual se desea obtener la lista de
+     *                    usuarios.
+     * @return Una cadena de texto que contiene los nombres de usuario de los
+     *         miembros del grupo.
+     *         En caso de error, se devuelve un mensaje de error.
+     */
 
     public static String LlistarUsuariosPorGrupo(String string) {
         try {
@@ -448,19 +627,32 @@ public class FuncionesSQL {
         }
     }
 
+    /**
+     * Obtiene una lista de miembros de un grupo específico en la base de datos.
+     *
+     * @param usuario     El objeto de usuario que realiza la solicitud.
+     * @param nombreGrupo El nombre del grupo del cual se desea obtener la lista de
+     *                    miembros.
+     * @param reader      El flujo de entrada para recibir datos del cliente.
+     * @return Una cadena de texto que contiene los nombres de usuario de los
+     *         miembros del grupo.
+     *         Cada miembro se muestra en una línea separada, y el usuario
+     *         solicitante se identifica como "(tú)".
+     *         En caso de error, se devuelve un mensaje de error.
+     */
     public static String listarMiembrosGrupo(Usuario usuario, String nombreGrupo, DataInputStream reader) {
-        int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo); 
+        int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
         String listaMiembros = "";
-    
-        try  {
+
+        try {
             Connection cn = DatabaseConnection.getConnection();
             String strSql = "SELECT nombre_usuario " +
-                        "FROM Usuarios " +
-                        "WHERE id IN (SELECT usuario_id FROM MiembrosGrupos WHERE grupo_id = ?)";
-    
+                    "FROM Usuarios " +
+                    "WHERE id IN (SELECT usuario_id FROM MiembrosGrupos WHERE grupo_id = ?)";
+
             try (PreparedStatement pst = cn.prepareStatement(strSql)) {
                 pst.setInt(1, idGrupo);
-    
+
                 try (ResultSet rs = pst.executeQuery()) {
                     while (rs.next()) {
                         if (rs.getString("nombre_usuario").equals(usuario.getNombreUsuario()))
@@ -478,46 +670,39 @@ public class FuncionesSQL {
         return "No se pudieron listar los miembros del grupo.";
     }
 
+    /**
+     * Elimina a un miembro de un grupo específico si el usuario que realiza la
+     * solicitud
+     * es administrador del grupo.
+     *
+     * @param usuario        El objeto de usuario que realiza la solicitud.
+     * @param usuarioBorrado El nombre de usuario que se desea eliminar del grupo.
+     * @param nombreGrupo    El nombre del grupo del cual se eliminará al miembro.
+     * @param reader         El flujo de entrada para recibir datos del cliente.
+     * @return Un mensaje que indica si el usuario se eliminó con éxito o si ocurrió
+     *         un error.
+     *         En caso de error, se proporciona información sobre el problema.
+     */
+    public static String eliminarMiebro(Usuario usuario, String usuarioBorrado, String nombreGrupo,
+            DataInputStream reader) {
+        if (isAdmin(usuario, nombreGrupo)) {
+            try {
+                Connection cn = DatabaseConnection.getConnection();
+                int idUsuarioBorrado = FuncionesSQL.obtenerIdUsuario(usuarioBorrado);
+                int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
 
-public static String eliminarMiebro (Usuario usuario, String usuarioBorrado, String nombreGrupo, DataInputStream reader) {
-    if (isAdmin(usuario, nombreGrupo)){
-        try {
-            Connection cn = DatabaseConnection.getConnection();
-            int idUsuarioBorrado = FuncionesSQL.obtenerIdUsuario(usuarioBorrado);
-            int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
-
-            String borrarMiembrosGrupos = "DELETE FROM miembrosGrupos WHERE usuario_id = ? AND grupo_id = ?";
-            PreparedStatement pst = cn.prepareStatement(borrarMiembrosGrupos);
-            pst.setInt(1, idUsuarioBorrado);
-            pst.setInt(2, idGrupo);
-            pst.executeUpdate();
-            return "Usuario eliminado con éxito.";
-        } catch (Exception e) {
-            return "Error al eliminar el usuario: " + e.getMessage();
+                String borrarMiembrosGrupos = "DELETE FROM miembrosGrupos WHERE usuario_id = ? AND grupo_id = ?";
+                PreparedStatement pst = cn.prepareStatement(borrarMiembrosGrupos);
+                pst.setInt(1, idUsuarioBorrado);
+                pst.setInt(2, idGrupo);
+                pst.executeUpdate();
+                return "Usuario eliminado con éxito.";
+            } catch (Exception e) {
+                return "Error al eliminar el usuario: " + e.getMessage();
+            }
+        } else {
+            return "El usuario no es administrador del grupo.";
         }
-    } else {
-        return "El usuario no es administrador del grupo.";
     }
-}
-    
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

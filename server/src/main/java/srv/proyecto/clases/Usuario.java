@@ -1,5 +1,13 @@
 package srv.proyecto.clases;
 
+
+/**
+ * Esta clase define el usuario en la aplicación de chat. 
+ * Contiene los atributos y métodos necesarios para el funcionamiento de la aplicación.
+ * 
+ * @author Gerard Albesa, Kevin Felipe Vasquez, Vanessa Pedrola.
+ * @version 1.0
+ */
 public class Usuario {
 
     private int id;

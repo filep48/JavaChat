@@ -11,6 +11,19 @@ import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
 import srv.proyecto.functions.FuncionesSQL;
 
+/**
+ * Servidor de la aplicación que maneja las conexiones de los clientes, procesa
+ * sus solicitudes
+ * y coordina la comunicación entre los usuarios.
+ * Crea hilos individuales para manejar a cada cliente.
+ * La comunicación entre el servidor y los clientes se realiza a través de
+ * flujos de entrada y salida
+ * de datos, y se utiliza una base de datos para almacenar información de
+ * usuarios y grupos.
+ * 
+ * @author Gerard Albesa,Kevin Felipe Vasquez, Vanessa Pedrola.
+ * @version 1.0
+ */
 public class AppServer {
     public static HashMap<String, Usuario> usuariosConectados = new HashMap<>();
     public static HashMap<String, Usuario> usuariosExistentes = new HashMap<>();
@@ -52,7 +65,7 @@ public class AppServer {
             try {
                 cn = DatabaseConnection.getConnection();
             } catch (SQLException e) {
-                // TODO Auto-generated catch block
+
                 e.printStackTrace();
             }
             System.out.println("Ejecutando hilo del cliente...");
@@ -87,14 +100,15 @@ public class AppServer {
         }
 
         /**
-         * Procesa una entrada del cliente para realizar el inicio de sesión.
+         * Procesa una solicitud del cliente y realiza la acción correspondiente.
          *
-         * @param input  La cadena de entrada que viene del menu del cliente
-         *               En el formato
-         *               "iniciarSesion;nombreUsuario;contrasena".
-         * @param writer El flujo de salida para enviar una respuesta al cliente.
-         * @param reader El flujo de entrada para recibir datos del cliente.
-         * @return `true` si el inicio de sesión es exitoso, `false` si falla.
+         * @param usuario El objeto `Usuario` que representa al cliente.
+         * @param input   La cadena de entrada que contiene la solicitud del cliente.
+         * @param writer  El flujo de salida para enviar una respuesta al cliente.
+         * @param reader  El flujo de entrada para recibir datos del cliente.
+         * @param nombre  El nombre del usuario.
+         * @return `true` si la solicitud se procesa correctamente, `false` si hay un
+         *         error.
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
          */
@@ -106,44 +120,57 @@ public class AppServer {
             String[] mensaje = FuncionesServer.slplitMensaje(input);
             if (mensaje.length > 0) {
                 String comando = mensaje[0];
-                if ("iniciarSesion".equals(comando) || "registrarse".equals(comando)) {
-                    FuncionesSQL.splitDatosUsuario(writer, reader, input);
-                    usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
-                    usuariosConectados.put(nombre, usuario);
-                } else if ("listarGrupos".equals(comando)) {
-                    String resultado = FuncionesSQL.llistarGruposCreados(usuario);
-                    writer.writeUTF(resultado);
-                } else if ("listarUsuarios".equals(comando)) {
-                    String resultado = FuncionesSQL.listarUsuariosCreados(usuario);
-                    writer.writeUTF(resultado);
-                } else if ("listarUsuariosConectados".equals(comando)) {
-                    String resultado = FuncionesServer.listarUsuariosConectados();
-                    writer.writeUTF(resultado);
-                } else if ("crearGrupo".equals(comando)) {
-                    boolean resultado = FuncionesSQL.creacionGruposBBDD(usuario, mensaje, reader);
-                    writer.writeBoolean(resultado);
-                    if (resultado) {
-                        writer.writeUTF("Grupo creado correctamente");
-                    } else {
-                        writer.writeUTF("Error al crear el grupo");
-                    }
-                } else if ("administrarGrupo".equals(comando)) {
-
-                }else if ("eliminarGrupo".equals(comando)){
-                    writer.writeUTF(FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader));
-                } else if ("AñadirUsuarioAGrupo".equals(comando)) {
-                    writer.writeUTF(FuncionesSQL.anadirUsuarioAGrupo(usuario, mensaje[1], mensaje[2], reader));
-                } else if ("listarMiembrosGrupo".equals(comando)){
-                    writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
-                }else if ("eliminarMiembro".equals(comando)){
-                    writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader)); 
-                }else if ("cerrarSesion".equals(comando)) {
-                    FuncionesServer.desconectarUsuario(nombre);
-                    String resultado = "cerrarSesion";
-                    writer.writeUTF(resultado);
-                } else {
-                    System.out.println("Comando desconocido: " + comando);
-                    return false;
+                switch (comando) {
+                    case "iniciarSesion":
+                    case "registrarse":
+                        FuncionesSQL.splitDatosUsuario(writer, reader, input);
+                        usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
+                        usuariosConectados.put(nombre, usuario);
+                        break;
+                    case "listarGrupos":
+                        String resultado = FuncionesSQL.llistarGruposCreados(usuario);
+                        writer.writeUTF(resultado);
+                        break;
+                    case "listarUsuarios":
+                        resultado = FuncionesSQL.listarUsuariosCreados(usuario);
+                        writer.writeUTF(resultado);
+                        break;
+                    case "listarUsuariosConectados":
+                        resultado = FuncionesServer.listarUsuariosConectados();
+                        writer.writeUTF(resultado);
+                        break;
+                    case "crearGrupo":
+                        boolean resultadoBoolean = FuncionesSQL.creacionGruposBBDD(usuario, mensaje);
+                        writer.writeBoolean(resultadoBoolean);
+                        if (resultadoBoolean) {
+                            writer.writeUTF("Grupo creado correctamente");
+                        } else {
+                            writer.writeUTF("Error al crear el grupo");
+                        }
+                        break;
+                    case "administrarGrupo":
+                        // Lógica para administrar el grupo
+                        break;
+                    case "eliminarGrupo":
+                        writer.writeUTF(FuncionesSQL.eliminarGrupo(usuario, mensaje[1], reader));
+                        break;
+                    case "AñadirUsuarioAGrupo":
+                        writer.writeUTF(FuncionesSQL.anadirUsuarioAGrupo(usuario, mensaje[1], mensaje[2], reader));
+                        break;
+                    case "listarMiembrosGrupo":
+                        writer.writeUTF(FuncionesSQL.listarMiembrosGrupo(usuario, mensaje[1], reader));
+                        break;
+                    case "eliminarMiembro":
+                        writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader));
+                        break;
+                    case "cerrarSesion":
+                        FuncionesServer.desconectarUsuario(nombre);
+                        resultado = "cerrarSesion";
+                        writer.writeUTF(resultado);
+                        break;
+                    default:
+                        System.out.println("Comando desconocido: " + comando);
+                        return false;
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
@@ -151,5 +178,6 @@ public class AppServer {
             }
             return true;
         }
+
     }
 }
