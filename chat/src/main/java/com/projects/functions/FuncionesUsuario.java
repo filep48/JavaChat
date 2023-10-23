@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 import com.projects.AppCliente;
+import com.projects.CrearConexionCliente;
 
 /**
  * Clase que contiene funciones para interactuar con el servidor y realizar
@@ -34,20 +35,25 @@ public class FuncionesUsuario {
      */
 
     public static void registrarse(DataOutputStream writer, DataInputStream reader, Socket socket) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce tu nombre de usuario deseado: ");
-        String nombreUsuario = scanner.next();
-        System.out.print("Introduce tu contraseña deseada: ");
-        String contrasena = new String(System.console().readPassword());
-        String mensaje = "registrarse;" + nombreUsuario + ";" + contrasena;
-        writer.writeUTF(mensaje);
-        boolean registroExitoso = reader.readBoolean();
-        if (registroExitoso) {
-            System.out.println("Registro exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
-        } else {
-            System.out.println(
-                    "Error al registrarse. El nombre de usuario puede estar en uso o hubo un problema con el servidor. Inténtalo de nuevo.");
+        boolean contrasenaValida = false;
+        while (!contrasenaValida) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Introduce tu nombre de usuario deseado: ");
+            String nombreUsuario = scanner.next();
+            System.out.println("(La contraseña debe ser de al menos 6 caracteres y maximo 32 caracteres)");
+            System.out.print("Introduce tu contraseña deseada: ");
+            String contrasena = new String(System.console().readPassword());
+            String mensaje = "registrarse;" + nombreUsuario + ";" + contrasena;
+            writer.writeUTF(mensaje);
+            boolean registroExitoso = reader.readBoolean();
+            if (registroExitoso) {
+                System.out.println("Registro exitoso.");
+                contrasenaValida = true;
+                AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
+            } else {
+                System.out.println(
+                        "Error al registrarse. El nombre o la contraseña no son. Inténtalo de nuevo.");
+            }
         }
     }
 
@@ -66,19 +72,26 @@ public class FuncionesUsuario {
      */
     public static void iniciarSesion(DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce tu nombre de usuario: ");
-        String nombreUsuario = scanner.next();
-        System.out.print("Introduce tu contraseña: ");
-        String contrasena = new String(System.console().readPassword());
-        String mensaje = "iniciarSesion;" + nombreUsuario + ";" + contrasena;
-        writer.writeUTF(mensaje);
-        boolean inicioSesionCorrecto = reader.readBoolean();
-        if (inicioSesionCorrecto) {
-            System.out.println("Inicio de sesión exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
-        } else {
-            System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
+        boolean contrasenaValida = false;
+        while (!contrasenaValida) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Introduce tu nombre de usuario: ");
+            String nombreUsuario = scanner.next();
+            System.out.print("Introduce tu contraseña: ");
+            String contrasena = new String(System.console().readPassword());
+            String mensaje = "iniciarSesion;" + nombreUsuario + ";" + contrasena;
+            writer.writeUTF(mensaje);
+            boolean inicioSesionCorrecto = reader.readBoolean();
+            if (inicioSesionCorrecto) {
+                System.out.println("Inicio de sesión exitoso.");
+                if (!socket.isConnected()) {
+                    CrearConexionCliente.iniciarCliente();
+                } else {
+                    AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
+                }
+            } else {
+                System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
+            }
         }
     }
 
@@ -354,14 +367,8 @@ public class FuncionesUsuario {
         try {
             String mensaje = "cerrarSesion;" + nombreUsuario;
             writer.writeUTF(mensaje);
-            String serverResponse = reader.readUTF();
-            System.out.println(serverResponse);
             System.out.println("¡Hasta luego, " + nombreUsuario + "!");
             System.out.println();
-
-            writer.close();
-            reader.close();
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

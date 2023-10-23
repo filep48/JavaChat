@@ -94,8 +94,11 @@ public class AppServer {
                     }
                 }
             } catch (IOException e) {
-                System.out.println(
-                        "Error con el cliente: " + clientSocket.getInetAddress() + ". Error: " + e.getMessage());
+                if (e instanceof EOFException) {
+                    System.out.println("El cliente cerró la conexión.");
+                } else {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -123,9 +126,12 @@ public class AppServer {
                 switch (comando) {
                     case "iniciarSesion":
                     case "registrarse":
-                        FuncionesSQL.splitDatosUsuario(writer, reader, input);
-                        usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
-                        usuariosConectados.put(nombre, usuario);
+                        boolean ComprobacionUsuarioCreado = FuncionesSQL.splitDatosUsuario(writer, reader, input);
+                        if (ComprobacionUsuarioCreado) {
+                            usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
+                            usuariosConectados.put(nombre, usuario);
+                            System.out.println("Usuario añadido a la lista de usuarios conectados: " + nombre);
+                        }
                         break;
                     case "listarGrupos":
                         String resultado = FuncionesSQL.llistarGruposCreados(usuario);
@@ -174,8 +180,6 @@ public class AppServer {
                         break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);
-                        resultado = "cerrarSesion";
-                        writer.writeUTF(resultado);
                         break;
                     default:
                         System.out.println("Comando desconocido: " + comando);
