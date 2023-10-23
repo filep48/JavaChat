@@ -32,7 +32,7 @@ public class FuncionesSQL {
             String contrasena = parts[2];
             if ("iniciarSesion".equals(commando) || "registrarse".equals(commando)) {
 
-                boolean inicioSesionExitoso = RegistroBBDD(nombreUsuario, contrasena, commando);
+                boolean inicioSesionExitoso = registroBBDD(nombreUsuario, contrasena, commando);
 
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
@@ -122,7 +122,7 @@ public class FuncionesSQL {
      *         error, se devuelve null.
      */
     // Este metodo que manda el mensaje de x cliente a la base de datos
-    public static PreparedStatement EnviarMensajesBBDD(Connection cn, String mensaje) {
+    public static PreparedStatement enviarMensajesBBDD(Connection cn, String mensaje) {
         try {
             String strSql = "insert into mensajes (contenido) values (?)";
             PreparedStatement pst = cn.prepareStatement(strSql);
@@ -141,55 +141,68 @@ public class FuncionesSQL {
      *
      * @param nombre     El nombre de usuario que se va a registrar o verificar.
      * @param contrasena La contraseña asociada al nombre de usuario.
-     * @param comando    El comando que indica si se está registrando un usuario o
-     *                   iniciando sesión.
-     *                   Debe ser "registrarse" para registro o "iniciarSesion" para
-     *                   inicio de sesión.
-     * @return `true` si el registro/inicio de sesión es exitoso, `false` si falla.
-     * @throws Exception Si ocurre un error durante el proceso de registro o inicio
-     *                   de sesión.
+     * @param comando    El comando que indica la operación a realizar.
+     *                   - "registrarse": para el proceso de registro.
+     *                   - "iniciarSesion": para verificar las credenciales y
+     *                   realizar el inicio de sesión.
+     * @return `true` si el proceso seleccionado (registro/inicio de sesión) es
+     *         exitoso,
+     *         `false` en caso contrario.
+     * @throws SQLException             En caso de errores relacionados con la base
+     *                                  de datos.
+     * @throws IllegalArgumentException En caso de argumentos inválidos.
+     * @throws Exception                Para otros errores no específicos que puedan
+     *                                  surgir.
      */
-    public static boolean RegistroBBDD(String nombre, String contrasena, String comando) {
+
+    public static boolean registroBBDD(String nombre, String contrasena, String comando) {
         try {
             // Si el comando es iniciarSesion, validamos la contraseña (funcion
             // validarContrasena)
             if ("registrarse".equals(comando)) {
-                validarContrasena(contrasena);
-            }
-
-            try (Connection cn = DatabaseConnection.getConnection()) {
-                String strSql;
-                if ("registrarse".equals(comando)) {
-                    // Si el comando es registrar, insertamos el usuario
-                    strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
-                } else {
-                    // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
-                    // credenciales
-                    strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
-                }
-
-                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
-                    pst.setString(1, nombre);
-                    pst.setString(2, contrasena);
-
-                    if ("registrarse".equals(comando)) {
-                        int affectedRows = pst.executeUpdate();
-                        return affectedRows > 0;
-                    } else {
-                        try (ResultSet rs = pst.executeQuery()) {
-                            return rs.next(); // Si hay resultados, las credenciales son válidas
-                        }
+                boolean correcta = false;
+                do {
+                    try {
+                        correcta=validarContrasena(contrasena);
+                    } catch (ContrasenaInvalidaException e) {
+                        e.printStackTrace();
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
+                } while (!correcta);
             }
+
+            Connection cn = DatabaseConnection.getConnection();
+            String strSql;
+
+            if ("registrarse".equals(comando)) {
+                // Si el comando es registrar, insertamos el usuario
+                strSql = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?);";
+            } else {
+                // Si el comando es otro (por ejemplo, iniciarSesion), verificamos las
+                // credenciales
+                strSql = "SELECT nombre_usuario FROM Usuarios WHERE nombre_usuario = ? AND contrasena = ?;";
+            }
+
+            try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                pst.setString(1, nombre);
+                pst.setString(2, contrasena);
+
+                if ("registrarse".equals(comando)) {
+                    int affectedRows = pst.executeUpdate();
+                    return affectedRows > 0;
+                } else {
+                    try (ResultSet rs = pst.executeQuery()) {
+                        return rs.next(); // Si hay resultados, las credenciales son válidas
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error relacionado con la base de datos: " + e.getMessage());
+            return false;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Argumento inválido: " + e.getMessage());
+            return false;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error desconocido: " + e.getMessage());
             return false;
         }
     }
@@ -197,54 +210,75 @@ public class FuncionesSQL {
     /**
      * Crea un grupo en la base de datos y agrega al usuario como creador del grupo.
      *
-     * @param usuario El objeto de usuario que representa al creador del grupo.
-     * @param mensaje Un array que contiene el mensaje recibido del cliente.
-     *                Debe contener el nombre del grupo en mensaje[1].
-     * @param reader  El flujo de entrada para recibir datos adicionales del
-     *                cliente.
+     * @param usuario El usuario que se añadirá como creador del grupo.
+     * @param mensaje Un array con mensajes del cliente. Se espera que el nombre del
+     *                grupo esté en mensaje[1].
      * @return `true` si el grupo se creó exitosamente y el usuario se agregó como
      *         creador, o `false` en caso de error.
+     * 
+     * @exception SQLException Si hay un error relacionado con la operación en la
+     *                         base
+     *                         de datos.
      */
-    public static boolean creacionGruposBBDD(Usuario usuario, String[] mensaje, DataInputStream reader) {
-        try {
+    public static boolean creacionGruposBBDD(Usuario usuario, String[] mensaje) {
+        String nombreGrupo = mensaje[1];
+        PreparedStatement pst=null;
+        try  {
             Connection cn = DatabaseConnection.getConnection();
-            String strSql = "INSERT INTO grupos (nombre_grupo) VALUES (?)";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setString(1, mensaje[1]);
+            pst = cn.prepareStatement("INSERT INTO grupos (nombre_grupo) VALUES (?)");
+            pst.setString(1, nombreGrupo);
             pst.executeUpdate();
-            meterCreadorAlGrupo(cn, usuario, mensaje, reader);
+
+            meterCreadorAlGrupo(cn, usuario, mensaje);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Error al crear el grupo y agregar al creador en la base de datos: " + e.getMessage());
             return false;
+        } finally {
+            if (pst != null) {
+                try {
+                    pst.close();
+                } catch (SQLException e) {
+                    System.err.println("Error al cerrar el pst " + e.getMessage()); 
+                }
+            }
         }
     }
 
     /**
-     * Agrega al usuario como administrador del grupo en la base de datos.
+     * Agrega al usuario especificado como administrador de un grupo en la base de
+     * datos.
+     * Se basa en el nombre del grupo proporcionado en el mensaje para determinar a
+     * qué grupo agregar al usuario como administrador.
      *
-     * @param cn      La conexión a la base de datos.
-     * @param usuario El objeto de usuario que representa al creador del grupo.
-     * @param mensaje Un array que contiene el mensaje recibido del cliente.
-     *                Debe contener el nombre del grupo en mensaje[1].
-     * @param reader  El flujo de entrada para recibir datos adicionales del
-     *                cliente.
+     * @param cn      La conexión activa a la base de datos.
+     * @param usuario El usuario que se añadirá como administrador del grupo.
+     * @param mensaje Un array con mensajes del cliente. Se espera que el nombre del
+     *                grupo esté en mensaje[1].
+     * 
+     * @exception SQLException Si hay un error relacionado con la operación en la base
+     *                      de datos.
      */
-    public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje, DataInputStream reader) {
+    public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje) {
         try {
             int idGrupo = obtenerIdGrupo(mensaje[1]);
-            if (idGrupo != -1) { // Asegurarse de que el ID del grupo es válido
+            if (idGrupo != -1) {
                 String strSql = "INSERT INTO miembrosgrupos (usuario_id, grupo_id, rol) VALUES (?, ?, 'admin')";
 
-                PreparedStatement pst = cn.prepareStatement(strSql);
-                pst.setInt(1, usuario.getId());
-                pst.setInt(2, idGrupo);
-                pst.executeUpdate();
+                try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+                    pst.setInt(1, usuario.getId());
+                    pst.setInt(2, idGrupo);
+                    pst.executeUpdate();
+                } // PreparedStatement se cierra automáticamente aquí
+
             } else {
                 System.out.println("No se pudo obtener el ID del grupo para: " + mensaje[1]);
             }
+        } catch (SQLException e) {
+            System.out.println(
+                    "Error al agregar al usuario como administrador del grupo en la base de datos: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error inesperado: " + e.getMessage());
         }
     }
 
@@ -256,10 +290,10 @@ public class FuncionesSQL {
      * @throws ContrasenaInvalidaException Si la contraseña no cumple con los
      *                                     requisitos de seguridad.
      */
-    static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
+    static boolean validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
             throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
-        }
+        }else return true;
     }
 
     /**

@@ -140,7 +140,7 @@ public class AppServer {
                         writer.writeUTF(resultado);
                         break;
                     case "crearGrupo":
-                        boolean resultadoBoolean = FuncionesSQL.creacionGruposBBDD(usuario, mensaje, reader);
+                        boolean resultadoBoolean = FuncionesSQL.creacionGruposBBDD(usuario, mensaje);
                         writer.writeBoolean(resultadoBoolean);
                         if (resultadoBoolean) {
                             writer.writeUTF("Grupo creado correctamente");

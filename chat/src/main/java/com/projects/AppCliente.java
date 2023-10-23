@@ -160,7 +160,7 @@ public class AppCliente {
                     break;
                 case 2:
                     // Lógica para añadir usuario
-                    FuncionesUsuario.AñadirUsuarioAGrupo(nombreGrupo, writer, reader);
+                    FuncionesUsuario.anadirUsuarioAGrupo(nombreGrupo, writer, reader);
                     break;
                 case 3:
                     FuncionesUsuario.eliminarMiembro(nombreUsuario, nombreGrupo, writer, reader);
