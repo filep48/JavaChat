@@ -2,7 +2,12 @@ package srv.proyecto.clases;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Esta clase define el grupo en la aplicación de chat. 
+ * 
+ * @author Gerard Albesa, Kevin Felipe Vasquez, Vanessa Pedrola.
+ * @version 1.0
+ */
 public class Grupo {
     private int idGrupo;
     private String nombreGrupo;
