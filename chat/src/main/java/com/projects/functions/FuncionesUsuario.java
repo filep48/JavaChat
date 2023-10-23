@@ -31,7 +31,6 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-
     public static void registrarse(DataOutputStream writer, DataInputStream reader, Socket socket) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce tu nombre de usuario deseado: ");
@@ -63,7 +62,6 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-
     public static void iniciarSesion(DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
@@ -96,7 +94,6 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-
     public static void creacionGrupo(DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
@@ -130,7 +127,6 @@ public class FuncionesUsuario {
      *                    respuestas del servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-
     public static void eliminarGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader)
             throws IOException {
 
@@ -161,6 +157,46 @@ public class FuncionesUsuario {
         String serverResponse = reader.readUTF();
         System.out.println("Llista de usuarios: "
                 + "\n" + serverResponse);
+    }
+
+    /**
+     * Envía un mensaje a un grupo específico en el servidor utilizando un socket
+     * para comunicación.
+     *
+     * Esta función permite al usuario especificar el nombre del grupo al que desea
+     * enviar un mensaje.
+     * Luego, envía una solicitud al servidor para llevar a cabo esta acción y
+     * muestra la respuesta del servidor.
+     *
+     * @param nombreUsuario El nombre del usuario que desea enviar el mensaje.
+     * @param writer        El flujo de salida de datos utilizado para enviar
+     *                      mensajes al servidor.
+     * @param reader        El flujo de entrada de datos utilizado para recibir
+     *                      respuestas del servidor.
+     * @throws IOException Si hay un problema con la entrada o salida de datos.
+     */
+    public static void enviarMensaje(String nombreUsuario, DataOutputStream writer, DataInputStream reader,
+            Socket socket)
+            throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce el nombre del chat al que quieres enviar el mensaje: ");
+        String nombreGrupo = scanner.next();
+        System.out.print("Introduce el mensaje que quieres enviar al chat " + nombreGrupo + ": ");
+        String mensajeChat = scanner.next();
+        String mensaje = "enviarMensaje;" + nombreGrupo + ";" + mensajeChat;
+        writer.writeUTF(mensaje);
+        if (reader.readBoolean()) {
+            System.out.println("Mensaje enviado correctamente. Quieres enviar otro mensaje? (S/N)");
+            String respuesta = scanner.next();
+            if (respuesta.equals("S")) {
+                enviarMensaje(nombreUsuario, writer, reader, socket);
+            } else {
+                AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
+            }
+        } else {
+            System.out.println("Error al enviar el mensaje. Inténtalo de nuevo.");
+            enviarMensaje(nombreUsuario, writer, reader, socket);
+        }
     }
 
     /**
@@ -232,7 +268,7 @@ public class FuncionesUsuario {
      *                      respuestas del servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-    public static void AñadirUsuarioAGrupo(String nombreGrupo, DataOutputStream writer,
+    public static void anadirUsuarioAGrupo(String nombreGrupo, DataOutputStream writer,
             DataInputStream reader) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del usuario que quieres añadir: ");
@@ -317,6 +353,7 @@ public class FuncionesUsuario {
             String mensaje = "cerrarSesion;" + nombreUsuario;
             writer.writeUTF(mensaje);
             String serverResponse = reader.readUTF();
+            System.out.println(serverResponse);
             System.out.println("¡Hasta luego, " + nombreUsuario + "!");
             System.out.println();
 
