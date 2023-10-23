@@ -163,7 +163,7 @@ public class FuncionesSQL {
                 boolean correcta = false;
                 do {
                     try {
-                        correcta=validarContrasena(contrasena);
+                        correcta = validarContrasena(contrasena);
                     } catch (ContrasenaInvalidaException e) {
                         e.printStackTrace();
                     }
@@ -222,8 +222,8 @@ public class FuncionesSQL {
      */
     public static boolean creacionGruposBBDD(Usuario usuario, String[] mensaje) {
         String nombreGrupo = mensaje[1];
-        PreparedStatement pst=null;
-        try  {
+        PreparedStatement pst = null;
+        try {
             Connection cn = DatabaseConnection.getConnection();
             pst = cn.prepareStatement("INSERT INTO grupos (nombre_grupo) VALUES (?)");
             pst.setString(1, nombreGrupo);
@@ -239,7 +239,7 @@ public class FuncionesSQL {
                 try {
                     pst.close();
                 } catch (SQLException e) {
-                    System.err.println("Error al cerrar el pst " + e.getMessage()); 
+                    System.err.println("Error al cerrar el pst " + e.getMessage());
                 }
             }
         }
@@ -256,8 +256,9 @@ public class FuncionesSQL {
      * @param mensaje Un array con mensajes del cliente. Se espera que el nombre del
      *                grupo esté en mensaje[1].
      * 
-     * @exception SQLException Si hay un error relacionado con la operación en la base
-     *                      de datos.
+     * @exception SQLException Si hay un error relacionado con la operación en la
+     *                         base
+     *                         de datos.
      */
     public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje) {
         try {
@@ -293,7 +294,8 @@ public class FuncionesSQL {
     static boolean validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
             throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
-        }else return true;
+        } else
+            return true;
     }
 
     /**
@@ -412,12 +414,13 @@ public class FuncionesSQL {
      * @param usuarioId El ID del usuario que se dará de baja.
      * @return `true` si el proceso se realiza con éxito, `false` en caso de error.
      */
-    public static boolean darseDeBajaUsuario(Connection cn, int usuarioId) {
+    public static boolean darseDeBajaUsuario(Usuario usuario) {
         try {
-            deleteMiembrosGrupos(cn, usuarioId);
-            deleteMensajes(cn, usuarioId);
-            deleteArchivos(cn, usuarioId);
-            deleteUsuario(cn, usuarioId);
+            Connection cn = DatabaseConnection.getConnection();
+            deleteMiembrosGrupos(cn, usuario.getId());
+            deleteMensajes(cn, usuario.getId());
+            deleteArchivos(cn, usuario.getId());
+            deleteUsuario(cn, usuario.getId());
             return true;
         } catch (Exception e) {
             System.err.println("Error al eliminar ");
@@ -704,5 +707,4 @@ public class FuncionesSQL {
             return "El usuario no es administrador del grupo.";
         }
     }
-
 }

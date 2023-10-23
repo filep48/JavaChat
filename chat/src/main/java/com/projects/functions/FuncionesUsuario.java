@@ -7,10 +7,11 @@ import java.net.Socket;
 import java.util.Scanner;
 import com.projects.AppCliente;
 
-
 /**
- * Clase que contiene funciones para interactuar con el servidor y realizar operaciones
+ * Clase que contiene funciones para interactuar con el servidor y realizar
+ * operaciones
  * relacionadas con usuarios y grupos.
+ * 
  * @author Gerard Albesa,Kevin Felipe Vasquez, Vanessa Pedrola.
  * @version 1.0
  */
@@ -31,6 +32,7 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
+
     public static void registrarse(DataOutputStream writer, DataInputStream reader, Socket socket) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce tu nombre de usuario deseado: ");
@@ -360,6 +362,28 @@ public class FuncionesUsuario {
             writer.close();
             reader.close();
             socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void darseDeBajaUsuario(DataOutputStream writer, DataInputStream reader, Socket socket) {
+        try {
+            System.out.println("¿Estás seguro de que quieres darte de baja? (S/N)");
+            Scanner scanner = new Scanner(System.in);
+            String respuesta = scanner.next();
+            if (respuesta.equals("N")) {
+                System.out.println("Operación cancelada.");
+                AppCliente.menuSesionIniciada("", scanner, writer, reader, socket);
+            } else {
+                String mensaje = "darseDeBaja;";
+                writer.writeUTF(mensaje);
+                String serverResponse = reader.readUTF();
+                System.out.println(serverResponse);
+                writer.close();
+                reader.close();
+                socket.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

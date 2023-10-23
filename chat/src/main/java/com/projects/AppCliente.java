@@ -25,6 +25,7 @@ public class AppCliente {
         String serverAddress = "localhost";
         int serverPort = 12345;
         Scanner scanner = new Scanner(System.in);
+        
 
         // se establece el servidor al que se conecta el cliente y se inicializa el flujo de comunicacion E/S.
 
@@ -74,6 +75,7 @@ public class AppCliente {
                 // Lógica para configurar el cliente
                 break;
             case 4:
+                // Lógica para salir
                 System.exit(0);
                 break;
             default:
@@ -94,7 +96,8 @@ public class AppCliente {
                     + "\n4. Listar usuarios conectados."
                     + "\n5. Crear un chat."
                     + "\n6. Administrar un chat."
-                    + "\n7. Cerrar sesión.");
+                    + "\n7. Darse de baja."
+                    + "\n8. Cerrar sesión.");
 
             int opcion = scanner.nextInt();
             String mensaje = "";
@@ -125,6 +128,11 @@ public class AppCliente {
                     menuAdministrarGrupo(nombreUsuario, scanner, writer, reader);
                     break;
                 case 7:
+                    // Lógica para darse de baja
+                    FuncionesUsuario.darseDeBajaUsuario(writer, reader,socket);
+                    menuPrincipal(scanner, writer, reader, socket);
+                    break;
+                case 8:
                     //logica para cerrar sesion
                     FuncionesUsuario.desconectarUsuario(nombreUsuario, writer, reader, socket);
                     menuPrincipal(scanner, writer, reader, socket);

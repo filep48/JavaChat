@@ -163,6 +163,15 @@ public class AppServer {
                     case "eliminarMiembro":
                         writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader));
                         break;
+                    case "darseDeBaja":
+                        String usuarioEliminado = usuario.getNombreUsuario();
+                        boolean darseDeBaja = (FuncionesSQL.darseDeBajaUsuario(usuario));
+                        if (darseDeBaja) {
+                            writer.writeUTF(usuarioEliminado + " dado de baja correctamente");
+                        } else {
+                            writer.writeUTF("Error al dar de baja el usuario");
+                        }
+                        break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);
                         resultado = "cerrarSesion";
