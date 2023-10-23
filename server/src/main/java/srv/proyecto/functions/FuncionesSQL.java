@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
+import srv.proyecto.functions.FuncionesServer.ContrasenaInvalidaException;
 
 public class FuncionesSQL {
     /**
@@ -22,7 +23,7 @@ public class FuncionesSQL {
      * @param writer El flujo de salida para enviar una respuesta al cliente.
      * @param reader El flujo de entrada para recibir datos del cliente.
      */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
+    public static boolean splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
             throws IOException {
         try {
             String[] parts = FuncionesServer.slplitMensaje(input);
@@ -37,16 +38,20 @@ public class FuncionesSQL {
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
                     FuncionesServer.conectarUsuario(nombreUsuario, contrasena);
+                    return true;
 
                 } else {
                     writer.writeBoolean(false);
+                    return false;
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
+                
             }
         } catch (IOException e) {
             System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
         }
+        return false;
     }
 
     /**
@@ -160,14 +165,16 @@ public class FuncionesSQL {
             // Si el comando es iniciarSesion, validamos la contraseña (funcion
             // validarContrasena)
             if ("registrarse".equals(comando)) {
-                boolean correcta = false;
-                do {
+                boolean contrasenaValida = false;
                     try {
-                        correcta = validarContrasena(contrasena);
+                        contrasenaValida = FuncionesServer.validarContrasena(contrasena);
                     } catch (ContrasenaInvalidaException e) {
-                        e.printStackTrace();
+                        System.err.println("Error al validar la contraseña: " + e.getMessage());
+                        return false;
                     }
-                } while (!correcta);
+                    if (!contrasenaValida) {
+                        return false;
+                    }
             }
 
             Connection cn = DatabaseConnection.getConnection();
@@ -280,31 +287,6 @@ public class FuncionesSQL {
                     "Error al agregar al usuario como administrador del grupo en la base de datos: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error inesperado: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Valida una contraseña según los requisitos de seguridad.
-     * - Puede contener cualquier carácter, mínimo 6 máximo 32.
-     *
-     * @param contrasena La contraseña que se va a validar.
-     * @throws ContrasenaInvalidaException Si la contraseña no cumple con los
-     *                                     requisitos de seguridad.
-     */
-    static boolean validarContrasena(String contrasena) throws ContrasenaInvalidaException {
-        if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
-            throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
-        } else
-            return true;
-    }
-
-    /**
-     * Excepción personalizada para manejar contraseñas inválidas
-     * lanza mensaje predefenido por nosotros en validarContrasena
-     */
-    public static class ContrasenaInvalidaException extends Exception {
-        public ContrasenaInvalidaException(String mensaje) {
-            super(mensaje);
         }
     }
 
