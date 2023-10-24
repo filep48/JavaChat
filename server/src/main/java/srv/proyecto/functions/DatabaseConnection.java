@@ -1,4 +1,4 @@
-package srv.proyecto.clases;
+package srv.proyecto.functions;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

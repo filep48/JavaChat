@@ -6,11 +6,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Fichero;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.config.ConfiguracionServer;
 import srv.proyecto.functions.FuncionesServer;
+import srv.proyecto.functions.ControladorFicheros;
+import srv.proyecto.functions.DatabaseConnection;
 import srv.proyecto.functions.FuncionesSQL;
 
 /**

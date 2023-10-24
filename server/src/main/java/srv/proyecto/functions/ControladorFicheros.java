@@ -1,4 +1,4 @@
-package srv.proyecto;
+package srv.proyecto.functions;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -40,7 +40,7 @@ public class ControladorFicheros {
     }
 }
 
-    static String obtenerNombreArchivoUnico() {
+    public static String obtenerNombreArchivoUnico() {
         long timestamp = System.currentTimeMillis();
         SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String fecha = formatoFecha.format(new Date(timestamp));
