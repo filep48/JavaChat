@@ -60,10 +60,9 @@ public class AppServer {
         @Override
         public void run() {
             // Obtener una conexión a la base de datos
-            Connection cn;
-            cn = null;
+            
             try {
-                cn = DatabaseConnection.getConnection();
+                Connection cn = DatabaseConnection.getConnection();
             } catch (SQLException e) {
 
                 e.printStackTrace();

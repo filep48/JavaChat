@@ -87,6 +87,7 @@ public class FuncionesUsuario {
                 if (!socket.isConnected()) {
                     CrearConexionCliente.iniciarCliente();
                 } else {
+                    contrasenaValida = true;
                     AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
                 }
             } else {
