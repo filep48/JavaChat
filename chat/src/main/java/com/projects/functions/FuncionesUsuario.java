@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 import com.projects.AppCliente;
+import com.projects.CrearConexionCliente;
 
 /**
  * Clase que contiene funciones para interactuar con el servidor y realizar
@@ -32,21 +33,27 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
+
     public static void registrarse(DataOutputStream writer, DataInputStream reader, Socket socket) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce tu nombre de usuario deseado: ");
-        String nombreUsuario = scanner.next();
-        System.out.print("Introduce tu contraseña deseada: ");
-        String contrasena = new String(System.console().readPassword());
-        String mensaje = "registrarse;" + nombreUsuario + ";" + contrasena;
-        writer.writeUTF(mensaje);
-        boolean registroExitoso = reader.readBoolean();
-        if (registroExitoso) {
-            System.out.println("Registro exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
-        } else {
-            System.out.println(
-                    "Error al registrarse. El nombre de usuario puede estar en uso o hubo un problema con el servidor. Inténtalo de nuevo.");
+        boolean contrasenaValida = false;
+        while (!contrasenaValida) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Introduce tu nombre de usuario deseado: ");
+            String nombreUsuario = scanner.next();
+            System.out.println("(La contraseña debe ser de al menos 6 caracteres y maximo 32 caracteres)");
+            System.out.print("Introduce tu contraseña deseada: ");
+            String contrasena = new String(System.console().readPassword());
+            String mensaje = "registrarse;" + nombreUsuario + ";" + contrasena;
+            writer.writeUTF(mensaje);
+            boolean registroExitoso = reader.readBoolean();
+            if (registroExitoso) {
+                System.out.println("Registro exitoso.");
+                contrasenaValida = true;
+                AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
+            } else {
+                System.out.println(
+                        "Error al registrarse. El nombre o la contraseña no son. Inténtalo de nuevo.");
+            }
         }
     }
 
@@ -65,19 +72,27 @@ public class FuncionesUsuario {
      */
     public static void iniciarSesion(DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce tu nombre de usuario: ");
-        String nombreUsuario = scanner.next();
-        System.out.print("Introduce tu contraseña: ");
-        String contrasena = new String(System.console().readPassword());
-        String mensaje = "iniciarSesion;" + nombreUsuario + ";" + contrasena;
-        writer.writeUTF(mensaje);
-        boolean inicioSesionCorrecto = reader.readBoolean();
-        if (inicioSesionCorrecto) {
-            System.out.println("Inicio de sesión exitoso.");
-            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
-        } else {
-            System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
+        boolean contrasenaValida = false;
+        while (!contrasenaValida) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Introduce tu nombre de usuario: ");
+            String nombreUsuario = scanner.next();
+            System.out.print("Introduce tu contraseña: ");
+            String contrasena = new String(System.console().readPassword());
+            String mensaje = "iniciarSesion;" + nombreUsuario + ";" + contrasena;
+            writer.writeUTF(mensaje);
+            boolean inicioSesionCorrecto = reader.readBoolean();
+            if (inicioSesionCorrecto) {
+                System.out.println("Inicio de sesión exitoso.");
+                if (!socket.isConnected()) {
+                    CrearConexionCliente.iniciarCliente();
+                } else {
+                    contrasenaValida = true;
+                    AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
+                }
+            } else {
+                System.out.println("Error al iniciar sesión. Inténtalo de nuevo.");
+            }
         }
     }
 
@@ -371,19 +386,35 @@ public class FuncionesUsuario {
      *                      respuestas del servidor.
      * @param socket        El socket de comunicación con el servidor.
      */
-    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer, DataInputStream reader,
+    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer,
             Socket socket) {
         try {
             String mensaje = "cerrarSesion;" + nombreUsuario;
             writer.writeUTF(mensaje);
-            String serverResponse = reader.readUTF();
-            System.out.println(serverResponse);
             System.out.println("¡Hasta luego, " + nombreUsuario + "!");
             System.out.println();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            writer.close();
-            reader.close();
-            socket.close();
+    public static void darseDeBajaUsuario(DataOutputStream writer, DataInputStream reader, Socket socket) {
+        try {
+            System.out.println("¿Estás seguro de que quieres darte de baja? (S/N)");
+            Scanner scanner = new Scanner(System.in);
+            String respuesta = scanner.next();
+            if (respuesta.equals("N")) {
+                System.out.println("Operación cancelada.");
+                AppCliente.menuSesionIniciada("", scanner, writer, reader, socket);
+            } else {
+                String mensaje = "darseDeBaja;";
+                writer.writeUTF(mensaje);
+                String serverResponse = reader.readUTF();
+                System.out.println(serverResponse);
+                writer.close();
+                reader.close();
+                socket.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

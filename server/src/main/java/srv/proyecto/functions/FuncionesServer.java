@@ -50,9 +50,11 @@ public class FuncionesServer {
      * cumple
      */
 
-    static void validarContrasena(String contrasena) throws ContrasenaInvalidaException {
+    static boolean validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
             throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
+        } else {
+            return true;
         }
     }
 

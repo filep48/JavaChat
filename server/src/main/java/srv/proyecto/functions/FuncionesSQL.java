@@ -7,12 +7,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.JOptionPane;
-
 import com.google.protobuf.Timestamp;
-
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
+import srv.proyecto.functions.FuncionesServer.ContrasenaInvalidaException;
 
 public class FuncionesSQL {
     /**
@@ -25,7 +23,7 @@ public class FuncionesSQL {
      * @param writer El flujo de salida para enviar una respuesta al cliente.
      * @param reader El flujo de entrada para recibir datos del cliente.
      */
-    public static void splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
+    public static boolean splitDatosUsuario(DataOutputStream writer, DataInputStream reader, String input)
             throws IOException {
         try {
             String[] parts = FuncionesServer.slplitMensaje(input);
@@ -40,16 +38,20 @@ public class FuncionesSQL {
                 if (inicioSesionExitoso) {
                     writer.writeBoolean(true);
                     FuncionesServer.conectarUsuario(nombreUsuario, contrasena);
+                    return true;
 
                 } else {
                     writer.writeBoolean(false);
+                    return false;
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
+                
             }
         } catch (IOException e) {
             System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
         }
+        return false;
     }
 
     /**
@@ -139,14 +141,16 @@ public class FuncionesSQL {
             // Si el comando es iniciarSesion, validamos la contraseña (funcion
             // validarContrasena)
             if ("registrarse".equals(comando)) {
-                boolean correcta = false;
-                do {
+                boolean contrasenaValida = false;
                     try {
-                        correcta = validarContrasena(contrasena);
+                        contrasenaValida = FuncionesServer.validarContrasena(contrasena);
                     } catch (ContrasenaInvalidaException e) {
-                        e.printStackTrace();
+                        System.err.println("Error al validar la contraseña: " + e.getMessage());
+                        return false;
                     }
-                } while (!correcta);
+                    if (!contrasenaValida) {
+                        return false;
+                    }
             }
 
             Connection cn = DatabaseConnection.getConnection();
@@ -263,31 +267,6 @@ public class FuncionesSQL {
     }
 
     /**
-     * Valida una contraseña según los requisitos de seguridad.
-     * - Puede contener cualquier carácter, mínimo 6 máximo 32.
-     *
-     * @param contrasena La contraseña que se va a validar.
-     * @throws ContrasenaInvalidaException Si la contraseña no cumple con los
-     *                                     requisitos de seguridad.
-     */
-    static boolean validarContrasena(String contrasena) throws ContrasenaInvalidaException {
-        if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
-            throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
-        } else
-            return true;
-    }
-
-    /**
-     * Excepción personalizada para manejar contraseñas inválidas
-     * lanza mensaje predefenido por nosotros en validarContrasena
-     */
-    public static class ContrasenaInvalidaException extends Exception {
-        public ContrasenaInvalidaException(String mensaje) {
-            super(mensaje);
-        }
-    }
-
-    /**
      * Obtiene el ID de un usuario a partir de su nombre de usuario.
      *
      * @param nombreUsuario El nombre de usuario del cual se desea obtener el ID.
@@ -393,12 +372,13 @@ public class FuncionesSQL {
      * @param usuarioId El ID del usuario que se dará de baja.
      * @return `true` si el proceso se realiza con éxito, `false` en caso de error.
      */
-    public static boolean darseDeBajaUsuario(Connection cn, int usuarioId) {
+    public static boolean darseDeBajaUsuario(Usuario usuario) {
         try {
-            deleteMiembrosGrupos(cn, usuarioId);
-            deleteMensajes(cn, usuarioId);
-            deleteArchivos(cn, usuarioId);
-            deleteUsuario(cn, usuarioId);
+            Connection cn = DatabaseConnection.getConnection();
+            deleteMiembrosGrupos(cn, usuario.getId());
+            deleteMensajes(cn, usuario.getId());
+            deleteArchivos(cn, usuario.getId());
+            deleteUsuario(cn, usuario.getId());
             return true;
         } catch (Exception e) {
             System.err.println("Error al eliminar ");

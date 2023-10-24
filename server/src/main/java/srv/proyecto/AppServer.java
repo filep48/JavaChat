@@ -94,8 +94,11 @@ public class AppServer {
                     }
                 }
             } catch (IOException e) {
-                System.out.println(
-                        "Error con el cliente: " + clientSocket.getInetAddress() + ". Error: " + e.getMessage());
+                if (e instanceof EOFException) {
+                    System.out.println("El cliente cerró la conexión.");
+                } else {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -123,9 +126,12 @@ public class AppServer {
                 switch (comando) {
                     case "iniciarSesion":
                     case "registrarse":
-                        FuncionesSQL.splitDatosUsuario(writer, reader, input);
-                        usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
-                        usuariosConectados.put(nombre, usuario);
+                        boolean ComprobacionUsuarioCreado = FuncionesSQL.splitDatosUsuario(writer, reader, input);
+                        if (ComprobacionUsuarioCreado) {
+                            usuariosExistentes.putIfAbsent(nombre, usuario); // Solo añade si no existe previamente
+                            usuariosConectados.put(nombre, usuario);
+                            System.out.println("Usuario añadido a la lista de usuarios conectados: " + nombre);
+                        }
                         break;
                     case "listarGrupos":
                         String resultado = FuncionesSQL.llistarGruposCreados(usuario);
@@ -166,10 +172,17 @@ public class AppServer {
                     case "eliminarMiembro":
                         writer.writeUTF(FuncionesSQL.eliminarMiebro(usuario, mensaje[1], mensaje[2], reader));
                         break;
+                    case "darseDeBaja":
+                        String usuarioEliminado = usuario.getNombreUsuario();
+                        boolean darseDeBaja = (FuncionesSQL.darseDeBajaUsuario(usuario));
+                        if (darseDeBaja) {
+                            writer.writeUTF(usuarioEliminado + " dado de baja correctamente");
+                        } else {
+                            writer.writeUTF("Error al dar de baja el usuario");
+                        }
+                        break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);
-                        resultado = "cerrarSesion";
-                        writer.writeUTF(resultado);
                         break;
                     default:
                         System.out.println("Comando desconocido: " + comando);
