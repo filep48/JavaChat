@@ -89,7 +89,7 @@ public class AppCliente {
                     break;
                 case 4:
                     // Lógica para crear un grupo
-                    FuncionesUsuario.creacionGrupo(writer, reader, socket);
+                    FuncionesUsuario.creacionGrupo(writer, reader, socket, nombreUsuario);
                     break;
                 case 5:
                     // Lógica para administrar un grupo
@@ -129,9 +129,8 @@ public class AppCliente {
             System.out.println("1. Listar usuarios del grupo."
                     + "\n2. Añadir usuario a grupo."
                     + "\n3. Eliminar usuario del grupo"
-                    + "\n4. Salir del chat."
-                    + "\n5. Eliminar grupo."
-                    + "\n6. Volver al menú principal.");
+                    + "\n4. Eliminar grupo."
+                    + "\n5. Volver al menú principal.");
             int opcion = 0;
             opcion = scanner.nextInt();
             switch (opcion) {
@@ -146,13 +145,10 @@ public class AppCliente {
                     FuncionesUsuario.eliminarMiembro(nombreUsuario, nombreGrupo, writer, reader);
                     break;
                 case 4:
-                    FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);
-                    break;
-                case 5:
                     // Lógica para eliminar grupo
                     FuncionesUsuario.eliminarGrupo(nombreGrupo, writer, reader);
                     break;
-                case 6:
+                case 5:
                     // Lógica para volver al menú principal
                     salir = true;
                     break;
