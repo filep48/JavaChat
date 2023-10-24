@@ -230,7 +230,7 @@ public class FuncionesUsuario {
      */
     public static void leerMensajes(String nombreGrupo, String nombreUsuario, DataOutputStream writer,
             DataInputStream reader) throws IOException {
-        String mensaje = "leerMensajes;" + nombreGrupo + ";" + nombreUsuario;
+        String mensaje = "listarMensajes;" + nombreGrupo + ";" + nombreUsuario;
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
         System.out.println("Mensajes del chat " + nombreGrupo + ": "
@@ -386,8 +386,7 @@ public class FuncionesUsuario {
      *                      respuestas del servidor.
      * @param socket        El socket de comunicación con el servidor.
      */
-    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer,
-            Socket socket) {
+    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer) {
         try {
             String mensaje = "cerrarSesion;" + nombreUsuario;
             writer.writeUTF(mensaje);
@@ -396,7 +395,7 @@ public class FuncionesUsuario {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }   
 
     public static void darseDeBajaUsuario(DataOutputStream writer, DataInputStream reader, Socket socket) {
         try {

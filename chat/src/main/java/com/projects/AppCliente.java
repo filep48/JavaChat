@@ -58,6 +58,7 @@ public class AppCliente {
             DataInputStream reader, Socket socket) throws IOException {
         boolean condicion = true;
         while (condicion) {
+            System.out.println("==================\nHas entrado como  " + nombreUsuario + ".");
             System.out.println("Seleccione una opción:");
             System.out.println("1. Listar y seleccionar chats."
                     + "\n2. Listar usuarios."
@@ -102,7 +103,7 @@ public class AppCliente {
                     break;
                 case 7:
                     // logica para cerrar sesion
-                    FuncionesUsuario.desconectarUsuario(nombreUsuario, writer, socket);
+                    FuncionesUsuario.desconectarUsuario(nombreUsuario, writer);
                     condicion = false;
                     menuPrincipal(scanner, writer, reader, socket);
                     break;
@@ -120,7 +121,6 @@ public class AppCliente {
         String mensaje = "";
         System.out.println("Introduce el nombre del grupo que quieres administrar: ");
         String nombreGrupo = scanner.next();
-
         mensaje = "administrarGrupo;" + nombreGrupo;
         writer.writeUTF(mensaje);
         boolean salir = false;
@@ -168,32 +168,25 @@ public class AppCliente {
         System.out.println("==================\nEstás en un chat. Selecciona una opción:");
         System.out.println("1. Enviar mensaje."
                 + "\n2. Descargar archivos."
-                + "\n3. Actualizar mensajes."
+                + "\n3. Enviar archivos."
                 + "\n4. Salir del chat.");
 
-        FuncionesUsuario.leerMensajes(nombreGrupo, nombreUsuario, writer, reader); /*
-                                                                                    * mensajes es un array de strings
-                                                                                    * que contiene los mensajes del
-                                                                                    * grupo
-                                                                                    */
+        FuncionesUsuario.leerMensajes(nombreGrupo, nombreUsuario, writer, reader);
         int opcion = scanner.nextInt();
 
         switch (opcion) {
             case 1:
-                // Lógica para administrar el grupo
+                // Lógica para enviar mensajes
                 FuncionesUsuario.enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
                 break;
             case 2:
                 // Lógica para descargar archivos
-
                 break;
             case 3:
-                // Lógica para leer mensajes
-                FuncionesUsuario.leerMensajes(nombreUsuario, nombreUsuario, writer, reader);
+                // Lógica para enviar archivos
                 break;
             case 4:
-                menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket); // nombre usuario actual
-
+                menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
                 break;
             default:
                 System.out.println(COMANDO_NO_RECONOCIDO);

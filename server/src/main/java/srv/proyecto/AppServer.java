@@ -157,6 +157,9 @@ public class AppServer {
                     case "enviarMensaje" :
                         FuncionesSQL.enviarMensaje(usuario, mensaje[1], mensaje[2], reader);
                         break;
+                    case "listarMensajes":
+                        writer.writeUTF(FuncionesSQL.listarMensajes(usuario, mensaje[1],mensaje[2], reader));
+                        break;
                     case "administrarGrupo":
                         // Lógica para administrar el grupo
                         break;

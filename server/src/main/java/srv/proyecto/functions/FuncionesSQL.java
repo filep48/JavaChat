@@ -733,4 +733,8 @@ public class FuncionesSQL {
         return new java.sql.Timestamp(tiempoEnMilisegundos);
     }
 
+    public static String listarMensajes(Usuario usuario, String string, String string2, DataInputStream reader) {
+        //Por hacer
+    }
+
 }
