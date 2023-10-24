@@ -188,7 +188,7 @@ public class AppServer {
                         break;
                     case "enviarFichero":
                         Fichero fichero = new Fichero();
-                        fichero.setNombreFichero(ControladorFicheros.obtenerNombreArchivoUnico());
+                        fichero.setNombreFichero(ControladorFicheros.obtenerNombreArchivoUnico() + mensaje[3]);
                         fichero.setRutaFichero(ConfiguracionServer.getDescargasServer());
                         fichero.setTipodeArchivo(mensaje[1]);
                         fichero.setIdPropietario(usuario.getId());

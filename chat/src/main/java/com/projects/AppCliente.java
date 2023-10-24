@@ -183,7 +183,7 @@ public class AppCliente {
                 // Lógica para descargar archivos
                 break;
             case 3:
-                // Lógica para enviar archivos
+                FuncionesUsuario.enviarFichero(nombreGrupo,socket);
                 break;
             case 4:
                 menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
