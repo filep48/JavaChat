@@ -6,9 +6,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import srv.proyecto.clases.DatabaseConnection;
+import srv.proyecto.clases.Fichero;
 import srv.proyecto.clases.Usuario;
+import srv.proyecto.config.ConfiguracionServer;
 import srv.proyecto.functions.FuncionesServer;
+import srv.proyecto.functions.ControladorFicheros;
+import srv.proyecto.functions.DatabaseConnection;
 import srv.proyecto.functions.FuncionesSQL;
 
 /**
@@ -60,10 +63,9 @@ public class AppServer {
         @Override
         public void run() {
             // Obtener una conexión a la base de datos
-            Connection cn;
-            cn = null;
+
             try {
-                cn = DatabaseConnection.getConnection();
+                Connection cn = DatabaseConnection.getConnection();
             } catch (SQLException e) {
 
                 e.printStackTrace();
@@ -95,7 +97,7 @@ public class AppServer {
                 }
             } catch (IOException e) {
                 if (e instanceof EOFException) {
-                    System.out.println("El cliente cerró la conexión.");
+                    System.out.println("El cliente cerró la conexión." + e.getMessage());
                 } else {
                     e.printStackTrace();
                 }
@@ -183,6 +185,16 @@ public class AppServer {
                         } else {
                             writer.writeUTF("Error al dar de baja el usuario");
                         }
+                        break;
+                    case "enviarFichero":
+                        Fichero fichero = new Fichero();
+                        fichero.setNombreFichero(ControladorFicheros.obtenerNombreArchivoUnico());
+                        fichero.setRutaFichero(ConfiguracionServer.getDescargasServer());
+                        fichero.setTipodeArchivo(mensaje[1]);
+                        fichero.setIdPropietario(usuario.getId());
+                        ControladorFicheros.RecibirFicheros(clientSocket, fichero.getRutaFichero(),
+                                fichero.getNombreFichero());
+                        writer.writeUTF("Prueba");
                         break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);

@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.google.protobuf.Timestamp;
-import srv.proyecto.clases.DatabaseConnection;
+
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer.ContrasenaInvalidaException;
 

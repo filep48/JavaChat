@@ -1,8 +1,9 @@
-package srv.proyecto.clases;
+package srv.proyecto.functions;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import srv.proyecto.config.ConfiguracionServer;
 
 /**
  * Esta clase proporciona una conexión a la base de datos MySQL utilizada por la
@@ -12,9 +13,11 @@ import java.sql.SQLException;
  * @version 1.0
  */
 public class DatabaseConnection {
-    private static final String DB_URL = "jdbc:mysql://localhost:3307/chatpro";
-    private static final String USER = "root";
-    private static final String PASS = "1234";
+
+    private static ConfiguracionServer config = new ConfiguracionServer();
+    private static final String DB_URL = config.getDbUrl();
+    private static final String USER = config.getUser();
+    private static final String PASS = config.getPass();
 
     private static Connection cn;
 

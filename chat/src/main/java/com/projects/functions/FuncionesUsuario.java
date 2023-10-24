@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import com.projects.AppCliente;
 import com.projects.CrearConexionCliente;
+import com.projects.EnviarFicheros;
 
 /**
  * Clase que contiene funciones para interactuar con el servidor y realizar
@@ -410,13 +411,22 @@ public class FuncionesUsuario {
                 writer.writeUTF(mensaje);
                 String serverResponse = reader.readUTF();
                 System.out.println(serverResponse);
-                writer.close();
-                reader.close();
-                socket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void enviarFichero(Socket socket) throws IOException {
+        DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+        System.out.println("Introduce la ruta del fichero que quieres enviar: ");
+        Scanner scanner = new Scanner(System.in);
+        String rutaFichero = scanner.next();
+        System.out.println("Introduce los permisos del fichero /n 1. public /n 2. pivate /n 3.protected");
+        int permisos = scanner.nextInt();
+        String mensaje = "enviarFichero;" + permisos;
+        writer.writeUTF(mensaje); 
+        EnviarFicheros.sendFile(socket, rutaFichero);
     }
 
 }
