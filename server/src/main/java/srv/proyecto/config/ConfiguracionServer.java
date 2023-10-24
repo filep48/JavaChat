@@ -9,19 +9,23 @@ public class ConfiguracionServer {
     private String dbUrl;
     private String user;
     private String pass;
+    private static String descargasServer;
+
+    
 
     public ConfiguracionServer() {
         Properties prop = new Properties();
 
         // Ajusta la ruta según la ubicación real de tu archivo servidor.properties
         try (FileInputStream input = new FileInputStream(
-                "C:\\Users\\Gerard\\OneDrive\\ProyectoChat\\ULTIMIMIMIMIMISIMAPRUEBA\\projectchat\\server\\src\\main\\java\\srv\\proyecto\\resources\\server.properties")) {
+                "server\\src\\main\\java\\srv\\proyecto\\resources\\server.properties")) {
 
             prop.load(input);
 
             this.dbUrl = prop.getProperty("DB_URL");
             this.user = prop.getProperty("USER");
             this.pass = prop.getProperty("PASS");
+            this.descargasServer = prop.getProperty("DESCARGASSERVER");
 
         } catch (IOException ex) {
             throw new RuntimeException("Error al cargar la configuración del servidor.", ex);
@@ -38,5 +42,9 @@ public class ConfiguracionServer {
 
     public String getPass() {
         return pass;
+    }
+
+    public static String getDescargasServer() {
+        return descargasServer;
     }
 }
