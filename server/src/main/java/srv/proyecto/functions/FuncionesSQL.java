@@ -734,7 +734,7 @@ public class FuncionesSQL {
     }
 
     public static String listarMensajes(Usuario usuario, String string, String string2, DataInputStream reader) {
-        //Por hacer
+        return "";//Por hacer
     }
 
 }
