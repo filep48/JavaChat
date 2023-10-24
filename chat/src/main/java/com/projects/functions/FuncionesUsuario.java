@@ -176,11 +176,11 @@ public class FuncionesUsuario {
      *                      respuestas del servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-    public static void enviarMensaje(String nombreUsuario, DataOutputStream writer, DataInputStream reader, Socket socket)
+    public static void enviarMensaje(String nombreGrupo, String nombreUsuario, DataOutputStream writer,
+            DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce el nombre del chat al que quieres enviar el mensaje: ");
-        String nombreGrupo = scanner.next();
+
         System.out.print("Introduce el mensaje que quieres enviar al chat " + nombreGrupo + ": ");
         String mensajeChat = scanner.next();
         String mensaje = "enviarMensaje;" + nombreGrupo + ";" + mensajeChat;
@@ -189,14 +189,38 @@ public class FuncionesUsuario {
             System.out.println("Mensaje enviado correctamente. Quieres enviar otro mensaje? (S/N)");
             String respuesta = scanner.next();
             if (respuesta.equals("S")) {
-                enviarMensaje(nombreUsuario, writer, reader, socket);
+                enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
             } else {
                 AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
             }
         } else {
             System.out.println("Error al enviar el mensaje. Inténtalo de nuevo.");
-            enviarMensaje(nombreUsuario, writer, reader, socket);
+            enviarMensaje(nombreUsuario, nombreUsuario, writer, reader, socket);
         }
+    }
+
+    /**
+     * Envía una solicitud al servidor para leer mensajes de un chat específico y
+     * muestra la respuesta.
+     *
+     * @param nombreGrupo   El nombre del grupo de chat del cual se quieren leer los
+     *                      mensajes.
+     * @param nombreUsuario El nombre del usuario que realiza la solicitud.
+     * @param writer        El flujo de datos de salida para enviar información al
+     *                      servidor.
+     * @param reader        El flujo de datos de entrada para recibir información
+     *                      del servidor.
+     * @throws IOException Si hay un error al enviar o recibir datos a través del
+     *                     socket.
+     */
+    public static void leerMensajes(String nombreGrupo, String nombreUsuario, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        String mensaje = "leerMensajes;" + nombreGrupo + ";" + nombreUsuario;
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+        System.out.println("Mensajes del chat " + nombreGrupo + ": "
+                + "\n" + serverResponse);
+
     }
 
     /**

@@ -8,6 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+
+import com.google.protobuf.Timestamp;
+
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 
@@ -112,30 +115,6 @@ public class FuncionesSQL {
     }
 
     /**
-     * Este método registra un mensaje en la base de datos.
-     *
-     * @param cn      La conexión a la base de datos a utilizar.
-     * @param mensaje El mensaje que se va a registrar en la base de datos.
-     * @return Una instancia de PreparedStatement utilizada para ejecutar la
-     *         inserción en la base de datos.
-     *         Si la operación tiene éxito, se devuelve la instancia. En caso de
-     *         error, se devuelve null.
-     */
-    // Este metodo que manda el mensaje de x cliente a la base de datos
-    public static PreparedStatement enviarMensajesBBDD(Connection cn, String mensaje) {
-        try {
-            String strSql = "insert into mensajes (contenido) values (?)";
-            PreparedStatement pst = cn.prepareStatement(strSql);
-            pst.setString(1, mensaje);
-            pst.executeUpdate();
-            return pst;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
      * Registra un usuario en la base de datos o verifica las credenciales del
      * usuario.
      *
@@ -163,7 +142,7 @@ public class FuncionesSQL {
                 boolean correcta = false;
                 do {
                     try {
-                        correcta=validarContrasena(contrasena);
+                        correcta = validarContrasena(contrasena);
                     } catch (ContrasenaInvalidaException e) {
                         e.printStackTrace();
                     }
@@ -222,8 +201,8 @@ public class FuncionesSQL {
      */
     public static boolean creacionGruposBBDD(Usuario usuario, String[] mensaje) {
         String nombreGrupo = mensaje[1];
-        PreparedStatement pst=null;
-        try  {
+        PreparedStatement pst = null;
+        try {
             Connection cn = DatabaseConnection.getConnection();
             pst = cn.prepareStatement("INSERT INTO grupos (nombre_grupo) VALUES (?)");
             pst.setString(1, nombreGrupo);
@@ -239,7 +218,7 @@ public class FuncionesSQL {
                 try {
                     pst.close();
                 } catch (SQLException e) {
-                    System.err.println("Error al cerrar el pst " + e.getMessage()); 
+                    System.err.println("Error al cerrar el pst " + e.getMessage());
                 }
             }
         }
@@ -256,8 +235,9 @@ public class FuncionesSQL {
      * @param mensaje Un array con mensajes del cliente. Se espera que el nombre del
      *                grupo esté en mensaje[1].
      * 
-     * @exception SQLException Si hay un error relacionado con la operación en la base
-     *                      de datos.
+     * @exception SQLException Si hay un error relacionado con la operación en la
+     *                         base
+     *                         de datos.
      */
     public static void meterCreadorAlGrupo(Connection cn, Usuario usuario, String[] mensaje) {
         try {
@@ -293,7 +273,8 @@ public class FuncionesSQL {
     static boolean validarContrasena(String contrasena) throws ContrasenaInvalidaException {
         if (contrasena == null || !contrasena.matches("^.{6,32}$")) {
             throw new ContrasenaInvalidaException("La contraseña no cumple con los requisitos.");
-        }else return true;
+        } else
+            return true;
     }
 
     /**
@@ -703,6 +684,73 @@ public class FuncionesSQL {
         } else {
             return "El usuario no es administrador del grupo.";
         }
+    }
+
+    /**
+     * Envía un mensaje al chat especificado y lo registra en la base de datos.
+     *
+     * @param usuario     El usuario que envía el mensaje.
+     * @param nombreGrupo El nombre del grupo de chat al cual se envía el mensaje.
+     * @param mensajeChat El contenido del mensaje a enviar.
+     * @param reader      El flujo de datos de entrada para recibir información.
+     *
+     *                    <p>
+     *                    Este método crea una conexión a la base de datos, obtiene
+     *                    el ID del grupo
+     *                    de chat basado en su nombre y luego inserta el mensaje en
+     *                    la tabla de mensajes
+     *                    con el usuario, grupo, contenido del mensaje y la fecha y
+     *                    hora actuales.
+     *                    </p>
+     *
+     *                    <p>
+     *                    Si ocurre algún error al enviar el mensaje o interactuar
+     *                    con la base de datos,
+     *                    se imprimirá un mensaje de error. Finalmente, se cierra el
+     *                    PreparedStatement.
+     *                    </p>
+     */
+    public static void enviarMensaje(Usuario usuario, String nombreGrupo, String mensajeChat, DataInputStream reader) {
+        PreparedStatement pst = null;
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
+            // creación de una variable que guarda el dia, hora, minuto y segundo actual
+            java.sql.Timestamp timeStamp = convertirProtobufASqlTimestamp();
+            String insertMensaje = "INSERT INTO mensajes (usuario_id, grupo_id, contenido, fecha_envio) VALUES (?, ?, ?, ?)";
+            pst = cn.prepareStatement(insertMensaje);
+            pst.setInt(1, usuario.getId());
+            pst.setInt(2, idGrupo);
+            pst.setString(3, mensajeChat);
+            pst.setTimestamp(4, timeStamp);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al enviar el mensaje: " + e.getMessage());
+        } finally {
+            if (pst != null) {
+                try {
+                    pst.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Convierte un Timestamp de Protocol Buffers a un java.sql.Timestamp.
+     * 
+     * @return java.sql.Timestamp correspondiente.
+     */
+    public static java.sql.Timestamp convertirProtobufASqlTimestamp() {
+        // Crear el Timestamp como anteriormente
+        Timestamp marcaTemporalProtobuf = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+
+        // Convertir el Timestamp de Protocol Buffers a java.sql.Timestamp
+        long tiempoEnMilisegundos = marcaTemporalProtobuf.getSeconds() * 1000
+                + marcaTemporalProtobuf.getNanos() / 1_000_000; // Convertir segundos a milisegundos y nanosegundos a
+                                                                // milisegundos
+        return new java.sql.Timestamp(tiempoEnMilisegundos);
     }
 
 }

@@ -15,7 +15,7 @@ import com.projects.functions.FuncionesUsuario;
 
 public class AppCliente {
     // CLIENTE
-    final static String COMANDO_NO_RECONOCIDO = "Comando no reconocido";
+    static final String COMANDO_NO_RECONOCIDO = "Comando no reconocido";
 
     public static void main(String[] args) {
 
@@ -55,11 +55,11 @@ public class AppCliente {
 
     private static void menuPrincipal(Scanner scanner, DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
+        System.out.println("==================\nBienvenido a la app de chat.");
         System.out.println("Seleccione una opción:");
         System.out.println("1. Registrarse (Sign up)."
                 + "\n2. Iniciar sesión (Sign in)."
-                + "\n3. Configuración del cliente."
-                + "\n4. Salir.");
+                + "\n3. Salir");
 
         int opcion = scanner.nextInt();
         switch (opcion) {
@@ -70,9 +70,6 @@ public class AppCliente {
                 FuncionesUsuario.iniciarSesion(writer, reader, socket);
                 break;
             case 3:
-                // Lógica para configurar el cliente
-                break;
-            case 4:
                 System.exit(0);
                 break;
             default:
@@ -85,44 +82,42 @@ public class AppCliente {
     public static void menuSesionIniciada(String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader, Socket socket) throws IOException {
         System.out.println("Seleccione una opción:");
-        System.out.println("1. Enviar mensaje."
-                + "\n2. Listar chats."
-                + "\n3. Listar usuarios."
-                + "\n4. Listar usuarios conectados."
-                + "\n5. Crear un chat."
-                + "\n6. Administrar un chat."
-                + "\n7. Cerrar sesión.");
+        System.out.println("1. Listar y seleccionar chats."
+                + "\n2. Listar usuarios."
+                + "\n3. Listar usuarios conectados."
+                + "\n4. Crear un chat."
+                + "\n5. Administrar un chat."
+                + "\n6. Cerrar sesión."
+                + "\n7. ");
 
         int opcion = scanner.nextInt();
         switch (opcion) {
             case 1:
-                // Lógica para enviar mensaje
+                // Listar chats
                 System.out.println("==================");
                 FuncionesUsuario.listarGruposCreados(nombreUsuario, writer, reader);
-                FuncionesUsuario.enviarMensaje(nombreUsuario, writer, reader, socket);
+                System.out.println("Selecciona el chat que quieres abrir: ");
+                String nombreGrupo = scanner.next();
+                menuGrupo(nombreGrupo, nombreUsuario, scanner, writer, reader, socket);
                 break;
             case 2:
-                // Listar chats
-                FuncionesUsuario.listarGruposCreados(nombreUsuario, writer, reader);
-                break;
-            case 3:
                 // Lógica para listar grupos y al seleccionar uno
                 // entra en el.
                 FuncionesUsuario.listarUsuarios(writer, reader);
                 break;
-            case 4:
+            case 3:
                 // Lógica para listar usuarios conectados
                 FuncionesUsuario.listarUsuariosConectados(writer, reader);
                 break;
-            case 5:
+            case 4:
                 // Lógica para crear un grupo
                 FuncionesUsuario.creacionGrupo(writer, reader, socket);
                 break;
-            case 6:
+            case 5:
                 // Lógica para administrar un grupo
                 menuAdministrarGrupo(nombreUsuario, scanner, writer, reader);
                 break;
-            case 7:
+            case 6:
                 // logica para cerrar sesion
                 FuncionesUsuario.desconectarUsuario(nombreUsuario, writer, reader, socket);
                 menuPrincipal(scanner, writer, reader, socket);
@@ -183,25 +178,29 @@ public class AppCliente {
         }
     }
 
-    private static void menuGrupo(String nombreUsuario, Scanner scanner, DataOutputStream writer,
+    private static void menuGrupo(String nombreGrupo, String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader, Socket socket) throws IOException {
         System.out.println("==================\nEstás en un chat. Selecciona una opción:");
-        System.out.println("1. Administrar chat."
+        System.out.println("1. Enviar mensaje."
                 + "\n2. Descargar archivos."
-                + "\n3. Leer mensajes."
+                + "\n3. Actualizar mensajes."
                 + "\n4. Salir del chat.");
-
+                
+        FuncionesUsuario.leerMensajes(nombreGrupo, nombreUsuario, writer, reader); /* mensajes es un array de strings que contiene los mensajes del grupo */
         int opcion = scanner.nextInt();
 
         switch (opcion) {
             case 1:
                 // Lógica para administrar el grupo
+                FuncionesUsuario.enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
                 break;
             case 2:
                 // Lógica para descargar archivos
+
                 break;
             case 3:
                 // Lógica para leer mensajes
+                FuncionesUsuario.leerMensajes(nombreUsuario, nombreUsuario, writer, reader);
                 break;
             case 4:
                 menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket); // nombre usuario actual
