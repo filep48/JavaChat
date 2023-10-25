@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.io.File;
 import com.projects.AppCliente;
 import com.projects.CrearConexionCliente;
+import com.projects.DescargarFicheros;
 import com.projects.EnviarFicheros;
 
 /**
@@ -403,7 +404,7 @@ public class FuncionesUsuario {
     
     /**
  * Permite a un usuario darse de baja del sistema. La función pregunta al usuario si está seguro de 
- * querer darse de baja y, en caso afirmativo, envía una solicitud de baja al servidor. Si el usuario 
+ * querer darse de baja y, en caso de que si, envía una solicitud de baja al servidor. Si el usuario 
  * elige no darse de baja, se redirige al menú principal de la sesión iniciada.
  * 
  * @param writer   El DataOutputStream para enviar datos al servidor.
@@ -430,32 +431,22 @@ public class FuncionesUsuario {
             e.printStackTrace();
         }
     }
-    
+
     /**
-     * Permite al usuario enviar un fichero a un grupo específico. El usuario debe
-     * proporcionar la
-     * ruta del fichero que desea enviar y seleccionar los permisos para ese
-     * fichero. La función
-     * seguirá solicitando una ruta válida hasta que el usuario proporcione una
-     * correcta o hasta que
-     * se produzca un error de E/S.
-     * 
-     * @param nombreGrupo El nombre del grupo al cual se enviará el fichero.
-     * @param socket      El Socket utilizado para la comunicación con el servidor.
-     * @param reader      El DataInputStream para recibir datos del servidor.
-     * 
-     * @throws FileNotFoundException Si la ruta del fichero proporcionada no
-     *                               corresponde a un fichero existente.
-     * @throws IOException           En caso de que haya un error en la comunicación
-     *                               con el servidor o al leer el fichero.
+     * Permite al usuario enviar un archivo al servidor a un grupo específico.
+     *
+     * @param nombreGrupo El nombre del grupo al que se enviará el archivo.
+     * @param socket      El socket de conexión con el servidor.
+     * @throws IOException Si ocurre un error en la comunicación con el servidor.
      */
-    public static void enviarFichero(String nombreGrupo, Socket socket, DataInputStream reader) {
+    public static void enviarFichero(String nombreGrupo, Socket socket,DataInputStream reader) throws IOException {
+        DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+        System.out.println("Introduce la ruta del fichero que quieres enviar: ");
         Scanner scanner = new Scanner(System.in);
         boolean exito = false;
 
         while (!exito) {
             try {
-                DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
                 System.out.println("Introduce la ruta del fichero que quieres enviar: ");
                 String rutaFichero = scanner.next();
 
@@ -498,5 +489,15 @@ public class FuncionesUsuario {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public static void bajar(String nombreGrupo, Socket socket, DataOutputStream writer,DataInputStream reader) throws IOException {
+        System.out.println("Introduce el nombre del fichero que quieres descargar: ");
+        Scanner scanner = new Scanner(System.in);
+        String nombreFichero = scanner.next();
+        String mensaje = "descargar;" + nombreGrupo + ";" + nombreFichero;
+        writer.writeUTF(mensaje);
+        System.out.println(reader.readUTF());
+        DescargarFicheros.descargar(socket, nombreFichero);
+
     }
 }
