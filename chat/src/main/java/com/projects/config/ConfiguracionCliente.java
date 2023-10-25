@@ -4,11 +4,18 @@ import java.util.Properties;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+/**
+ * Clase que carga la configuración del cliente desde el archivo
+ * "cliente.properties".
+ * @author Gerard Albesa,Kevin Felipe Vasquez, Vanessa Pedrola.
+ * @version 1.0
+ */
+
 public class ConfiguracionCliente {
 
     private String direccionServer;
     private int puertoServer;
-    private String direcionDescargas;
+    private static String direcionDescargas;
     private int tamanoMaxArchivo;
 
     public ConfiguracionCliente() {
@@ -39,7 +46,7 @@ public class ConfiguracionCliente {
         return puertoServer;
     }
 
-    public String getDirecionDescargas() {
+    public static String getDirecionDescargas() {
         return direcionDescargas;
     }
 

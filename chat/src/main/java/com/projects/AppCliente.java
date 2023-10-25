@@ -175,7 +175,7 @@ public class AppCliente {
                     + "\n2. Descargar archivos."
                     + "\n3. Enviar archivos."
                     + "\n4. Actualizar mensajes."
-                    + "\n4. Salir del chat."
+                    + "\n5. Salir del chat."
                     + "\n==================");
 
             int opcion = scanner.nextInt();
@@ -187,6 +187,7 @@ public class AppCliente {
                     break;
                 case 2:
                     FuncionesUsuario.listarFicherosBBDD(nombreGrupo, writer, reader);
+                    FuncionesUsuario.bajar(nombreGrupo,socket, writer, reader);
                     break;
                 case 3:
                     FuncionesUsuario.enviarFichero(nombreGrupo, socket, reader);

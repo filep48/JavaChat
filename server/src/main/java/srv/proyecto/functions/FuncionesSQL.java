@@ -46,7 +46,6 @@ public class FuncionesSQL {
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
-
             }
         } catch (IOException e) {
             System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
