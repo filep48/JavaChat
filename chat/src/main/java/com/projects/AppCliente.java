@@ -179,7 +179,7 @@ public class AppCliente {
                 FuncionesUsuario.enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
                 break;
             case 2:
-                // Lógica para descargar archivos
+                FuncionesUsuario.listarFicherosBBDD(nombreGrupo,writer,reader);
                 break;
             case 3:
                 FuncionesUsuario.enviarFichero(nombreGrupo, socket, reader);

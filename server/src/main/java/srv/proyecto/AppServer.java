@@ -139,6 +139,10 @@ public class AppServer {
                             System.out.println("Usuario añadido a la lista de usuarios conectados: " + nombre);
                         }
                         break;
+                    case "listarFicheros":
+                        String resultadoFicheros = ControladorFicheros.listarFicherosBBDD(usuario, mensaje[1]);
+                        writer.writeUTF(resultadoFicheros);
+                        break;
                     case "listarGrupos":
                         String resultado = FuncionesSQL.listarGruposCreados(usuario);
                         writer.writeUTF(resultado);
