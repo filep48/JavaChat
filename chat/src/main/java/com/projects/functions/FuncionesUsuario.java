@@ -417,7 +417,7 @@ public class FuncionesUsuario {
         }
     }
 
-    public static void enviarFichero(String nombreGrupo,Socket socket) throws IOException {
+    public static void enviarFichero(String nombreGrupo,Socket socket, DataInputStream reader) throws IOException {
         DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
         System.out.println("Introduce la ruta del fichero que quieres enviar: ");
         Scanner scanner = new Scanner(System.in);
@@ -425,6 +425,7 @@ public class FuncionesUsuario {
         System.out.println("Introduce los permisos del fichero /n 1. public /n 2. pivate /n 3.protected");
         int permisos = scanner.nextInt();
         EnviarFicheros.sendFile(socket, rutaFichero, writer, permisos, nombreGrupo);
+        System.out.println(reader.readUTF());
         
     }
 

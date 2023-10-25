@@ -19,8 +19,7 @@ public class AppCliente {
 
     public static void main(String[] args) {
 
-        // CLIENTE
-        Scanner scanner = new Scanner(System.in);
+        //CLIENTE
         // se establece el servidor al que se conecta el cliente y se inicializa el
         // flujo de comunicacion E/S.
         CrearConexionCliente.iniciarCliente();
@@ -146,7 +145,7 @@ public class AppCliente {
                     FuncionesUsuario.eliminarMiembro(nombreUsuario, nombreGrupo, writer, reader);
                     break;
                 case 4:
-                    FuncionesUsuario.listarMiembrosGrupo(nombreGrupo, writer, reader);
+
                     break;
                 case 5:
                     // Lógica para eliminar grupo
@@ -183,7 +182,7 @@ public class AppCliente {
                 // Lógica para descargar archivos
                 break;
             case 3:
-                FuncionesUsuario.enviarFichero(nombreGrupo, socket);
+                FuncionesUsuario.enviarFichero(nombreGrupo, socket, reader);
                 break;
             case 4:
                 menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
