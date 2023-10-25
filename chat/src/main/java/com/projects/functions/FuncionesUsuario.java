@@ -400,7 +400,18 @@ public class FuncionesUsuario {
             e.printStackTrace();
         }
     }
-
+    
+    /**
+ * Permite a un usuario darse de baja del sistema. La función pregunta al usuario si está seguro de 
+ * querer darse de baja y, en caso afirmativo, envía una solicitud de baja al servidor. Si el usuario 
+ * elige no darse de baja, se redirige al menú principal de la sesión iniciada.
+ * 
+ * @param writer   El DataOutputStream para enviar datos al servidor.
+ * @param reader   El DataInputStream para recibir datos del servidor.
+ * @param socket   El Socket utilizado para la comunicación con el servidor.
+ * 
+ * @throws IOException En caso de que haya un error en la comunicación con el servidor.
+ */
     public static void darseDeBajaUsuario(DataOutputStream writer, DataInputStream reader, Socket socket) {
         try {
             System.out.println("¿Estás seguro de que quieres darte de baja? (S/N)");
@@ -419,7 +430,25 @@ public class FuncionesUsuario {
             e.printStackTrace();
         }
     }
-
+    
+    /**
+     * Permite al usuario enviar un fichero a un grupo específico. El usuario debe
+     * proporcionar la
+     * ruta del fichero que desea enviar y seleccionar los permisos para ese
+     * fichero. La función
+     * seguirá solicitando una ruta válida hasta que el usuario proporcione una
+     * correcta o hasta que
+     * se produzca un error de E/S.
+     * 
+     * @param nombreGrupo El nombre del grupo al cual se enviará el fichero.
+     * @param socket      El Socket utilizado para la comunicación con el servidor.
+     * @param reader      El DataInputStream para recibir datos del servidor.
+     * 
+     * @throws FileNotFoundException Si la ruta del fichero proporcionada no
+     *                               corresponde a un fichero existente.
+     * @throws IOException           En caso de que haya un error en la comunicación
+     *                               con el servidor o al leer el fichero.
+     */
     public static void enviarFichero(String nombreGrupo, Socket socket, DataInputStream reader) {
         Scanner scanner = new Scanner(System.in);
         boolean exito = false;
@@ -459,5 +488,15 @@ public class FuncionesUsuario {
         writer.writeUTF(mensaje);
         System.out.println(reader.readUTF());
 
+    }
+
+    public static void salirGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader) {
+        try {
+            String mensaje = "salirGrupo;" + nombreGrupo;
+            writer.writeUTF(mensaje);
+            System.out.println(reader.readUTF());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

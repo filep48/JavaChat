@@ -145,7 +145,8 @@ public class AppCliente {
                     FuncionesUsuario.eliminarMiembro(nombreUsuario, nombreGrupo, writer, reader);
                     break;
                 case 4:
-
+                    // Lógica para salir del chat
+                    FuncionesUsuario.salirGrupo(nombreGrupo, writer, reader);
                     break;
                 case 5:
                     // Lógica para eliminar grupo

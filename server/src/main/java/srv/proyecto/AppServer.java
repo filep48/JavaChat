@@ -210,6 +210,9 @@ public class AppServer {
                             writer.writeUTF("Error al enviar el fichero");
                         }
                         break;
+                    case "salirGrupo":
+                        writer.writeUTF(FuncionesSQL.salirGrupo(usuario, mensaje[1], reader));
+                        break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);
                         break;

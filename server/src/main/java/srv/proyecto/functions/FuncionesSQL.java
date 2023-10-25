@@ -737,4 +737,19 @@ public class FuncionesSQL {
         return "";// Por hacer
     }
 
+    public static String salirGrupo(Usuario usuario, String string, DataInputStream reader) throws SQLException {
+        Connection cn = DatabaseConnection.getConnection();
+        String deleteMiembrosGrupos = "DELETE FROM miembrosGrupos WHERE usuario_id = ?";
+        try (PreparedStatement pst = cn.prepareStatement(deleteMiembrosGrupos)) {
+            pst.setInt(1, usuario.getId());
+            pst.executeUpdate();
+            return "Has sido eliminado con éxito.";
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+            return "Error al eliminar el usuario: " + e.getMessage();
+        }
+        //Crea la logica para que la con la id del usuario se salga del usuario indicado
+        
+    }
+
 }
