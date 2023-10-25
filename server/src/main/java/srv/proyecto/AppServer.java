@@ -165,11 +165,11 @@ public class AppServer {
                             writer.writeUTF("Error al crear el grupo");
                         }
                         break;
-                    case "enviarMensaje":
-                        FuncionesSQL.enviarMensaje(usuario, mensaje[1], mensaje[2], reader);
+                    case "enviarMensaje" :
+                        writer.writeBoolean(FuncionesSQL.enviarMensaje(usuario, mensaje[1], mensaje[2], reader));
                         break;
                     case "listarMensajes":
-                        writer.writeUTF(FuncionesSQL.listarMensajes(usuario, mensaje[1], mensaje[2], reader));
+                        writer.writeUTF(FuncionesSQL.listarMensajes(mensaje[1]));
                         break;
                     case "administrarGrupo":
                         // Lógica para administrar el grupo

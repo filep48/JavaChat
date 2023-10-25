@@ -200,18 +200,18 @@ public class FuncionesUsuario {
             DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
-
         System.out.print("Introduce el mensaje que quieres enviar al chat " + nombreGrupo + ": ");
-        String mensajeChat = scanner.next();
+        String mensajeChat = scanner.nextLine();
         String mensaje = "enviarMensaje;" + nombreGrupo + ";" + mensajeChat;
         writer.writeUTF(mensaje);
         if (reader.readBoolean()) {
             System.out.println("Mensaje enviado correctamente. Quieres enviar otro mensaje? (S/N)");
             String respuesta = scanner.next();
-            if (respuesta.equals("S")) {
+            if (respuesta.equalsIgnoreCase("S")) {
+                leerMensajes(nombreGrupo, writer, reader);
                 enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
             } else {
-                AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
+                AppCliente.menuGrupo(nombreGrupo, nombreUsuario, scanner, writer, reader, socket);
             }
         } else {
             System.out.println("Error al enviar el mensaje. Inténtalo de nuevo.");
@@ -233,14 +233,13 @@ public class FuncionesUsuario {
      * @throws IOException Si hay un error al enviar o recibir datos a través del
      *                     socket.
      */
-    public static void leerMensajes(String nombreGrupo, String nombreUsuario, DataOutputStream writer,
+    public static void leerMensajes(String nombreGrupo, DataOutputStream writer,
             DataInputStream reader) throws IOException {
-        String mensaje = "listarMensajes;" + nombreGrupo + ";" + nombreUsuario;
+        String mensaje = "listarMensajes;" + nombreGrupo;
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
-        System.out.println("Mensajes del chat " + nombreGrupo + ": "
+        System.out.println("Mensajes del chat " + nombreGrupo + ":\n "
                 + "\n" + serverResponse);
-
     }
 
     /**
@@ -401,7 +400,7 @@ public class FuncionesUsuario {
             e.printStackTrace();
         }
     }
-    
+
     /**
  * Permite a un usuario darse de baja del sistema. La función pregunta al usuario si está seguro de 
  * querer darse de baja y, en caso de que si, envía una solicitud de baja al servidor. Si el usuario 
