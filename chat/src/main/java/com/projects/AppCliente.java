@@ -20,7 +20,6 @@ public class AppCliente {
     public static void main(String[] args) {
 
         // CLIENTE
-        Scanner scanner = new Scanner(System.in);
         // se establece el servidor al que se conecta el cliente y se inicializa el
         // flujo de comunicacion E/S.
         CrearConexionCliente.iniciarCliente();
@@ -129,8 +128,9 @@ public class AppCliente {
             System.out.println("1. Listar usuarios del grupo."
                     + "\n2. Añadir usuario a grupo."
                     + "\n3. Eliminar usuario del grupo"
-                    + "\n4. Eliminar grupo."
-                    + "\n5. Volver al menú principal.");
+                    + "\n4. Salir del chat."
+                    + "\n5. Eliminar grupo."
+                    + "\n6. Volver al menú principal.");
             int opcion = 0;
             opcion = scanner.nextInt();
             switch (opcion) {
@@ -146,10 +146,15 @@ public class AppCliente {
                     FuncionesUsuario.eliminarMiembro(nombreUsuario, nombreGrupo, writer, reader);
                     break;
                 case 4:
+                
+                    // Lógica para salir del chat
+                    FuncionesUsuario.salirGrupo(nombreGrupo, writer, reader);
+                    break;
+                case 5:
                     // Lógica para eliminar grupo
                     FuncionesUsuario.eliminarGrupo(nombreGrupo, writer, reader);
                     break;
-                case 5:
+                case 6:
                     // Lógica para volver al menú principal
                     salir = true;
                     break;
@@ -181,16 +186,17 @@ public class AppCliente {
                     FuncionesUsuario.enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
                     break;
                 case 2:
-                    // Lógica para descargar archivos
+                    FuncionesUsuario.listarFicherosBBDD(nombreGrupo, writer, reader);
                     break;
                 case 3:
-                    FuncionesUsuario.enviarFichero(nombreGrupo, socket);
+                    FuncionesUsuario.enviarFichero(nombreGrupo, socket, reader);
                     break;
                 case 4:
+                    // Lógica para actualizar mensajes
                     FuncionesUsuario.leerMensajes(nombreGrupo, writer, reader);
                     break;
                 case 5:
-                    salir = true;
+                    salir=true;
                     menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
                     break;
                 default:

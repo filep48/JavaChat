@@ -92,7 +92,7 @@ public class FuncionesSQL {
      *         usuario pertenece.
      *         En caso de error, se retorna un mensaje de error.
      */
-    public static String llistarGruposCreados(Usuario usuario) {
+    public static String listarGruposCreados(Usuario usuario) {
         try {
             Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
@@ -791,5 +791,21 @@ public class FuncionesSQL {
                 }
             }
         }
+    }
+
+    public static String salirGrupo(Usuario usuario, String string, DataInputStream reader) throws SQLException {
+        Connection cn = DatabaseConnection.getConnection();
+        String deleteMiembrosGrupos = "DELETE FROM miembrosGrupos WHERE usuario_id = ?";
+        try (PreparedStatement pst = cn.prepareStatement(deleteMiembrosGrupos)) {
+            pst.setInt(1, usuario.getId());
+            pst.executeUpdate();
+            return "Has sido eliminado con éxito.";
+        } catch (Exception e) {
+            System.err.println("Error al eliminar ");
+            return "Error al eliminar el usuario: " + e.getMessage();
+        }
+        // Crea la logica para que la con la id del usuario se salga del usuario
+        // indicado
+
     }
 }
