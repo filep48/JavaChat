@@ -2,9 +2,11 @@ package com.projects.functions;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
+import java.io.File;
 import com.projects.AppCliente;
 import com.projects.CrearConexionCliente;
 import com.projects.EnviarFicheros;
@@ -111,7 +113,8 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-    public static void creacionGrupo(String nombreUsuario ,DataOutputStream writer, DataInputStream reader, Socket socket)
+    public static void creacionGrupo(String nombreUsuario, DataOutputStream writer, DataInputStream reader,
+            Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del grupo: ");
@@ -396,7 +399,7 @@ public class FuncionesUsuario {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }   
+    }
 
     public static void darseDeBajaUsuario(DataOutputStream writer, DataInputStream reader, Socket socket) {
         try {
@@ -417,19 +420,35 @@ public class FuncionesUsuario {
         }
     }
 
-    public static void enviarFichero(String nombreGrupo,Socket socket, DataInputStream reader) throws IOException {
-        DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-        System.out.println("Introduce la ruta del fichero que quieres enviar: ");
-        Scanner scanner = new Scanner(System.in);
-        String rutaFichero = scanner.next();
-        System.out.println("Introduce los permisos del fichero /n 1. public /n 2. pivate /n 3.protected");
-        int permisos = scanner.nextInt();
-        EnviarFicheros.sendFile(socket, rutaFichero, writer, permisos, nombreGrupo);
-        System.out.println(reader.readUTF());
-        
+public static void enviarFichero(String nombreGrupo, Socket socket, DataInputStream reader) {
+    Scanner scanner = new Scanner(System.in);
+    boolean exito = false;
+
+    while (!exito) {
+        try {
+            DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+            System.out.println("Introduce la ruta del fichero que quieres enviar: ");
+            String rutaFichero = scanner.next();
+            
+            File archivo = new File(rutaFichero);
+            if (!archivo.exists()) {
+                throw new FileNotFoundException("El archivo no se pudo encontrar, por favor verifica la ruta y vuelve a intentarlo.");
+            }
+
+            System.out.println("Introduce los permisos del fichero: \n 1. Public \n 2. Private \n 3. Protected");
+            int permisos = scanner.nextInt();
+            EnviarFicheros.sendFile(socket, rutaFichero, writer, permisos, nombreGrupo);
+            System.out.println(reader.readUTF());
+            exito = true;  // Salir del bucle si todo fue exitoso
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Error al enviar el fichero: " + e.getMessage());
+            System.out.println("Por favor, intenta nuevamente.");
+            // No necesitas cambiar la variable exito aquí, ya que ya es false
+        } catch (IOException e) {
+            System.out.println("Se ha producido un error de E/S: " + e.getMessage());
+            break;  // Salir del bucle en caso de error de E/S
+        }
     }
-
-
-    
-
+}
 }

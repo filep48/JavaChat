@@ -46,7 +46,7 @@ public class FuncionesSQL {
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
-                
+
             }
         } catch (IOException e) {
             System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
@@ -92,7 +92,7 @@ public class FuncionesSQL {
      *         usuario pertenece.
      *         En caso de error, se retorna un mensaje de error.
      */
-    public static String llistarGruposCreados(Usuario usuario) {
+    public static String listarGruposCreados(Usuario usuario) {
         try {
             Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
@@ -142,15 +142,15 @@ public class FuncionesSQL {
             // validarContrasena)
             if ("registrarse".equals(comando)) {
                 boolean contrasenaValida = false;
-                    try {
-                        contrasenaValida = FuncionesServer.validarContrasena(contrasena);
-                    } catch (ContrasenaInvalidaException e) {
-                        System.err.println("Error al validar la contraseña: " + e.getMessage());
-                        return false;
-                    }
-                    if (!contrasenaValida) {
-                        return false;
-                    }
+                try {
+                    contrasenaValida = FuncionesServer.validarContrasena(contrasena);
+                } catch (ContrasenaInvalidaException e) {
+                    System.err.println("Error al validar la contraseña: " + e.getMessage());
+                    return false;
+                }
+                if (!contrasenaValida) {
+                    return false;
+                }
             }
 
             Connection cn = DatabaseConnection.getConnection();
@@ -563,7 +563,7 @@ public class FuncionesSQL {
      *         En caso de error, se devuelve un mensaje de error.
      */
 
-    public static String LlistarUsuariosPorGrupo(String string) {
+    public static String listarUsuariosPorGrupo(String string) {
         try {
             Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
@@ -734,8 +734,7 @@ public class FuncionesSQL {
     }
 
     public static String listarMensajes(Usuario usuario, String string, String string2, DataInputStream reader) {
-        return "";//Por hacer
+        return "";// Por hacer
     }
-    
 
 }

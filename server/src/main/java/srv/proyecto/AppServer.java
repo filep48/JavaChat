@@ -140,7 +140,7 @@ public class AppServer {
                         }
                         break;
                     case "listarGrupos":
-                        String resultado = FuncionesSQL.llistarGruposCreados(usuario);
+                        String resultado = FuncionesSQL.listarGruposCreados(usuario);
                         writer.writeUTF(resultado);
                         break;
                     case "listarUsuarios":
