@@ -46,7 +46,7 @@ public class FuncionesSQL {
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
-                
+
             }
         } catch (IOException e) {
             System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
@@ -142,15 +142,15 @@ public class FuncionesSQL {
             // validarContrasena)
             if ("registrarse".equals(comando)) {
                 boolean contrasenaValida = false;
-                    try {
-                        contrasenaValida = FuncionesServer.validarContrasena(contrasena);
-                    } catch (ContrasenaInvalidaException e) {
-                        System.err.println("Error al validar la contraseña: " + e.getMessage());
-                        return false;
-                    }
-                    if (!contrasenaValida) {
-                        return false;
-                    }
+                try {
+                    contrasenaValida = FuncionesServer.validarContrasena(contrasena);
+                } catch (ContrasenaInvalidaException e) {
+                    System.err.println("Error al validar la contraseña: " + e.getMessage());
+                    return false;
+                }
+                if (!contrasenaValida) {
+                    return false;
+                }
             }
 
             Connection cn = DatabaseConnection.getConnection();
@@ -733,9 +733,20 @@ public class FuncionesSQL {
         return new java.sql.Timestamp(tiempoEnMilisegundos);
     }
 
+    /**
+     * Lista los mensajes de un usuario dentro de un rango de fechas.
+     *
+     * @param usuario     El usuario para el que se listarán los mensajes.
+     * @param fechaInicio La fecha de inicio del rango.
+     * @param fechaFin    La fecha de fin del rango.
+     * @param reader      El flujo de entrada de datos utilizado para recibir la
+     *                    lista de mensajes del servidor.
+     * @return Una representación de los mensajes que cumplen con el rango de fechas
+     *         en formato de cadena de texto.
+     */
+
     public static String listarMensajes(Usuario usuario, String string, String string2, DataInputStream reader) {
-        return "";//Por hacer
+        return "";// Por hacer
     }
-    
 
 }

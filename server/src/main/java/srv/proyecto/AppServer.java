@@ -10,6 +10,7 @@ import srv.proyecto.clases.Fichero;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.config.ConfiguracionServer;
 import srv.proyecto.functions.FuncionesServer;
+import srv.proyecto.functions.ControladorDescargasCliente;
 import srv.proyecto.functions.ControladorFicheros;
 import srv.proyecto.functions.DatabaseConnection;
 import srv.proyecto.functions.FuncionesSQL;
@@ -200,6 +201,10 @@ public class AppServer {
                         ControladorFicheros.RecibirFicheros(clientSocket, fichero.getRutaFichero(),
                                 fichero.getNombreFichero());
                         ControladorFicheros.enviarFicherosBBDD(fichero);
+                        break;
+                    case "descargar":
+                        String ruta = ConfiguracionServer.getDescargasServer()+"\\" + mensaje[2];
+                        ControladorDescargasCliente.descargar(clientSocket, ruta, writer, mensaje[1], mensaje[2]);
                         break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);

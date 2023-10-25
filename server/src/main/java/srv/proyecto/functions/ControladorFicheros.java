@@ -1,7 +1,9 @@
 package srv.proyecto.functions;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,11 +15,21 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import srv.proyecto.clases.Fichero;
 
+/**
+ * Recibe un archivo desde un cliente a través del socket y lo guarda en la
+ * ubicación del properties.
+ *
+ * @param clientSocket El socket a través del cual se establece la conexión con
+ *                     el cliente.
+ * @param savePath     La ruta de directorio donde se guarda el archivo
+ *                     recibido.
+ * @param fileName     El nombre del archivo recibido.
+ */
 public class ControladorFicheros {
 
     public static void RecibirFicheros(Socket clientSocket, String savePath, String fileName) {
         try {
-            // Combine savePath and fileName to form the full path
+
             File receivedFile = new File(savePath + File.separator + fileName);
 
             byte[] buffer = new byte[4096];
@@ -44,6 +56,13 @@ public class ControladorFicheros {
         }
     }
 
+    /**
+     * Genera un "string" de tiempo que añadimos al nombre del fichero que
+     * recibimos.
+     * para que sea único
+     * 
+     * @return (yyyyMMdd_HHmmss).
+     */
     public static String obtenerNombreArchivoUnico() {
         long timestamp = System.currentTimeMillis();
         SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -51,6 +70,16 @@ public class ControladorFicheros {
         return fecha;
     }
 
+    /**
+     * Inserta un registro de archivo en la base de datos a partir de un objeto
+     * Fichero.
+     *
+     * @param fichero El objeto Fichero que contiene la información del archivo a
+     *                insertar.
+     * @return true si la inserción en la base de datos fue exitosa, false en caso
+     *         contrario.
+     * @throws SQLException Si ocurre un error relacionado con la base de datos.
+     */
     public static boolean enviarFicherosBBDD(Fichero fichero) throws SQLException {
         Connection cn = DatabaseConnection.getConnection();
         String strSql = "INSERT INTO archivos (nombre_archivo, ruta_archivo, tipo, usuario_id, grupo_id) VALUES (?, ?, ?, ?, ?);";

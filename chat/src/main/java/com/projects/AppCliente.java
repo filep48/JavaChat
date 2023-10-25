@@ -181,6 +181,7 @@ public class AppCliente {
                 break;
             case 2:
                 // Lógica para descargar archivos
+                FuncionesUsuario.bajar(nombreGrupo,socket, writer, reader);
                 break;
             case 3:
                 FuncionesUsuario.enviarFichero(nombreGrupo, socket);

@@ -4,14 +4,19 @@ import java.util.Properties;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+/**
+ * Clase que carga la configuración del servidor desde el archivo
+ * "server.properties".
+ * 
+ * @author Gerard Albesa,Kevin Felipe Vasquez, Vanessa Pedrola.
+ * @version 1.0
+ */
 public class ConfiguracionServer {
 
     private String dbUrl;
     private String user;
     private String pass;
     private static String descargasServer;
-
-    
 
     public ConfiguracionServer() {
         Properties prop = new Properties();
