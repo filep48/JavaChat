@@ -4,11 +4,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import srv.proyecto.clases.DatabaseConnection;
+import srv.proyecto.clases.Fichero;
 import srv.proyecto.clases.Usuario;
 
 public class FuncionesSQL {
@@ -705,4 +707,21 @@ public class FuncionesSQL {
         }
     }
 
+public void guardarArchivoEnBD(Fichero fichero) {
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            String sql = "INSERT INTO Archivos (nombre_archivo, ruta_archivo, tipo, usuario_id, grupo_id) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement statement = cn.prepareStatement(sql);
+            statement.setString(1, fichero.getNombre());
+            statement.setString(2, fichero.getRuta());
+            statement.setString(3, fichero.getTipo());
+            statement.setInt(4, fichero.getUsuarioIdFichero());
+            statement.setInt(5, fichero.getGrupoIdFichero());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
+    
+

@@ -365,4 +365,8 @@ public class FuncionesUsuario {
         }
     }
 
+    public static void enviarFichero(DataOutputStream writer, DataInputStream reader, Socket socket) {
+        EnviarFicheroCliente.tipoPrivacidad(socket);
+    }
+
 }

@@ -129,6 +129,10 @@ public class AppCliente {
                     FuncionesUsuario.desconectarUsuario(nombreUsuario, writer, reader, socket);
                     menuPrincipal(scanner, writer, reader, socket);
                 break;
+                case 8: 
+                    //logica para enviar fichero
+                    FuncionesUsuario.enviarFichero(writer, reader, socket);
+                    break;
                 default:
                     System.out.println(COMANDO_NO_RECONOCIDO);
                     break;

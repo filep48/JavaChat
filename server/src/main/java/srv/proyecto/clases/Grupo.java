@@ -2,6 +2,8 @@ package srv.proyecto.clases;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.mysql.cj.x.protobuf.MysqlxDatatypes.Array;
 /**
  * Esta clase define el grupo en la aplicación de chat. 
  * 
@@ -11,9 +13,9 @@ import java.util.List;
 public class Grupo {
     private int idGrupo;
     private String nombreGrupo;
-    private List<Usuario> usuarios = new ArrayList<Usuario>();
+    private ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
 
-    public Grupo(int idGrupo, String nombreGrupo, List<Usuario> usuarios) {
+    public Grupo(int idGrupo, String nombreGrupo, ArrayList<Usuario> usuarios) {
         this.idGrupo = idGrupo;
         this.nombreGrupo = nombreGrupo;
         this.usuarios = usuarios;
@@ -42,7 +44,7 @@ public class Grupo {
         return usuarios;
     }
 
-    public void setUsuarios(List<Usuario> usuarios) {
+    public void setUsuarios(ArrayList<Usuario> usuarios) {
         this.usuarios = usuarios;
     }
 

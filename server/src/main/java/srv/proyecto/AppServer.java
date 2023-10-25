@@ -9,6 +9,7 @@ import java.util.HashMap;
 import srv.proyecto.clases.DatabaseConnection;
 import srv.proyecto.clases.Usuario;
 import srv.proyecto.functions.FuncionesServer;
+import srv.proyecto.functions.RecibirFicheroServer;
 import srv.proyecto.functions.FuncionesSQL;
 
 /**
@@ -168,6 +169,8 @@ public class AppServer {
                         resultado = "cerrarSesion";
                         writer.writeUTF(resultado);
                         break;
+                        case "enviarFichero":
+                        RecibirFicheroServer.RecibiFicherosServidor( usuario,1,1);
                     default:
                         System.out.println("Comando desconocido: " + comando);
                         return false;
