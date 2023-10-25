@@ -118,8 +118,8 @@ public class AppServer {
          * @param nombre  El nombre del usuario.
          * @return `true` si la solicitud se procesa correctamente, `false` si hay un
          *         error.
-         * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
-         *                     el cliente.
+         * @throws IOException  Si ocurre un error de entrada/salida al comunicarse con
+         *                      el cliente.
          * @throws SQLException
          */
         private boolean processInput(Usuario usuario, String input, DataOutputStream writer, DataInputStream reader,
@@ -140,8 +140,12 @@ public class AppServer {
                             System.out.println("Usuario añadido a la lista de usuarios conectados: " + nombre);
                         }
                         break;
+                    case "listarFicheros":
+                        String resultadoFicheros = ControladorFicheros.listarFicherosBBDD(usuario, mensaje[1]);
+                        writer.writeUTF(resultadoFicheros);
+                        break;
                     case "listarGrupos":
-                        String resultado = FuncionesSQL.llistarGruposCreados(usuario);
+                        String resultado = FuncionesSQL.listarGruposCreados(usuario);
                         writer.writeUTF(resultado);
                         break;
                     case "listarUsuarios":
@@ -161,11 +165,11 @@ public class AppServer {
                             writer.writeUTF("Error al crear el grupo");
                         }
                         break;
-                    case "enviarMensaje" :
+                    case "enviarMensaje":
                         FuncionesSQL.enviarMensaje(usuario, mensaje[1], mensaje[2], reader);
                         break;
                     case "listarMensajes":
-                        writer.writeUTF(FuncionesSQL.listarMensajes(usuario, mensaje[1],mensaje[2], reader));
+                        writer.writeUTF(FuncionesSQL.listarMensajes(usuario, mensaje[1], mensaje[2], reader));
                         break;
                     case "administrarGrupo":
                         // Lógica para administrar el grupo
@@ -200,7 +204,15 @@ public class AppServer {
                         fichero.setIdGrupoPropietario(FuncionesSQL.obtenerIdGrupo(mensaje[2]));
                         ControladorFicheros.RecibirFicheros(clientSocket, fichero.getRutaFichero(),
                                 fichero.getNombreFichero());
-                        ControladorFicheros.enviarFicherosBBDD(fichero);
+                        boolean ExitoFichero = ControladorFicheros.enviarFicherosBBDD(fichero);
+                        if (ExitoFichero) {
+                            writer.writeUTF("Fichero enviado correctamente");
+                        } else {
+                            writer.writeUTF("Error al enviar el fichero");
+                        }
+                        break;
+                    case "salirGrupo":
+                        writer.writeUTF(FuncionesSQL.salirGrupo(usuario, mensaje[1], reader));
                         break;
                     case "descargar":
                         String ruta = ConfiguracionServer.getDescargasServer()+"\\" + mensaje[2];
