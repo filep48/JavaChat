@@ -101,6 +101,9 @@ public class AppServer {
                 } else {
                     e.printStackTrace();
                 }
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
 
@@ -116,10 +119,11 @@ public class AppServer {
          *         error.
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
+         * @throws SQLException
          */
         private boolean processInput(Usuario usuario, String input, DataOutputStream writer, DataInputStream reader,
                 String nombre)
-                throws IOException {
+                throws IOException, SQLException {
             System.out.println("Procesando entrada: " + input);
 
             String[] mensaje = FuncionesServer.slplitMensaje(input);
@@ -192,9 +196,10 @@ public class AppServer {
                         fichero.setRutaFichero(ConfiguracionServer.getDescargasServer());
                         fichero.setTipodeArchivo(mensaje[1]);
                         fichero.setIdPropietario(usuario.getId());
+                        fichero.setIdGrupoPropietario(FuncionesSQL.obtenerIdGrupo(mensaje[2]));
                         ControladorFicheros.RecibirFicheros(clientSocket, fichero.getRutaFichero(),
                                 fichero.getNombreFichero());
-                        writer.writeUTF("Prueba");
+                        ControladorFicheros.enviarFicherosBBDD(fichero);
                         break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);

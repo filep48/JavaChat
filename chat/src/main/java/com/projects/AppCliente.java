@@ -89,7 +89,7 @@ public class AppCliente {
                     break;
                 case 4:
                     // Lógica para crear un grupo
-                    FuncionesUsuario.creacionGrupo(writer, reader, socket);
+                    FuncionesUsuario.creacionGrupo(nombreUsuario, writer, reader, socket);
                     break;
                 case 5:
                     // Lógica para administrar un grupo
@@ -183,7 +183,7 @@ public class AppCliente {
                 // Lógica para descargar archivos
                 break;
             case 3:
-                FuncionesUsuario.enviarFichero(nombreGrupo,socket);
+                FuncionesUsuario.enviarFichero(nombreGrupo, socket);
                 break;
             case 4:
                 menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);

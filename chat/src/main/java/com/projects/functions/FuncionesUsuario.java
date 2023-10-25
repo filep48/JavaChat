@@ -111,7 +111,7 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader, Socket socket)
+    public static void creacionGrupo(String nombreUsuario ,DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del grupo: ");
@@ -122,7 +122,7 @@ public class FuncionesUsuario {
         System.out.println(reader.readUTF());
         if (creacionGrupoCorrecto) {
             System.out.println("Creación de grupo exitosa.");
-            AppCliente.menuSesionIniciada(nombreGrupo, scanner, writer, reader, socket);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
         } else {
             System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
         }
