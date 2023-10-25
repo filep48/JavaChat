@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import srv.proyecto.clases.Fichero;
+import srv.proyecto.clases.Usuario;
 
 public class ControladorFicheros {
 
@@ -88,5 +89,28 @@ public class ControladorFicheros {
             return false;
         }
     }
-    
+
+    public static String listarFicherosBBDD(Usuario usuario, String grupo) throws SQLException {
+        Connection cn = DatabaseConnection.getConnection();
+        String strSql = "SELECT * FROM archivos WHERE grupo_id = ?;";
+        // devuelve una lista de ficheros
+        String listaFicheros = "";
+        try (PreparedStatement pst = cn.prepareStatement(strSql)) {
+            pst.setInt(1, (FuncionesSQL.obtenerIdGrupo(grupo)));
+            java.sql.ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                listaFicheros += rs.getString("nombre_archivo") + "\n";
+            }
+            return listaFicheros;
+        } catch (Exception e) {
+            System.out.println("Error al listar los ficheros de la base de datos" + e.getMessage());
+            e.printStackTrace();
+            return null;
+        } catch (Throwable e) {
+            System.out.println("Error al listar los ficheros de la base de datos" + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
+    }
 }

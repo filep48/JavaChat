@@ -400,7 +400,18 @@ public class FuncionesUsuario {
             e.printStackTrace();
         }
     }
-
+    
+    /**
+ * Permite a un usuario darse de baja del sistema. La función pregunta al usuario si está seguro de 
+ * querer darse de baja y, en caso afirmativo, envía una solicitud de baja al servidor. Si el usuario 
+ * elige no darse de baja, se redirige al menú principal de la sesión iniciada.
+ * 
+ * @param writer   El DataOutputStream para enviar datos al servidor.
+ * @param reader   El DataInputStream para recibir datos del servidor.
+ * @param socket   El Socket utilizado para la comunicación con el servidor.
+ * 
+ * @throws IOException En caso de que haya un error en la comunicación con el servidor.
+ */
     public static void darseDeBajaUsuario(DataOutputStream writer, DataInputStream reader, Socket socket) {
         try {
             System.out.println("¿Estás seguro de que quieres darte de baja? (S/N)");
@@ -419,36 +430,73 @@ public class FuncionesUsuario {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Permite al usuario enviar un fichero a un grupo específico. El usuario debe
+     * proporcionar la
+     * ruta del fichero que desea enviar y seleccionar los permisos para ese
+     * fichero. La función
+     * seguirá solicitando una ruta válida hasta que el usuario proporcione una
+     * correcta o hasta que
+     * se produzca un error de E/S.
+     * 
+     * @param nombreGrupo El nombre del grupo al cual se enviará el fichero.
+     * @param socket      El Socket utilizado para la comunicación con el servidor.
+     * @param reader      El DataInputStream para recibir datos del servidor.
+     * 
+     * @throws FileNotFoundException Si la ruta del fichero proporcionada no
+     *                               corresponde a un fichero existente.
+     * @throws IOException           En caso de que haya un error en la comunicación
+     *                               con el servidor o al leer el fichero.
+     */
+    public static void enviarFichero(String nombreGrupo, Socket socket, DataInputStream reader) {
+        Scanner scanner = new Scanner(System.in);
+        boolean exito = false;
 
-public static void enviarFichero(String nombreGrupo, Socket socket, DataInputStream reader) {
-    Scanner scanner = new Scanner(System.in);
-    boolean exito = false;
+        while (!exito) {
+            try {
+                DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+                System.out.println("Introduce la ruta del fichero que quieres enviar: ");
+                String rutaFichero = scanner.next();
 
-    while (!exito) {
-        try {
-            DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-            System.out.println("Introduce la ruta del fichero que quieres enviar: ");
-            String rutaFichero = scanner.next();
-            
-            File archivo = new File(rutaFichero);
-            if (!archivo.exists()) {
-                throw new FileNotFoundException("El archivo no se pudo encontrar, por favor verifica la ruta y vuelve a intentarlo.");
+                File archivo = new File(rutaFichero);
+                if (!archivo.exists()) {
+                    throw new FileNotFoundException(
+                            "El archivo no se pudo encontrar, por favor verifica la ruta y vuelve a intentarlo.");
+                }
+
+                System.out.println("Introduce los permisos del fichero: \n 1. Public \n 2. Private \n 3. Protected");
+                int permisos = scanner.nextInt();
+                EnviarFicheros.sendFile(socket, rutaFichero, writer, permisos, nombreGrupo);
+                System.out.println(reader.readUTF());
+                exito = true; // Salir del bucle si todo fue exitoso
+
+            } catch (FileNotFoundException e) {
+                System.out.println("Error al enviar el fichero: " + e.getMessage());
+                System.out.println("Por favor, intenta nuevamente.");
+                // No necesitas cambiar la variable exito aquí, ya que ya es false
+            } catch (IOException e) {
+                System.out.println("Se ha producido un error de E/S: " + e.getMessage());
+                break; // Salir del bucle en caso de error de E/S
             }
-
-            System.out.println("Introduce los permisos del fichero: \n 1. Public \n 2. Private \n 3. Protected");
-            int permisos = scanner.nextInt();
-            EnviarFicheros.sendFile(socket, rutaFichero, writer, permisos, nombreGrupo);
-            System.out.println(reader.readUTF());
-            exito = true;  // Salir del bucle si todo fue exitoso
-
-        } catch (FileNotFoundException e) {
-            System.out.println("Error al enviar el fichero: " + e.getMessage());
-            System.out.println("Por favor, intenta nuevamente.");
-            // No necesitas cambiar la variable exito aquí, ya que ya es false
-        } catch (IOException e) {
-            System.out.println("Se ha producido un error de E/S: " + e.getMessage());
-            break;  // Salir del bucle en caso de error de E/S
         }
     }
-}
+
+    public static void listarFicherosBBDD(String nombregrupo, DataOutputStream writer, DataInputStream reader)
+            throws IOException {
+        String mensaje = "listarFicheros;" + nombregrupo + ";";
+        writer.writeUTF(mensaje);
+        System.out.println(reader.readUTF());
+
+    }
+
+    public static void salirGrupo(String nombreGrupo, DataOutputStream writer, DataInputStream reader) {
+        try {
+            String mensaje = "salirGrupo;" + nombreGrupo;
+            writer.writeUTF(mensaje);
+            System.out.println(reader.readUTF());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
