@@ -139,6 +139,7 @@ public class AppCliente {
                     break;
                 case 2:
                     // Lógica para añadir usuario
+                    FuncionesUsuario.listarUsuarios(writer, reader);
                     FuncionesUsuario.anadirUsuarioAGrupo(nombreGrupo, writer, reader);
                     break;
                 case 3:
@@ -159,34 +160,43 @@ public class AppCliente {
         }
     }
 
-    private static void menuGrupo(String nombreGrupo, String nombreUsuario, Scanner scanner, DataOutputStream writer,
+    public static void menuGrupo(String nombreGrupo, String nombreUsuario, Scanner scanner, DataOutputStream writer,
             DataInputStream reader, Socket socket) throws IOException {
-        System.out.println("==================\nEstás en un chat. Selecciona una opción:");
-        System.out.println("1. Enviar mensaje."
-                + "\n2. Descargar archivos."
-                + "\n3. Enviar archivos."
-                + "\n4. Salir del chat.");
+        boolean salir = false;
+        while (!salir) {
+            FuncionesUsuario.leerMensajes(nombreGrupo, writer, reader);
+            System.out.println("==================\nEstás en el chat " + nombreGrupo + ". Selecciona una opción:");
+            System.out.println("1. Enviar mensaje."
+                    + "\n2. Descargar archivos."
+                    + "\n3. Enviar archivos."
+                    + "\n4. Actualizar mensajes."
+                    + "\n4. Salir del chat."
+                    + "\n==================");
 
-        FuncionesUsuario.leerMensajes(nombreGrupo, nombreUsuario, writer, reader);
-        int opcion = scanner.nextInt();
+            int opcion = scanner.nextInt();
 
-        switch (opcion) {
-            case 1:
-                // Lógica para enviar mensajes
-                FuncionesUsuario.enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
-                break;
-            case 2:
-                // Lógica para descargar archivos
-                break;
-            case 3:
-                FuncionesUsuario.enviarFichero(nombreGrupo, socket);
-                break;
-            case 4:
-                menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
-                break;
-            default:
-                System.out.println(COMANDO_NO_RECONOCIDO);
-                break;
+            switch (opcion) {
+                case 1:
+                    // Lógica para enviar mensajes
+                    FuncionesUsuario.enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
+                    break;
+                case 2:
+                    // Lógica para descargar archivos
+                    break;
+                case 3:
+                    FuncionesUsuario.enviarFichero(nombreGrupo, socket);
+                    break;
+                case 4:
+                    FuncionesUsuario.leerMensajes(nombreGrupo, writer, reader);
+                    break;
+                case 5:
+                    salir = true;
+                    menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
+                    break;
+                default:
+                    System.out.println(COMANDO_NO_RECONOCIDO);
+                    break;
+            }
         }
     }
 }

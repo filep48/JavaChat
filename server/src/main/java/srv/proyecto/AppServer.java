@@ -161,10 +161,10 @@ public class AppServer {
                         }
                         break;
                     case "enviarMensaje" :
-                        FuncionesSQL.enviarMensaje(usuario, mensaje[1], mensaje[2], reader);
+                        writer.writeBoolean(FuncionesSQL.enviarMensaje(usuario, mensaje[1], mensaje[2], reader));
                         break;
                     case "listarMensajes":
-                        writer.writeUTF(FuncionesSQL.listarMensajes(usuario, mensaje[1],mensaje[2], reader));
+                        writer.writeUTF(FuncionesSQL.listarMensajes(mensaje[1]));
                         break;
                     case "administrarGrupo":
                         // Lógica para administrar el grupo

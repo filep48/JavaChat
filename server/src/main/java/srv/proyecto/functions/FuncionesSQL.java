@@ -46,7 +46,7 @@ public class FuncionesSQL {
                 }
             } else {
                 System.out.println("Mensaje de inicio de sesión incorrecto.");
-                
+
             }
         } catch (IOException e) {
             System.err.println("Error de entrada/salida al comunicarse con el cliente: " + e.getMessage());
@@ -142,15 +142,15 @@ public class FuncionesSQL {
             // validarContrasena)
             if ("registrarse".equals(comando)) {
                 boolean contrasenaValida = false;
-                    try {
-                        contrasenaValida = FuncionesServer.validarContrasena(contrasena);
-                    } catch (ContrasenaInvalidaException e) {
-                        System.err.println("Error al validar la contraseña: " + e.getMessage());
-                        return false;
-                    }
-                    if (!contrasenaValida) {
-                        return false;
-                    }
+                try {
+                    contrasenaValida = FuncionesServer.validarContrasena(contrasena);
+                } catch (ContrasenaInvalidaException e) {
+                    System.err.println("Error al validar la contraseña: " + e.getMessage());
+                    return false;
+                }
+                if (!contrasenaValida) {
+                    return false;
+                }
             }
 
             Connection cn = DatabaseConnection.getConnection();
@@ -563,7 +563,7 @@ public class FuncionesSQL {
      *         En caso de error, se devuelve un mensaje de error.
      */
 
-    public static String LlistarUsuariosPorGrupo(String string) {
+    public static String listarUsuariosPorGrupo(String string) {
         try {
             Connection cn = DatabaseConnection.getConnection();
             System.out.println("Listado de usuarios creados");
@@ -690,8 +690,10 @@ public class FuncionesSQL {
      *                    PreparedStatement.
      *                    </p>
      */
-    public static void enviarMensaje(Usuario usuario, String nombreGrupo, String mensajeChat, DataInputStream reader) {
+    public static boolean enviarMensaje(Usuario usuario, String nombreGrupo, String mensajeChat,
+            DataInputStream reader) {
         PreparedStatement pst = null;
+        boolean enviado = false;
         try {
             Connection cn = DatabaseConnection.getConnection();
             int idGrupo = FuncionesSQL.obtenerIdGrupo(nombreGrupo);
@@ -704,8 +706,11 @@ public class FuncionesSQL {
             pst.setString(3, mensajeChat);
             pst.setTimestamp(4, timeStamp);
             pst.executeUpdate();
+            enviado = true;
+            return enviado;
         } catch (Exception e) {
             System.err.println("Error al enviar el mensaje: " + e.getMessage());
+            return enviado;
         } finally {
             if (pst != null) {
                 try {
@@ -733,9 +738,58 @@ public class FuncionesSQL {
         return new java.sql.Timestamp(tiempoEnMilisegundos);
     }
 
-    public static String listarMensajes(Usuario usuario, String string, String string2, DataInputStream reader) {
-        return "";//Por hacer
-    }
-    
+    /**
+     * Recupera y lista los mensajes de un grupo específico desde la base de datos.
+     * Esta función
+     * consulta la base de datos para obtener todos los mensajes enviados dentro de
+     * un grupo,
+     * ordenados por fecha de envío en orden ascendente. Los mensajes se devuelven
+     * en un formato
+     * de cadena que muestra el nombre del usuario, el contenido del mensaje y la
+     * fecha de envío.
+     * 
+     * @param nombreGrupo El nombre del grupo del cual se quieren listar los
+     *                    mensajes.
+     * @return Una cadena de texto con la lista de mensajes, o un mensaje de error
+     *         en caso de
+     *         que haya un problema con la consulta SQL.
+     * 
+     * @throws SQLException En caso de que haya un error al realizar la consulta a
+     *                      la base de datos.
+     */
+    public static String listarMensajes(String nombreGrupo) {
+        PreparedStatement pst = null;
+        try {
+            Connection cn = DatabaseConnection.getConnection();
+            System.out.println("Listado de mensajes");
+            System.out.println();
+            String strSql = "SELECT u.nombre_usuario, m.contenido, m.fecha_envio " +
+                    "FROM mensajes m " +
+                    "JOIN usuarios u ON u.id = m.usuario_id " +
+                    "JOIN grupos g ON g.id = m.grupo_id " +
+                    "WHERE g.nombre_grupo = ? " +
+                    "ORDER BY m.fecha_envio ASC";
+            pst = cn.prepareStatement(strSql);
+            pst.setString(1, nombreGrupo);
 
+            // Resultados de la consulta
+            ResultSet rs = pst.executeQuery();
+            String resultado = "";
+            while (rs.next()) {
+                resultado += rs.getString("nombre_usuario") + ": " + rs.getString("contenido") + "\n ("
+                        + rs.getString("fecha_envio") + ")\n\n";
+            }
+            return resultado;
+        } catch (SQLException ex) {
+            return "Error: " + ex.toString();
+        } finally {
+            if (pst != null) {
+                try {
+                    pst.close();
+                } catch (SQLException e) {
+                    System.err.println("Error al cerrar el pst " + e.getMessage());
+                }
+            }
+        }
+    }
 }
