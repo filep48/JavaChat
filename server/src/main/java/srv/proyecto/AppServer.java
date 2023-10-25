@@ -6,9 +6,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import srv.proyecto.clases.DatabaseConnection;
+import srv.proyecto.clases.Fichero;
 import srv.proyecto.clases.Usuario;
+import srv.proyecto.config.ConfiguracionServer;
 import srv.proyecto.functions.FuncionesServer;
+import srv.proyecto.functions.ControladorFicheros;
+import srv.proyecto.functions.DatabaseConnection;
 import srv.proyecto.functions.FuncionesSQL;
 
 /**
@@ -60,10 +63,9 @@ public class AppServer {
         @Override
         public void run() {
             // Obtener una conexión a la base de datos
-            Connection cn;
-            cn = null;
+
             try {
-                cn = DatabaseConnection.getConnection();
+                Connection cn = DatabaseConnection.getConnection();
             } catch (SQLException e) {
 
                 e.printStackTrace();
@@ -95,10 +97,13 @@ public class AppServer {
                 }
             } catch (IOException e) {
                 if (e instanceof EOFException) {
-                    System.out.println("El cliente cerró la conexión.");
+                    System.out.println("El cliente cerró la conexión." + e.getMessage());
                 } else {
                     e.printStackTrace();
                 }
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
 
@@ -114,10 +119,11 @@ public class AppServer {
          *         error.
          * @throws IOException Si ocurre un error de entrada/salida al comunicarse con
          *                     el cliente.
+         * @throws SQLException
          */
         private boolean processInput(Usuario usuario, String input, DataOutputStream writer, DataInputStream reader,
                 String nombre)
-                throws IOException {
+                throws IOException, SQLException {
             System.out.println("Procesando entrada: " + input);
 
             String[] mensaje = FuncionesServer.slplitMensaje(input);
@@ -154,6 +160,12 @@ public class AppServer {
                             writer.writeUTF("Error al crear el grupo");
                         }
                         break;
+                    case "enviarMensaje" :
+                        FuncionesSQL.enviarMensaje(usuario, mensaje[1], mensaje[2], reader);
+                        break;
+                    case "listarMensajes":
+                        writer.writeUTF(FuncionesSQL.listarMensajes(usuario, mensaje[1],mensaje[2], reader));
+                        break;
                     case "administrarGrupo":
                         // Lógica para administrar el grupo
                         break;
@@ -177,6 +189,17 @@ public class AppServer {
                         } else {
                             writer.writeUTF("Error al dar de baja el usuario");
                         }
+                        break;
+                    case "enviarFichero":
+                        Fichero fichero = new Fichero();
+                        fichero.setNombreFichero(ControladorFicheros.obtenerNombreArchivoUnico() + mensaje[3]);
+                        fichero.setRutaFichero(ConfiguracionServer.getDescargasServer());
+                        fichero.setTipodeArchivo(mensaje[1]);
+                        fichero.setIdPropietario(usuario.getId());
+                        fichero.setIdGrupoPropietario(FuncionesSQL.obtenerIdGrupo(mensaje[2]));
+                        ControladorFicheros.RecibirFicheros(clientSocket, fichero.getRutaFichero(),
+                                fichero.getNombreFichero());
+                        ControladorFicheros.enviarFicherosBBDD(fichero);
                         break;
                     case "cerrarSesion":
                         FuncionesServer.desconectarUsuario(nombre);

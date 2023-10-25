@@ -6,16 +6,21 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-
+import com.projects.config.ConfiguracionCliente;
 /**
  * Cliente que se conecta al servidor para interactuar con él. Contine menus
  * para mostrar al usuario y controla la logica de las acciones
+ * 
  * @Author Gerard Albesa,Kevin Felipe Vasquez, Vanessa Pedrola.
  * @version 1.0
  */
+
 public class CrearConexionCliente {
-    final static String DIRECIONSERVER = "localhost";
-    final static int PUERTOSERVER = 12345;
+
+    // Utiliza la clase ConfiguracionCliente para obtener los valores
+    static ConfiguracionCliente config = new ConfiguracionCliente();
+    final static String DIRECIONSERVER = config.getDireccionServer();
+    final static int PUERTOSERVER = config.getPuertoServer();
 
     public static void iniciarCliente() {
         Scanner scanner = new Scanner(System.in);

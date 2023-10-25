@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import com.projects.AppCliente;
 import com.projects.CrearConexionCliente;
+import com.projects.EnviarFicheros;
 
 /**
  * Clase que contiene funciones para interactuar con el servidor y realizar
@@ -87,6 +88,7 @@ public class FuncionesUsuario {
                 if (!socket.isConnected()) {
                     CrearConexionCliente.iniciarCliente();
                 } else {
+                    contrasenaValida = true;
                     AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
                 }
             } else {
@@ -109,7 +111,7 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader, Socket socket)
+    public static void creacionGrupo(String nombreUsuario ,DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del grupo: ");
@@ -120,7 +122,7 @@ public class FuncionesUsuario {
         System.out.println(reader.readUTF());
         if (creacionGrupoCorrecto) {
             System.out.println("Creación de grupo exitosa.");
-            AppCliente.menuSesionIniciada(nombreGrupo, scanner, writer, reader, socket);
+            AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
         } else {
             System.out.println("Error al crear el grupo. Inténtalo de nuevo.");
         }
@@ -190,12 +192,11 @@ public class FuncionesUsuario {
      *                      respuestas del servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-    public static void enviarMensaje(String nombreUsuario, DataOutputStream writer, DataInputStream reader,
-            Socket socket)
+    public static void enviarMensaje(String nombreGrupo, String nombreUsuario, DataOutputStream writer,
+            DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Introduce el nombre del chat al que quieres enviar el mensaje: ");
-        String nombreGrupo = scanner.next();
+
         System.out.print("Introduce el mensaje que quieres enviar al chat " + nombreGrupo + ": ");
         String mensajeChat = scanner.next();
         String mensaje = "enviarMensaje;" + nombreGrupo + ";" + mensajeChat;
@@ -204,14 +205,38 @@ public class FuncionesUsuario {
             System.out.println("Mensaje enviado correctamente. Quieres enviar otro mensaje? (S/N)");
             String respuesta = scanner.next();
             if (respuesta.equals("S")) {
-                enviarMensaje(nombreUsuario, writer, reader, socket);
+                enviarMensaje(nombreGrupo, nombreUsuario, writer, reader, socket);
             } else {
                 AppCliente.menuSesionIniciada(nombreUsuario, scanner, writer, reader, socket);
             }
         } else {
             System.out.println("Error al enviar el mensaje. Inténtalo de nuevo.");
-            enviarMensaje(nombreUsuario, writer, reader, socket);
+            enviarMensaje(nombreUsuario, nombreUsuario, writer, reader, socket);
         }
+    }
+
+    /**
+     * Envía una solicitud al servidor para leer mensajes de un chat específico y
+     * muestra la respuesta.
+     *
+     * @param nombreGrupo   El nombre del grupo de chat del cual se quieren leer los
+     *                      mensajes.
+     * @param nombreUsuario El nombre del usuario que realiza la solicitud.
+     * @param writer        El flujo de datos de salida para enviar información al
+     *                      servidor.
+     * @param reader        El flujo de datos de entrada para recibir información
+     *                      del servidor.
+     * @throws IOException Si hay un error al enviar o recibir datos a través del
+     *                     socket.
+     */
+    public static void leerMensajes(String nombreGrupo, String nombreUsuario, DataOutputStream writer,
+            DataInputStream reader) throws IOException {
+        String mensaje = "listarMensajes;" + nombreGrupo + ";" + nombreUsuario;
+        writer.writeUTF(mensaje);
+        String serverResponse = reader.readUTF();
+        System.out.println("Mensajes del chat " + nombreGrupo + ": "
+                + "\n" + serverResponse);
+
     }
 
     /**
@@ -260,7 +285,7 @@ public class FuncionesUsuario {
         writer.writeUTF(mensaje);
         String serverResponse = reader.readUTF();
 
-        System.out.println("Llista de grupos: "
+        System.out.println("Llista de chats: "
                 + "\n" + serverResponse);
 
     }
@@ -362,8 +387,7 @@ public class FuncionesUsuario {
      *                      respuestas del servidor.
      * @param socket        El socket de comunicación con el servidor.
      */
-    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer, DataInputStream reader,
-            Socket socket) {
+    public static void desconectarUsuario(String nombreUsuario, DataOutputStream writer) {
         try {
             String mensaje = "cerrarSesion;" + nombreUsuario;
             writer.writeUTF(mensaje);
@@ -372,7 +396,7 @@ public class FuncionesUsuario {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }   
 
     public static void darseDeBajaUsuario(DataOutputStream writer, DataInputStream reader, Socket socket) {
         try {
@@ -387,13 +411,24 @@ public class FuncionesUsuario {
                 writer.writeUTF(mensaje);
                 String serverResponse = reader.readUTF();
                 System.out.println(serverResponse);
-                writer.close();
-                reader.close();
-                socket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public static void enviarFichero(String nombreGrupo,Socket socket) throws IOException {
+        DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+        System.out.println("Introduce la ruta del fichero que quieres enviar: ");
+        Scanner scanner = new Scanner(System.in);
+        String rutaFichero = scanner.next();
+        System.out.println("Introduce los permisos del fichero /n 1. public /n 2. pivate /n 3.protected");
+        int permisos = scanner.nextInt();
+        EnviarFicheros.sendFile(socket, rutaFichero, writer, permisos, nombreGrupo);
+        
+    }
+
+
+    
 
 }
