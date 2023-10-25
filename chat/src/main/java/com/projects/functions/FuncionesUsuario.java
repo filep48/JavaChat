@@ -111,7 +111,7 @@ public class FuncionesUsuario {
      * @param socket El socket que se utiliza para la comunicación con el servidor.
      * @throws IOException Si hay un problema con la entrada o salida de datos.
      */
-    public static void creacionGrupo(DataOutputStream writer, DataInputStream reader, Socket socket, String nombreUsuario)
+    public static void creacionGrupo(String nombreUsuario ,DataOutputStream writer, DataInputStream reader, Socket socket)
             throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Introduce el nombre del grupo: ");
